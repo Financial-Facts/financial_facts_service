@@ -4,6 +4,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "ttmPriceData")
+@Table(name = "ttm_price_data", schema = "financial_facts")
 public class TtmPriceData extends AbstractTrailingPriceData {
 }

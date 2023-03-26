@@ -27,6 +27,7 @@ public class DiscountController {
 
     @PostMapping
     public CompletableFuture<ResponseEntity> addNewDiscount(@RequestBody Discount discount) {
+        System.out.println(discount);
         if (Objects.nonNull(discount)) {
             return discountService
                     .addNewDiscount(discount)

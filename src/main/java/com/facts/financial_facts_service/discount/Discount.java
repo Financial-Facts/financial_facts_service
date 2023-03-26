@@ -7,11 +7,11 @@ import com.facts.financial_facts_service.discount.models.quarterlyData.Quarterly
 import com.facts.financial_facts_service.discount.models.trailingPriceData.TfyPriceData;
 import com.facts.financial_facts_service.discount.models.trailingPriceData.TtmPriceData;
 import com.facts.financial_facts_service.discount.models.trailingPriceData.TtyPriceData;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Data;
-import org.aspectj.apache.bcel.classfile.Unknown;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDate;
 
@@ -21,6 +21,7 @@ import java.util.List;
 @Data
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Table(schema = "financial_facts")
 public class Discount {
 
     @Id
@@ -34,31 +35,31 @@ public class Discount {
 
     private LocalDate lastUpdated;
 
-    @OneToMany(mappedBy = "discount", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private List<TtmPriceData> ttmPriceData;
 
-    @OneToMany(mappedBy = "discount", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private List<TfyPriceData> tfyPriceData;
 
-    @OneToMany(mappedBy = "discount", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private List<TtyPriceData> ttyPriceData;
 
-    @OneToMany(mappedBy = "discount", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private List<QuarterlyBVPS> quarterlyBVPS;
 
-    @OneToMany(mappedBy = "discount", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private List<QuarterlyPE> quarterlyPE;
 
-    @OneToMany(mappedBy = "discount", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private List<QuarterlyEPS> quarterlyEPS;
 
-    @OneToMany(mappedBy = "discount", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private List<QuarterlyROIC> quarterlyROIC;
 
