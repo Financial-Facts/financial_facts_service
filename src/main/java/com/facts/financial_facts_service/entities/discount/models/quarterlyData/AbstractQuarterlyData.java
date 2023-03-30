@@ -1,6 +1,5 @@
-package com.facts.financial_facts_service.discount.models.quarterlyData;
+package com.facts.financial_facts_service.entities.discount.models.quarterlyData;
 
-import com.facts.financial_facts_service.discount.Discount;
 import jakarta.persistence.*;
 import lombok.Data;
 

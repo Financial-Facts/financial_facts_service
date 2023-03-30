@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.facts;
+package com.facts.financial_facts_service.entities.facts;
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;

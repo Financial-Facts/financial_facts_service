@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.discount;
+package com.facts.financial_facts_service.entities.discount;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,14 +1,13 @@
-package com.facts.financial_facts_service.discount;
+package com.facts.financial_facts_service.entities.discount;
 
-import com.facts.financial_facts_service.discount.models.quarterlyData.AbstractQuarterlyData;
-import com.facts.financial_facts_service.discount.models.trailingPriceData.AbstractTrailingPriceData;
+import com.facts.financial_facts_service.entities.discount.models.quarterlyData.AbstractQuarterlyData;
+import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.AbstractTrailingPriceData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import javax.xml.bind.SchemaOutputResolver;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -24,7 +23,7 @@ public class DiscountService {
         return Mono.just(discountRepository
                 .findById(cik)
                 .map(response -> new ResponseEntity(response, HttpStatus.OK))
-                .orElse(new ResponseEntity("Discount " + cik + "not found", HttpStatus.NOT_FOUND)));
+                .orElse(new ResponseEntity("Discount " + cik + " not found", HttpStatus.NOT_FOUND)));
     }
 
     public Mono<ResponseEntity> addNewDiscount(Discount discount) {

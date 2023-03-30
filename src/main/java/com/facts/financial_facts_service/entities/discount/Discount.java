@@ -1,17 +1,15 @@
-package com.facts.financial_facts_service.discount;
+package com.facts.financial_facts_service.entities.discount;
 
-import com.facts.financial_facts_service.discount.models.quarterlyData.QuarterlyBVPS;
-import com.facts.financial_facts_service.discount.models.quarterlyData.QuarterlyEPS;
-import com.facts.financial_facts_service.discount.models.quarterlyData.QuarterlyPE;
-import com.facts.financial_facts_service.discount.models.quarterlyData.QuarterlyROIC;
-import com.facts.financial_facts_service.discount.models.trailingPriceData.TfyPriceData;
-import com.facts.financial_facts_service.discount.models.trailingPriceData.TtmPriceData;
-import com.facts.financial_facts_service.discount.models.trailingPriceData.TtyPriceData;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyBVPS;
+import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
+import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyPE;
+import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyROIC;
+import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.TfyPriceData;
+import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.TtmPriceData;
+import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.TtyPriceData;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.Type;
 
 import java.time.LocalDate;
 
