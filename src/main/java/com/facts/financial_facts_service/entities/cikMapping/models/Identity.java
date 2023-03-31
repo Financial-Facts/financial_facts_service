@@ -1,16 +1,19 @@
 package com.facts.financial_facts_service.entities.cikMapping.models;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+import java.io.Serializable;
+
+@Data
 public class Identity {
 
-    private String cik_str;
+    @JsonAlias(value = "cik_str")
+    private int cik_str;
 
     @JsonAlias(value = "ticker")
-    private String symbol;
+    private String ticker;
 
     @JsonAlias(value = "title")
-    private String name;
+    private String title;
 }
