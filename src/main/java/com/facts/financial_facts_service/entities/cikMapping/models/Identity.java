@@ -9,11 +9,11 @@ import java.io.Serializable;
 public class Identity {
 
     @JsonAlias(value = "cik_str")
-    private int cik_str;
+    private int cik;
 
     @JsonAlias(value = "ticker")
-    private String ticker;
+    private String symbol;
 
     @JsonAlias(value = "title")
-    private String title;
+    private String name;
 }
