@@ -5,14 +5,7 @@ import java.util.regex.Pattern;
 
 public class CikUtils {
 
-    public static boolean areSameCIK(String paddedCik, int simpleCik) {
-        Matcher matcher = Pattern.compile("[1-9]+").matcher(paddedCik);
-        matcher.find();
-        paddedCik = paddedCik.substring(paddedCik.indexOf(matcher.group()));
-        return (simpleCik + "").equals(paddedCik);
-    }
-
-    public static String padSimpleCik(int simpleCik) {
+    public static String padSimpleCik(String simpleCik) {
         StringBuilder result = new StringBuilder();
         result.append("CIK").append(simpleCik);
         while (result.length() != 13) {

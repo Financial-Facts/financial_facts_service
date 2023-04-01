@@ -1,26 +1,27 @@
-package com.facts.financial_facts_service.entities.cikMapping;
+package com.facts.financial_facts_service.entities.identity;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Getter
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(schema = "financial_facts")
-public class CikMapping {
+public class Identity {
 
     @Id
+    @JsonAlias(value = "cik_str")
     String cik;
 
+    @JsonAlias(value = "ticker")
     String symbol;
 
+    @JsonAlias(value = "title")
     String name;
 
 }
