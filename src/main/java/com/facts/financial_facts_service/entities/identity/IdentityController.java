@@ -14,7 +14,7 @@ public class IdentityController {
     IdentityService identityService;
 
     @GetMapping(path = "/{cik}")
-    public CompletableFuture<ResponseEntity> getSymbolWithCik(@PathVariable String cik) {
+    public CompletableFuture<ResponseEntity> getSymbolWithCik(@PathVariable String cik) throws InterruptedException {
         return identityService.getSymbolFromIdentityMap(cik.toUpperCase()).toFuture();
     }
 
