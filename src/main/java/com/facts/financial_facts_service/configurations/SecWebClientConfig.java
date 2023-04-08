@@ -1,5 +1,7 @@
 package com.facts.financial_facts_service.configurations;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +13,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class SecWebClientConfig {
 
+    Logger logger = LoggerFactory.getLogger(SecWebClientConfig.class);
+
     @Value(value = "${sec.cik.api.endpoint}")
     private String secEndpoint;
 
@@ -19,6 +23,7 @@ public class SecWebClientConfig {
 
     @Bean
     public WebClient secWebClient() {
+        logger.info("Initializing secWebClient...");
         final int size = 16 * 1024 * 1024;
         final ExchangeStrategies strategies = ExchangeStrategies.builder()
                 .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(size))

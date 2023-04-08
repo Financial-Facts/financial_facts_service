@@ -1,5 +1,7 @@
 package com.facts.financial_facts_service.entities.facts;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,8 @@ import reactor.core.publisher.Mono;
 @Service
 public class FactsService {
 
+    Logger logger = LoggerFactory.getLogger(FactsService.class);
+
     private final FactsRepository factsRepository;
 
     @Autowired
@@ -18,9 +22,13 @@ public class FactsService {
     }
 
     public Mono<ResponseEntity<String>> getFactsByCik(String cik) {
+        logger.info("In facts service retrieving facts for cik {}", cik);
         return Mono.just(factsRepository
                 .findById(cik)
                 .map(response -> new ResponseEntity(response.getData(), HttpStatus.OK))
-                .orElse(new ResponseEntity<>("404: Facts not found for " + cik, HttpStatus.NOT_FOUND)));
+                .orElseGet(() -> {
+                    logger.error("Facts not found for cik {}", cik);
+                    return new ResponseEntity<>("404: Facts not found for " + cik, HttpStatus.NOT_FOUND);
+                }));
     }
 }

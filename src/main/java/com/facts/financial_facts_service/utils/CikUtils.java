@@ -1,7 +1,5 @@
 package com.facts.financial_facts_service.utils;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class CikUtils {
 

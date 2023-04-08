@@ -3,7 +3,8 @@ package com.facts.financial_facts_service.components;
 import com.facts.financial_facts_service.entities.identity.Identity;
 import com.facts.financial_facts_service.entities.identity.IdentityRepository;
 import com.facts.financial_facts_service.utils.CikUtils;
-import jakarta.persistence.Id;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.ParameterizedTypeReference;
@@ -13,6 +14,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.Thread.sleep;
@@ -20,36 +23,48 @@ import static java.lang.Thread.sleep;
 @Component
 public class IdentityMap implements CommandLineRunner {
 
+    static Logger logger = LoggerFactory.getLogger(IdentityMap.class);
+
     @Autowired
     private WebClient secWebClient;
 
     @Autowired
     private IdentityRepository identityRepository;
 
-    private ConcurrentHashMap<String, Identity> identityMap;
+    private static ConcurrentHashMap<String, Identity> identityMap;
+
+    private static boolean isUpdating;
 
     public IdentityMap() {
-        this.identityMap = new ConcurrentHashMap<String, Identity>();
+        identityMap = new ConcurrentHashMap<String, Identity>();
+        isUpdating = false;
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
+        logger.info("In identity map preloading data");
         this.identityMap = new ConcurrentHashMap<String, Identity>(this.getIdentityMap(false).block());
     }
 
-    public Mono<ConcurrentHashMap<String, Identity>> getValue() {
+    public static Mono<Optional<Identity>> getValue(String cik) {
+        logger.info("In getValue retrieving current identityMap");
         try {
-            while (this.identityMap.isEmpty()) {
-                sleep(100);
+            while (isUpdating && Objects.isNull(identityMap.get(cik))) {
+                sleep(1000);
             }
         } catch (InterruptedException e) {
-            return Mono.just(this.identityMap);
+            logger.info("Finished wait with error {}", e.getMessage());
+            return Mono.just(Optional.empty());
         }
-        return Mono.just(this.identityMap);
+        if (Objects.isNull(identityMap.get(cik))) {
+            return Mono.just(Optional.empty());
+        }
+        return Mono.just(Optional.of(identityMap.get(cik)));
     }
 
     // ToDo: Set up scheduler to update identityMap?
     private Mono<Map<String, Identity>> getIdentityMap(boolean update) {
+        logger.info("In getIdentityMap retrieving identity map data");
         if (identityRepository.count() == 0 || update) {
             return this.saveIdentities(this.getIdentityMapFromSEC());
         }
@@ -57,6 +72,7 @@ public class IdentityMap implements CommandLineRunner {
     }
 
     private Mono<Map<String, Identity>> getIdentityMapFromDB() {
+        logger.info("in getIdentityMapFromDB");
         Map<String, Identity> map = new HashMap<String, Identity>();
         identityRepository
                 .findAll().stream()
@@ -70,34 +86,36 @@ public class IdentityMap implements CommandLineRunner {
     }
 
     private Mono<Map<String, Identity>> getIdentityMapFromSEC() {
-        return this.secWebClient.get().exchangeToMono(response -> {
-            return response.bodyToMono(new ParameterizedTypeReference<Map<String, Identity>>() {})
-                .map(simpleCikMap -> {
-                    Map<String, Identity> fullCikMap = new HashMap<String, Identity>();
-                    simpleCikMap.keySet().stream().forEach(key -> {
-                        Identity identity = simpleCikMap.get(key);
-                        identity.setCik(CikUtils.padSimpleCik(identity.getCik()));
-                        fullCikMap.put(identity.getCik(), identity);
-                    });
-                    return fullCikMap;
+        logger.info("In getIdentityMapFromSEC");
+        return this.secWebClient.get().exchangeToMono(response ->
+            response.bodyToMono(new ParameterizedTypeReference<Map<String, Identity>>() {})
+            .flatMap(simpleCikMap -> {
+                Map<String, Identity> fullCikMap = new HashMap<String, Identity>();
+                simpleCikMap.keySet().stream().forEach(key -> {
+                    Identity identity = simpleCikMap.get(key);
+                    identity.setCik(CikUtils.padSimpleCik(identity.getCik()));
+                    fullCikMap.put(identity.getCik(), identity);
                 });
-        });
+                return Mono.just(fullCikMap);
+            }));
     }
 
     private Mono<Map<String, Identity>> saveIdentities(Mono<Map<String, Identity>> mapMono) {
+        logger.info("In saveIdentities");
+        isUpdating = true;
         return mapMono.flatMap(map -> {
             map.keySet().stream().forEach(key -> {
                 boolean componentContainsCik = this.identityMap.containsKey(key);
                 boolean dbContainsCik = this.identityRepository.existsById(key);
-                if (!componentContainsCik && !dbContainsCik) {
-                    this.identityRepository.save(map.get(key));
-                    this.identityMap.put(key, map.get(key));
-                } else if (componentContainsCik && !dbContainsCik) {
-                    this.identityRepository.save(map.get(key));
-                } else {
+                if (!componentContainsCik) {
                     this.identityMap.put(key, map.get(key));
                 }
+                if (!dbContainsCik) {
+                    this.identityRepository.save(map.get(key));
+                }
             });
+            logger.info("Identities save complete!");
+            isUpdating = false;
             return Mono.just(map);
         });
     }
