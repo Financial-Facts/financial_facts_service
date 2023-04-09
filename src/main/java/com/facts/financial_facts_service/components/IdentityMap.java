@@ -23,7 +23,7 @@ import static java.lang.Thread.sleep;
 @Component
 public class IdentityMap implements CommandLineRunner {
 
-    static Logger logger = LoggerFactory.getLogger(IdentityMap.class);
+    Logger logger = LoggerFactory.getLogger(IdentityMap.class);
 
     @Autowired
     private WebClient secWebClient;
@@ -31,9 +31,9 @@ public class IdentityMap implements CommandLineRunner {
     @Autowired
     private IdentityRepository identityRepository;
 
-    private static ConcurrentHashMap<String, Identity> identityMap;
+    private ConcurrentHashMap<String, Identity> identityMap;
 
-    private static boolean isUpdating;
+    private boolean isUpdating;
 
     public IdentityMap() {
         identityMap = new ConcurrentHashMap<String, Identity>();
@@ -43,10 +43,14 @@ public class IdentityMap implements CommandLineRunner {
     @Override
     public void run(String... args) {
         logger.info("In identity map preloading data");
-        this.identityMap = new ConcurrentHashMap<String, Identity>(this.getIdentityMap(false).block());
+        identityMap = new ConcurrentHashMap<String, Identity>(this.getIdentityMap(false).block());
     }
 
-    public static Mono<Optional<Identity>> getValue(String cik) {
+    public void setValue(String cik, Identity identity) {
+        identityMap.put(cik, identity);
+    }
+
+    public Mono<Optional<Identity>> getValue(String cik) {
         logger.info("In getValue retrieving current identityMap");
         try {
             while (isUpdating && Objects.isNull(identityMap.get(cik))) {
@@ -79,9 +83,6 @@ public class IdentityMap implements CommandLineRunner {
                 .forEach(identity -> {
                     map.put(identity.getCik(), identity);
                 });
-        if (map.isEmpty()) {
-            return Mono.empty();
-        }
         return Mono.just(map);
     }
 

@@ -1,5 +1,6 @@
 package com.facts.financial_facts_service.entities.discount;
 
+import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyBVPS;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyPE;
@@ -19,7 +20,7 @@ import java.util.List;
 @Data
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Table(schema = "financial_facts")
+@Table(schema = Constants.FINANCIAL_FACTS)
 public class Discount {
 
     @Id

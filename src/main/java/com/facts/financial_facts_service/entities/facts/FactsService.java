@@ -1,5 +1,6 @@
 package com.facts.financial_facts_service.entities.facts;
 
+import com.facts.financial_facts_service.constants.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,9 @@ public class FactsService {
                 .map(response -> new ResponseEntity(response.getData(), HttpStatus.OK))
                 .orElseGet(() -> {
                     logger.error("Facts not found for cik {}", cik);
-                    return new ResponseEntity<>("404: Facts not found for " + cik, HttpStatus.NOT_FOUND);
+                    return new ResponseEntity<>(
+                        String.format(Constants.FACTS_NOT_FOUND, cik),
+                        HttpStatus.NOT_FOUND);
                 }));
     }
 }

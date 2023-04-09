@@ -1,5 +1,6 @@
 package com.facts.financial_facts_service.entities.facts;
 
+import com.facts.financial_facts_service.constants.Constants;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +11,7 @@ import org.hibernate.annotations.Type;
 
 @Data
 @Entity
-@Table(schema = "financial_facts")
+@Table(schema = Constants.FINANCIAL_FACTS)
 public class Facts {
 
     @Id
