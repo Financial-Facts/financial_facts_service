@@ -1,12 +1,12 @@
 package com.facts.financial_facts_service.entities.discount;
 
 import com.facts.financial_facts_service.constants.Constants;
+import com.facts.financial_facts_service.entities.serverResponse.ServerResponse;
 import io.micrometer.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -25,7 +25,7 @@ public class DiscountController {
     public DiscountController(DiscountService discountService) { this.discountService = discountService; }
 
     @GetMapping(path = Constants.CIK_PATH_PARAM)
-    public CompletableFuture<ResponseEntity> getDiscount(@PathVariable String cik) {
+    public CompletableFuture<ServerResponse> getDiscount(@PathVariable String cik) {
         logger.info("In discount controller getting discount for cik {}", cik);
         return discountService
                 .getDiscountByCik(cik.toUpperCase())
@@ -33,31 +33,31 @@ public class DiscountController {
     }
 
     @PostMapping
-    public CompletableFuture<ResponseEntity> addNewDiscount(@RequestBody Discount discount) {
+    public CompletableFuture<ServerResponse> addNewDiscount(@RequestBody Discount discount) {
         logger.info("In discount controller adding discount with cik {}", discount.getCik());
-        if (Objects.nonNull(discount) && StringUtils.isNotEmpty(discount.getCik())) {
+        if (Objects.nonNull(discount.getCik()) && StringUtils.isNotEmpty(discount.getCik())) {
             return discountService
                     .addNewDiscount(discount)
                     .toFuture();
         }
         logger.error("Invalid input parameters provided in controller addNewDiscount");
-        return Mono.just(new ResponseEntity(Constants.INVALID_INPUT, HttpStatus.BAD_REQUEST)).toFuture();
+        return Mono.just(new ServerResponse(Constants.INVALID_INPUT, HttpStatus.BAD_REQUEST.value())).toFuture();
     }
 
     @PutMapping
-    public CompletableFuture<ResponseEntity> updateDiscount(@RequestBody Discount discount) {
+    public CompletableFuture<ServerResponse> updateDiscount(@RequestBody Discount discount) {
         logger.info("In discount controller updating discount with cik {}", discount.getCik());
-        if (Objects.nonNull(discount) && StringUtils.isNotEmpty(discount.getCik())) {
+        if (Objects.nonNull(discount.getCik()) && StringUtils.isNotEmpty(discount.getCik())) {
             return discountService
                     .updateDiscount(discount)
                     .toFuture();
         }
         logger.error("Invalid input parameters provided in controller updateDiscount");
-        return Mono.just(new ResponseEntity(Constants.INVALID_INPUT, HttpStatus.BAD_REQUEST)).toFuture();
+        return Mono.just(new ServerResponse(Constants.INVALID_INPUT, HttpStatus.BAD_REQUEST.value())).toFuture();
     }
 
-    @DeleteMapping("/{cik}")
-    public CompletableFuture<ResponseEntity> deleteDiscount(@PathVariable String cik) {
+    @DeleteMapping(Constants.CIK_PATH_PARAM)
+    public CompletableFuture<ServerResponse> deleteDiscount(@PathVariable String cik) {
         logger.info("In discount controller deleting discount for cik {}", cik);
         if (StringUtils.isNotBlank(cik)) {
             return discountService
@@ -65,7 +65,7 @@ public class DiscountController {
                     .toFuture();
         }
         logger.error("Invalid input parameter provided in controller deleteDiscount");
-        return Mono.just(new ResponseEntity(Constants.INVALID_INPUT, HttpStatus.BAD_REQUEST)).toFuture();
+        return Mono.just(new ServerResponse(Constants.INVALID_INPUT, HttpStatus.BAD_REQUEST.value())).toFuture();
     }
 
 }
