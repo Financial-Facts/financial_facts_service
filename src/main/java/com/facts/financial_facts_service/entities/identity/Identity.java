@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+
 
 @Entity
 @Data
@@ -16,12 +18,17 @@ import lombok.*;
 public class Identity {
 
     @Id
+    @NonNull
     @JsonAlias(value = "cik_str")
     String cik;
 
+    @NonNull
+    @NotBlank
     @JsonAlias(value = "ticker")
     String symbol;
 
+    @NonNull
+    @NotBlank
     @JsonAlias(value = "title")
     String name;
 

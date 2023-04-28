@@ -1,8 +1,10 @@
 package com.facts.financial_facts_service.entities.facts;
 
 import com.facts.financial_facts_service.constants.Constants;
+import com.facts.financial_facts_service.constants.ModelType;
 import com.facts.financial_facts_service.entities.serverResponse.FactsResponse;
 import com.facts.financial_facts_service.entities.serverResponse.ServerResponse;
+import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +29,13 @@ public class FactsService {
         logger.info("In facts service retrieving facts for cik {}", cik);
         return Mono.just(factsRepository
                 .findById(cik)
-                .map(response -> new FactsResponse(Constants.SUCCESS, HttpStatus.OK.value(), response.getData()))
+                .map(response -> new FactsResponse(
+                    Constants.SUCCESS,
+                    HttpStatus.OK.value(),
+                    response.getData()))
                 .orElseGet(() -> {
                     logger.error("Facts not found for cik {}", cik);
-                    return new FactsResponse(
-                        String.format(Constants.FACTS_NOT_FOUND, cik),
-                        HttpStatus.NOT_FOUND.value(),
-                    null);
+                    throw new DataNotFoundException(ModelType.FACTS, cik);
                 }));
     }
 }

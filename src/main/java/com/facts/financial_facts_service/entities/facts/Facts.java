@@ -6,7 +6,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.NonNull;
 import org.hibernate.annotations.Type;
 
 @Data
@@ -15,8 +17,11 @@ import org.hibernate.annotations.Type;
 public class Facts {
 
     @Id
+    @NonNull
     private String cik;
 
+    @NonNull
+    @NotBlank
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     private String data;

@@ -1,15 +1,18 @@
 package com.facts.financial_facts_service.entities.discount;
 
 import com.facts.financial_facts_service.constants.Constants;
+import com.facts.financial_facts_service.constants.ModelType;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.AbstractQuarterlyData;
 import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.AbstractTrailingPriceData;
 import com.facts.financial_facts_service.entities.serverResponse.DiscountResponse;
 import com.facts.financial_facts_service.entities.serverResponse.ServerResponse;
+import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
@@ -26,37 +29,33 @@ public class DiscountService {
     @Autowired
     public DiscountService(DiscountRepository discountRepository) { this.discountRepository = discountRepository; }
 
-    public Mono<ServerResponse> getDiscountByCik(String cik) {
+    public Mono<DiscountResponse> getDiscountByCik(String cik) {
         logger.info("In discount service getting discount with cik {}", cik);
         return Mono.just(discountRepository
             .findById(cik)
-            .map(response -> new DiscountResponse(Constants.SUCCESS, HttpStatus.OK.value(),  response))
-            .orElseGet(() -> new DiscountResponse(
-                String.format(Constants.DISCOUNT_NOT_FOUND, cik),
-                HttpStatus.NOT_FOUND.value(),
-                null)));
+            .map(response -> new DiscountResponse(Constants.SUCCESS, HttpStatus.OK.value(), response))
+            .orElseThrow(() -> new DataNotFoundException(ModelType.DISCOUNT, cik)));
     }
 
     public Mono<ServerResponse> addNewDiscount(Discount discount) {
         logger.info("In discount service adding discount with cik {}", discount.getCik());
         if (discountRepository.existsById(discount.getCik())) {
-            logger.error("Error occurred in discount service: discount with cik {} already exists", discount.getCik());
-            return Mono.just(new ServerResponse(
-                String.format(Constants.DISCOUNT_EXISTS, discount.getCik()),
-                HttpStatus.BAD_REQUEST.value()));
+            logger.error("Error occurred in discount service: discount with cik {} already exists",
+                    discount.getCik());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    String.format(Constants.DISCOUNT_EXISTS, discount.getCik()));
         }
         this.assignPeriodDataCik(discount, discount.getCik());
         discount.setLastUpdated(LocalDate.now());
-        DiscountResponse response =
-            new DiscountResponse(
-                Constants.SUCCESS,
-                HttpStatus.CREATED.value(),
-                discountRepository.save(discount));
+        DiscountResponse response = new DiscountResponse(
+            Constants.SUCCESS,
+            HttpStatus.CREATED.value(),
+            discountRepository.save(discount));
         if (Objects.isNull(response.getDiscount())) {
             logger.error("Error occurred while adding discount");
-            return Mono.just(new ServerResponse(
-                String.format(Constants.DISCOUNT_OPERATION_ERROR, Constants.ADD, discount.getCik()),
-                HttpStatus.CONFLICT.value()));
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    String.format(Constants.DISCOUNT_OPERATION_ERROR, Constants.ADD,
+                            discount.getCik()));
         }
         return Mono.just(response);
     }
@@ -65,9 +64,7 @@ public class DiscountService {
         logger.info("In discount service updating cik {}", discount.getCik());
         if (!discountRepository.existsById(discount.getCik())) {
             logger.error("Error occurred in discount service: discount with cik {} does not exist", discount.getCik());
-            return Mono.just(new ServerResponse(
-                String.format(Constants.DISCOUNT_NOT_FOUND, discount.getCik()),
-                HttpStatus.BAD_REQUEST.value()));
+            throw new DataNotFoundException(ModelType.DISCOUNT, discount.getCik());
         }
         this.assignPeriodDataCik(discount, discount.getCik());
         discount.setLastUpdated(LocalDate.now());
@@ -77,9 +74,9 @@ public class DiscountService {
             discountRepository.save(discount));
         if (Objects.isNull(response.getDiscount())) {
             logger.error("Error occurred while updating discount for cik {}", discount.getCik());
-            return Mono.just(new ServerResponse(
-                String.format(Constants.DISCOUNT_OPERATION_ERROR, Constants.UPDATE, discount.getCik()),
-                HttpStatus.CONFLICT.value()));
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    String.format(Constants.DISCOUNT_OPERATION_ERROR,
+                            Constants.UPDATE, discount.getCik()));
         }
         return Mono.just(response);
     }
@@ -87,10 +84,7 @@ public class DiscountService {
     public Mono<ServerResponse> deleteDiscount(String cik) {
         if (!discountRepository.existsById(cik)) {
             logger.error("Error occurred in discount service: discount with cik {} does not exist", cik);
-            return Mono.just(
-                new ServerResponse(
-                    String.format(Constants.DISCOUNT_NOT_FOUND, cik),
-                    HttpStatus.BAD_REQUEST.value()));
+            throw new DataNotFoundException(ModelType.DISCOUNT, cik);
         }
         discountRepository.deleteById(cik);
         return Mono.just(new ServerResponse(

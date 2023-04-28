@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -13,5 +16,11 @@ public class ServerResponse {
 
     private String message;
     private int status;
+    private List<String> errors;
 
+    public ServerResponse(String message, int status) {
+        this.message = message;
+        this.status = status;
+        this.errors = new ArrayList<>();
+    }
 }
