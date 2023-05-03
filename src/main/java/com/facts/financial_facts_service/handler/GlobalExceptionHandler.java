@@ -1,16 +1,15 @@
 package com.facts.financial_facts_service.handler;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.facts.financial_facts_service.constants.Constants;
-import com.facts.financial_facts_service.entities.serverResponse.ServerResponse;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
+import com.facts.financial_facts_service.exceptions.DiscountOperationException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -24,7 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler implements Constants {
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
@@ -34,8 +33,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
-        ServerResponse body = new ServerResponse(Constants.INVALID_INPUT, HttpStatus.BAD_REQUEST.value(), errors);
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({ConstraintViolationException.class})
@@ -45,20 +43,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .stream()
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.toList());
-        ServerResponse body = new ServerResponse(Constants.INVALID_INPUT, HttpStatus.BAD_REQUEST.value(), errors);
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({DataNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     protected ResponseEntity<Object> handleDiscountNotFoundException(DataNotFoundException ex) {
-        ServerResponse body = new ServerResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value());
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler({ResponseStatusException.class})
     protected ResponseEntity<Object> handleResponseStatusException(ResponseStatusException ex) {
-        ServerResponse body = new ServerResponse(ex.getMessage(), ex.getStatusCode().value());
-        return new ResponseEntity<>(body, ex.getStatusCode());
+        return new ResponseEntity<>(ex.getMessage(), ex.getStatusCode());
+    }
+
+    @ExceptionHandler({DiscountOperationException.class})
+    protected ResponseEntity<Object> handleDiscountOperationException(DiscountOperationException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 }

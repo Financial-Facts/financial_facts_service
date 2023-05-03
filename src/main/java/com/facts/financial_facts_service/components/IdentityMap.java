@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -69,10 +70,14 @@ public class IdentityMap implements CommandLineRunner {
     // ToDo: Set up scheduler to update identityMap?
     private Mono<Map<String, Identity>> getIdentityMap(boolean update) {
         logger.info("In getIdentityMap retrieving identity map data");
-        if (identityRepository.count() == 0 || update) {
-            return this.saveIdentities(this.getIdentityMapFromSEC());
+        try {
+            if (identityRepository.count() == 0 || update) {
+                return this.saveIdentities(this.getIdentityMapFromSEC());
+            }
+            return this.getIdentityMapFromDB();
+        } catch (InvalidDataAccessResourceUsageException ex) {
+            return this.getIdentityMapFromSEC();
         }
-        return this.getIdentityMapFromDB();
     }
 
     private Mono<Map<String, Identity>> getIdentityMapFromDB() {

@@ -5,6 +5,7 @@ public interface TestConstants {
     String SYMBOL = "ABC";
     String NAME = "Company";
     String SUCCESS = "Success";
+    String FACTS = "Facts JSON";
     String EMPTY = "";
     String CIK_PATH_PARAM = "/{cik}";
     String DISCOUNT_NOT_FOUND_TEST = "Discount with cik CIK0123456789 not found";

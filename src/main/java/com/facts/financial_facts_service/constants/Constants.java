@@ -12,6 +12,7 @@ public interface Constants {
     String DISCOUNT_OPERATION_ERROR = "Error occurred performing %s operation on CIK %s";
     String ADD = "ADD";
     String UPDATE = "UPDATE";
+    String DELETE = "DELETE";
     String V1_FACTS = "v1/facts";
     String V1_IDENTITY = "v1/identity";
     String IDENTITY_OPERATION_ERROR = "Error occurred performing GET operation on CIK %s";
@@ -20,4 +21,7 @@ public interface Constants {
     String FINANCIAL_FACTS = "financial_facts";
     String SUCCESS = "Success";
     String CIK_REGEX = "^CIK\\d{10}$";
+    String DISCOUNT_ADDED = "Success: Discount added";
+    String DISCOUNT_UPDATED = "Success: Discount updated";
+    String DISCOUNT_DELETED = "Success: Discount deleted";
 }
