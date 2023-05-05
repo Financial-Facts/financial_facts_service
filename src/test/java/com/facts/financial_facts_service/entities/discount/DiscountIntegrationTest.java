@@ -1,16 +1,16 @@
 package com.facts.financial_facts_service.entities.discount;
 
 import com.facts.financial_facts_service.constants.TestConstants;
-import com.facts.financial_facts_service.entities.facts.FactsService;
-import com.facts.financial_facts_service.entities.identity.IdentityService;
+import com.facts.financial_facts_service.controllers.DiscountController;
+import com.facts.financial_facts_service.services.FactsService;
+import com.facts.financial_facts_service.services.IdentityService;
+import com.facts.financial_facts_service.services.DiscountService;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;

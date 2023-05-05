@@ -1,6 +1,8 @@
-package com.facts.financial_facts_service.entities.identity;
+package com.facts.financial_facts_service.controllers;
 
 import com.facts.financial_facts_service.constants.Constants;
+import com.facts.financial_facts_service.entities.identity.Identity;
+import com.facts.financial_facts_service.services.IdentityService;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.slf4j.Logger;

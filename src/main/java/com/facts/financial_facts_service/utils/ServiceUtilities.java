@@ -1,14 +1,25 @@
-package com.facts.financial_facts_service.entities.discount;
+package com.facts.financial_facts_service.utils;
 
+import com.facts.financial_facts_service.constants.Constants;
+import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.AbstractQuarterlyData;
 import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.AbstractTrailingPriceData;
 
 import java.util.List;
 import java.util.Objects;
 
-public class DiscountUtils {
+public class ServiceUtilities {
 
-    protected static void assignPeriodDataCik(Discount discount, String cik) {
+    public static String padSimpleCik(String simpleCik) {
+        StringBuilder result = new StringBuilder();
+        result.append(Constants.CIK).append(simpleCik);
+        while (result.length() != 13) {
+            result.replace(3, 3, Constants.ZERO);
+        }
+        return result.toString();
+    }
+
+    public static void assignPeriodDataCik(Discount discount, String cik) {
         setIfNonNull(discount.getTtmPriceData(), cik, false);
         setIfNonNull(discount.getTfyPriceData(), cik, false);
         setIfNonNull(discount.getTtyPriceData(), cik, false);
@@ -34,5 +45,6 @@ public class DiscountUtils {
     private static <T> void setQuarterlyDataCik(List<T> quarterlyData, String cik) {
         quarterlyData.forEach(period -> ((AbstractQuarterlyData) period).setCik(cik));
     }
+
 
 }

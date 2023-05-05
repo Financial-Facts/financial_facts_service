@@ -14,7 +14,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.facts.financial_facts_service.entities.identity.Identity;
-import com.facts.financial_facts_service.entities.identity.IdentityRepository;
+import com.facts.financial_facts_service.repositories.IdentityRepository;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;

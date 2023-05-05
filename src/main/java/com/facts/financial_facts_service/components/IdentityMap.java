@@ -1,8 +1,7 @@
 package com.facts.financial_facts_service.components;
 
 import com.facts.financial_facts_service.entities.identity.Identity;
-import com.facts.financial_facts_service.entities.identity.IdentityRepository;
-import com.facts.financial_facts_service.utils.CikUtils;
+import com.facts.financial_facts_service.repositories.IdentityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.facts.financial_facts_service.utils.ServiceUtilities.padSimpleCik;
 import static java.lang.Thread.sleep;
 
 @Component
@@ -48,7 +48,6 @@ public class IdentityMap implements CommandLineRunner {
         identityMap = new ConcurrentHashMap<String, Identity>();
         isUpdating = false;
     }
-
 
     @Override
     public void run(String... args) {
@@ -112,7 +111,7 @@ public class IdentityMap implements CommandLineRunner {
                 Map<String, Identity> fullCikMap = new HashMap<String, Identity>();
                 simpleCikMap.keySet().stream().forEach(key -> {
                     Identity identity = simpleCikMap.get(key);
-                    identity.setCik(CikUtils.padSimpleCik(identity.getCik()));
+                    identity.setCik(padSimpleCik(identity.getCik()));
                     fullCikMap.put(identity.getCik(), identity);
                 });
                 return Mono.just(fullCikMap);

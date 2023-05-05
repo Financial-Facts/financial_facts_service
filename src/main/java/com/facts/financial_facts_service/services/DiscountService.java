@@ -1,12 +1,12 @@
-package com.facts.financial_facts_service.entities.discount;
+package com.facts.financial_facts_service.services;
 
 import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.constants.ModelType;
-import com.facts.financial_facts_service.entities.discount.models.Operation;
-import com.facts.financial_facts_service.entities.discount.models.quarterlyData.AbstractQuarterlyData;
-import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.AbstractTrailingPriceData;
+import com.facts.financial_facts_service.entities.discount.Discount;
+import com.facts.financial_facts_service.constants.Operation;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.DiscountOperationException;
+import com.facts.financial_facts_service.repositories.DiscountRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +18,9 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
-import static com.facts.financial_facts_service.entities.discount.DiscountUtils.assignPeriodDataCik;
+import static com.facts.financial_facts_service.utils.ServiceUtilities.assignPeriodDataCik;
 
 @Service
 public class DiscountService implements Constants {

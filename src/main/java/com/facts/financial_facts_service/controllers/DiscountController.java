@@ -1,6 +1,8 @@
-package com.facts.financial_facts_service.entities.discount;
+package com.facts.financial_facts_service.controllers;
 
 import com.facts.financial_facts_service.constants.Constants;
+import com.facts.financial_facts_service.entities.discount.Discount;
+import com.facts.financial_facts_service.services.DiscountService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

@@ -1,6 +1,8 @@
 package com.facts.financial_facts_service.entities.facts;
 
 import com.facts.financial_facts_service.constants.TestConstants;
+import com.facts.financial_facts_service.controllers.FactsController;
+import com.facts.financial_facts_service.services.FactsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

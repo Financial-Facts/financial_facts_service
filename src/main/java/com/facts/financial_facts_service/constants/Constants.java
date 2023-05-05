@@ -18,5 +18,5 @@ public interface Constants {
     String DISCOUNT_ADDED = "Success: Discount added";
     String DISCOUNT_UPDATED = "Success: Discount updated";
     String DISCOUNT_DELETED = "Success: Discount deleted";
-    String FACTS_CIK_PARAM = "cik?=";
+    String LOWER_CIK = "cik";
 }

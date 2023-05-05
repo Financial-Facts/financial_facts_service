@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.entities.discount.models;
+package com.facts.financial_facts_service.constants;
 
 public enum Operation {
     GET,

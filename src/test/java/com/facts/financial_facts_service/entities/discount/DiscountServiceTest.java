@@ -3,6 +3,8 @@ package com.facts.financial_facts_service.entities.discount;
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.DiscountOperationException;
+import com.facts.financial_facts_service.repositories.DiscountRepository;
+import com.facts.financial_facts_service.services.DiscountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

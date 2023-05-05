@@ -1,7 +1,8 @@
-package com.facts.financial_facts_service.entities.identity;
+package com.facts.financial_facts_service.services;
 
 import com.facts.financial_facts_service.components.IdentityMap;
 import com.facts.financial_facts_service.constants.ModelType;
+import com.facts.financial_facts_service.entities.identity.Identity;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

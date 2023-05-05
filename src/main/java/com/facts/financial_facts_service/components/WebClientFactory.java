@@ -26,17 +26,17 @@ public class WebClientFactory {
                 .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(size))
                 .build();
         return WebClient.builder()
-                .exchangeStrategies(strategies)
-                .baseUrl(url)
-                .defaultHeaders(consumer -> {
-                    consumer.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-                    if (headersOptional.isPresent()) {
-                        Map<String, String> headers = headersOptional.get();
-                        headers.keySet().stream().forEach(key -> {
-                            consumer.add(key, headers.get(key));
-                        });
-                    }
-                }).build();
+            .exchangeStrategies(strategies)
+            .baseUrl(url)
+            .defaultHeaders(consumer -> {
+                consumer.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+                if (headersOptional.isPresent()) {
+                    Map<String, String> headers = headersOptional.get();
+                    headers.keySet().stream().forEach(key -> {
+                        consumer.add(key, headers.get(key));
+                    });
+                }
+            }).build();
     }
 
 
