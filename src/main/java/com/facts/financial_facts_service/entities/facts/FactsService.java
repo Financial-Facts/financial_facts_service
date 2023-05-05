@@ -1,36 +1,65 @@
 package com.facts.financial_facts_service.entities.facts;
 
+import com.facts.financial_facts_service.components.WebClientFactory;
+import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.constants.ModelType;
+import com.facts.financial_facts_service.entities.identity.Identity;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
+import java.util.Optional;
 
 
 @Service
-public class FactsService {
+public class FactsService implements Constants {
 
     Logger logger = LoggerFactory.getLogger(FactsService.class);
 
+    @Value("${facts-gateway.baseUrl}")
+    private String factsGatewayUrl;
+
+    @Autowired
+    private WebClientFactory webClientFactory;
+
+    @Autowired
     private final FactsRepository factsRepository;
+
+    private WebClient factsWebClient;
 
     @Autowired
     public FactsService(FactsRepository factsRepository) {
         this.factsRepository = factsRepository;
     }
 
+    @PostConstruct
+    public void init() {
+        this.factsWebClient = webClientFactory
+                .buildWebClient(factsGatewayUrl, Optional.empty());
+    }
+
     public Mono<ResponseEntity<Facts>> getFactsByCik(String cik) {
         logger.info("In facts service retrieving facts for cik {}", cik);
-        return Mono.just(factsRepository
-            .findById(cik)
-            .map(response -> new ResponseEntity<>(response, HttpStatus.OK))
-            .orElseGet(() -> {
-                logger.error("Facts not found for cik {}", cik);
-                throw new DataNotFoundException(ModelType.FACTS, cik);
-            }));
+        return factsWebClient.get()
+            .uri(uriBuilder -> uriBuilder
+                .queryParam("cik", cik)
+                .build())
+            .retrieve()
+            .bodyToMono(String.class)
+            .flatMap(factsString -> {
+                Facts facts = new Facts(cik, factsString);
+                this.factsRepository.save(facts);
+                return Mono.just(new ResponseEntity<>(facts, HttpStatus.OK));
+            });
     }
 }
