@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.entities.discount;
+package com.facts.financial_facts_service.integration.validation.discount;
 
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.controllers.DiscountController;
@@ -27,11 +27,10 @@ public class getDiscountTest implements TestConstants {
     @Autowired
     private MockMvc mockMvc;
 
-    private final ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     @Test
     public void testGetDiscountInvalidCik() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/v1/discount" + CIK_PATH_PARAM, "invalidCik"))
+                        .get("/v1/discount" + CIK_PATH_PARAM, INVALID_CIK))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 

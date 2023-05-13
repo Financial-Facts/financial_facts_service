@@ -19,7 +19,7 @@ public class WebClientFactory {
 
     private static Logger logger = LoggerFactory.getLogger(WebClientFactory.class);
 
-    public static WebClient buildWebClient(String url, Optional<Map<String, String>> headersOptional) {
+    public WebClient buildWebClient(String url, Optional<Map<String, String>> headersOptional) {
         logger.info("Initializing webclient for url {}...", url);
         final int size = 16 * 1024 * 1024;
         final ExchangeStrategies strategies = ExchangeStrategies.builder()

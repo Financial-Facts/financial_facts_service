@@ -1,7 +1,7 @@
-package com.facts.financial_facts_service.entities.facts;
+package com.facts.financial_facts_service.controllers;
 
 import com.facts.financial_facts_service.constants.TestConstants;
-import com.facts.financial_facts_service.controllers.FactsController;
+import com.facts.financial_facts_service.entities.facts.Facts;
 import com.facts.financial_facts_service.services.FactsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

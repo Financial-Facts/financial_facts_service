@@ -1,7 +1,8 @@
-package com.facts.financial_facts_service.entities.discount;
+package com.facts.financial_facts_service.integration.validation.discount;
 
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.controllers.DiscountController;
+import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.services.DiscountService;
 import com.facts.financial_facts_service.services.FactsService;
 import com.facts.financial_facts_service.services.IdentityService;

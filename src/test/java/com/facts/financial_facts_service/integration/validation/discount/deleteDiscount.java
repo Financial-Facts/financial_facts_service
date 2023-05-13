@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.entities.discount;
+package com.facts.financial_facts_service.integration.validation.discount;
 
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.controllers.DiscountController;
@@ -27,7 +27,6 @@ public class deleteDiscount implements TestConstants {
     @Autowired
     private MockMvc mockMvc;
 
-    private final ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     @Test
     public void testDeleteDiscountInvalidCik() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders

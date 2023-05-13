@@ -1,7 +1,7 @@
-package com.facts.financial_facts_service.entities.discount;
+package com.facts.financial_facts_service.controllers;
 
 import com.facts.financial_facts_service.constants.TestConstants;
-import com.facts.financial_facts_service.controllers.DiscountController;
+import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.services.DiscountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

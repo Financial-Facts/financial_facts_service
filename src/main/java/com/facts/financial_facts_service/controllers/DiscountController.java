@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.CompletableFuture;
 
+import static com.facts.financial_facts_service.constants.Constants.V1_DISCOUNT;
+
 @RestController
 @Validated
-@RequestMapping(path = Constants.V1_DISCOUNT)
-public class DiscountController {
+@RequestMapping(path = V1_DISCOUNT)
+public class DiscountController implements Constants {
 
     Logger logger = LoggerFactory.getLogger(DiscountController.class);
 
@@ -27,8 +29,8 @@ public class DiscountController {
         this.discountService = discountService;
     }
 
-    @GetMapping(path = Constants.CIK_PATH_PARAM)
-    public CompletableFuture<ResponseEntity<Discount>> getDiscount(@PathVariable @NotBlank @Pattern(regexp = Constants.CIK_REGEX) String cik) {
+    @GetMapping(path = CIK_PATH_PARAM)
+    public CompletableFuture<ResponseEntity<Discount>> getDiscount(@PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
         logger.info("In discount controller getting discount for cik {}", cik);
         return discountService.getDiscountByCik(cik.toUpperCase()).toFuture();
     }
@@ -45,8 +47,8 @@ public class DiscountController {
         return discountService.updateDiscount(discount).toFuture();
     }
 
-    @DeleteMapping(Constants.CIK_PATH_PARAM)
-    public CompletableFuture<ResponseEntity<String>> deleteDiscount(@PathVariable @NotBlank @Pattern(regexp = Constants.CIK_REGEX) String cik) {
+    @DeleteMapping(path = CIK_PATH_PARAM)
+    public CompletableFuture<ResponseEntity<String>> deleteDiscount(@PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
         logger.info("In discount controller deleting discount for cik {}", cik);
         return discountService.deleteDiscount(cik).toFuture();
     }

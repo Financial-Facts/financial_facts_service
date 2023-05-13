@@ -1,6 +1,5 @@
 package com.facts.financial_facts_service.entities.facts;
 
-import com.facts.financial_facts_service.constants.Constants;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,11 +12,13 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.hibernate.annotations.Type;
 
+import static com.facts.financial_facts_service.constants.Constants.FINANCIAL_FACTS;
+
 @Data
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(schema = Constants.FINANCIAL_FACTS)
+@Table(schema = FINANCIAL_FACTS)
 public class Facts {
 
     @Id
