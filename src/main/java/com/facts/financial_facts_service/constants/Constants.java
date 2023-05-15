@@ -19,5 +19,6 @@ public interface Constants {
     String DISCOUNT_ADDED = "Success: Discount added";
     String DISCOUNT_UPDATED = "Success: Discount updated";
     String DISCOUNT_DELETED = "Success: Discount deleted";
-    String LOWER_CIK = "cik";
+    String SLASH = "/";
+    String FACTS_FILENAME = "%s.json";
 }
