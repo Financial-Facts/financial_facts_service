@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
@@ -36,7 +37,7 @@ public class DiscountServiceTest implements TestConstants {
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-        discountService = new DiscountService(discountRepository);
+        ReflectionTestUtils.setField(discountService, "discountRepository", discountRepository);
     }
 
     @Test

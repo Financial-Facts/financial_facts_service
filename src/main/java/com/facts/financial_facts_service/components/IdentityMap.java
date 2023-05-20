@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.facts.financial_facts_service.utils.ServiceUtilities.padSimpleCik;
@@ -42,12 +43,17 @@ public class IdentityMap implements CommandLineRunner {
     private IdentityRepository identityRepository;
 
     private ConcurrentHashMap<String, Identity> identityMap;
+
     private WebClient secWebClient;
 
-    private ReentrantLock lock = new ReentrantLock();
+    private ReentrantLock lock;
+
+    private Condition loading;
 
     public IdentityMap() {
         identityMap = new ConcurrentHashMap<String, Identity>();
+        lock = new ReentrantLock();
+        loading = lock.newCondition();
     }
 
     @Override
@@ -61,6 +67,7 @@ public class IdentityMap implements CommandLineRunner {
             identityMap = new ConcurrentHashMap<String, Identity>(this.getIdentityMap(false).block());
             logger.info("Identity map initialized!");
         } finally {
+            loading.signalAll();
             lock.unlock();
         }
     }
@@ -74,6 +81,7 @@ public class IdentityMap implements CommandLineRunner {
         try {
             while (lock.isLocked() && Objects.isNull(identityMap.get(cik))) {
                 sleep(1000);
+                loading.await();
             }
         } catch (InterruptedException e) {
             logger.info("Finished wait with error {}", e.getMessage());
@@ -112,16 +120,16 @@ public class IdentityMap implements CommandLineRunner {
     private Mono<Map<String, Identity>> getIdentityMapFromSEC() {
         logger.info("In getIdentityMapFromSEC");
         return this.secWebClient.get().exchangeToMono(response ->
-            response.bodyToMono(new ParameterizedTypeReference<Map<String, Identity>>() {})
-            .flatMap(simpleCikMap -> {
-                Map<String, Identity> fullCikMap = new HashMap<String, Identity>();
-                simpleCikMap.keySet().stream().forEach(key -> {
-                    Identity identity = simpleCikMap.get(key);
-                    identity.setCik(padSimpleCik(identity.getCik()));
-                    fullCikMap.put(identity.getCik(), identity);
-                });
-                return Mono.just(fullCikMap);
-            }));
+                response.bodyToMono(new ParameterizedTypeReference<Map<String, Identity>>() {})
+                        .flatMap(simpleCikMap -> {
+                            Map<String, Identity> fullCikMap = new HashMap<String, Identity>();
+                            simpleCikMap.keySet().stream().forEach(key -> {
+                                Identity identity = simpleCikMap.get(key);
+                                identity.setCik(padSimpleCik(identity.getCik()));
+                                fullCikMap.put(identity.getCik(), identity);
+                            });
+                            return Mono.just(fullCikMap);
+                        }));
     }
 
     private Mono<Map<String, Identity>> saveIdentities(Mono<Map<String, Identity>> mapMono) {

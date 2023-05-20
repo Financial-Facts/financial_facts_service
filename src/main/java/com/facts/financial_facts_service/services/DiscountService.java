@@ -27,12 +27,8 @@ public class DiscountService implements Constants {
 
     Logger logger = LoggerFactory.getLogger(DiscountService.class);
 
-    private final DiscountRepository discountRepository;
-
     @Autowired
-    public DiscountService(DiscountRepository discountRepository) {
-        this.discountRepository = discountRepository;
-    }
+    private DiscountRepository discountRepository;
 
     public Mono<ResponseEntity<Discount>> getDiscountByCik(String cik) {
         logger.info("In discount service getting discount with cik {}", cik);

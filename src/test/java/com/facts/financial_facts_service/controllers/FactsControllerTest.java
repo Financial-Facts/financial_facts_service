@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,7 +37,7 @@ public class FactsControllerTest implements TestConstants {
 
     @Test
     public void testGetFacts() throws ExecutionException, InterruptedException {
-        Facts facts = new Facts(CIK, FACTS);
+        Facts facts = new Facts(CIK, LocalDate.now(), FACTS);
         ResponseEntity factsResponse = new ResponseEntity<Facts>(facts, HttpStatus.OK);
         when(factsService.getFactsByCik(CIK)).thenReturn(Mono.just(factsResponse));
         ResponseEntity<Facts> response = factsController.getFacts(CIK).get();
