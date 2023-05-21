@@ -1,6 +1,7 @@
 package com.facts.financial_facts_service.constants;
 
 public interface Constants {
+    String EMPTY = "";
     String V1_DISCOUNT = "v1/discount";
     String CIK_PATH_PARAM = "/{cik}";
     String DISCOUNT_NOT_FOUND = "Discount with cik %s not found";
@@ -18,5 +19,6 @@ public interface Constants {
     String DISCOUNT_ADDED = "Success: Discount added";
     String DISCOUNT_UPDATED = "Success: Discount updated";
     String DISCOUNT_DELETED = "Success: Discount deleted";
-    String LOWER_CIK = "cik";
+    String SLASH = "/";
+    String FACTS_FILENAME = "%s.json";
 }

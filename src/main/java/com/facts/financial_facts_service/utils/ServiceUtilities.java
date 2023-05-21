@@ -8,13 +8,16 @@ import com.facts.financial_facts_service.entities.discount.models.trailingPriceD
 import java.util.List;
 import java.util.Objects;
 
-public class ServiceUtilities {
+public class ServiceUtilities implements Constants {
 
     public static String padSimpleCik(String simpleCik) {
         StringBuilder result = new StringBuilder();
-        result.append(Constants.CIK).append(simpleCik);
-        while (result.length() != 13) {
-            result.replace(3, 3, Constants.ZERO);
+        result.append(CIK).append(simpleCik);
+        if (result.length() > 13) {
+            result.replace(13, result.length(), EMPTY);
+        }
+        while (result.length() < 13) {
+            result.replace(3, 3, ZERO);
         }
         return result.toString();
     }

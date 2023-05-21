@@ -7,6 +7,7 @@ import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,18 +23,21 @@ public class IdentityService {
     @Autowired
     IdentityMap identityMap;
 
-    public Mono<ResponseEntity<Identity>> getSymbolFromIdentityMap(String cik) {
+    public Mono<ResponseEntity<Identity>> getIdentityFromIdentityMap(String cik) {
         logger.info("In identity service getting identity for cik {}", cik);
-        return identityMap.getValue(cik).flatMap(identity -> {
-            if (identity.isPresent()) {
-                return Mono.just(new ResponseEntity<>(identity.get(), HttpStatus.OK));
-            } else {
+        try {
+            return identityMap.getValue(cik).flatMap(identity -> {
+                if (identity.isPresent()) {
+                    return Mono.just(new ResponseEntity<>(identity.get(), HttpStatus.OK));
+                }
+                return Mono.empty();
+            }).switchIfEmpty(Mono.defer(() -> {
                 logger.error("Identity not found for cik {}", cik);
                 throw new DataNotFoundException(ModelType.IDENTITY, cik);
-            }
-        }).onErrorResume(error -> {
+            }));
+        } catch (DataAccessException error) {
             logger.error("Error occurred while retrieving identity for cik {}: {}", cik, error.getMessage());
             throw new ResponseStatusException(HttpStatus.CONFLICT, error.getMessage());
-        });
+        }
     }
 }

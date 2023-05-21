@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.CompletableFuture;
 
+import static com.facts.financial_facts_service.constants.Constants.V1_IDENTITY;
+
 @RestController
 @Validated
-@RequestMapping(path = Constants.V1_IDENTITY)
-public class IdentityController {
+@RequestMapping(path = V1_IDENTITY)
+public class IdentityController implements Constants {
 
     Logger logger = LoggerFactory.getLogger(IdentityController.class);
 
@@ -26,10 +28,10 @@ public class IdentityController {
         this.identityService = identityService;
     }
 
-    @GetMapping(path = Constants.CIK_PATH_PARAM)
-    public CompletableFuture<ResponseEntity<Identity>> getIdentityWithCik(@PathVariable @NotBlank @Pattern(regexp = Constants.CIK_REGEX) String cik) {
+    @GetMapping(path = CIK_PATH_PARAM)
+    public CompletableFuture<ResponseEntity<Identity>> getIdentityWithCik(@PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
         logger.info("In identity controller getting identity for cik {}", cik);
-        return identityService.getSymbolFromIdentityMap(cik.toUpperCase()).toFuture();
+        return identityService.getIdentityFromIdentityMap(cik.toUpperCase()).toFuture();
     }
 
 }

@@ -1,18 +1,21 @@
-package com.facts.financial_facts_service.entities.discount;
+package com.facts.financial_facts_service.services;
 
 import com.facts.financial_facts_service.constants.TestConstants;
+import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.DiscountOperationException;
 import com.facts.financial_facts_service.repositories.DiscountRepository;
-import com.facts.financial_facts_service.services.DiscountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
@@ -22,6 +25,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class DiscountServiceTest implements TestConstants {
 
     @Mock
@@ -33,7 +37,7 @@ public class DiscountServiceTest implements TestConstants {
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-        discountService = new DiscountService(discountRepository);
+        ReflectionTestUtils.setField(discountService, "discountRepository", discountRepository);
     }
 
     @Test
@@ -67,6 +71,7 @@ public class DiscountServiceTest implements TestConstants {
     @Test
     public void testAddNewDiscountSuccess() {
         Discount discount = new Discount();
+        discount.setCik(CIK);
         when(discountRepository.existsById(CIK)).thenReturn(false);
         when(discountRepository.save(discount)).thenReturn(discount);
         ResponseEntity<String> response = discountService.addNewDiscount(discount).block();
