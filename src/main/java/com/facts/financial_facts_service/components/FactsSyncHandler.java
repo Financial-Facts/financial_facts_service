@@ -58,24 +58,27 @@ public class FactsSyncHandler {
         return this.syncDatabaseWithFacts(facts).thenApply(syncedFacts -> {
             popLock.lock();
             try {
-                syncMap.remove(syncedFacts.getCik());
-                atCapacity.signalAll();
+                completeProcessing(facts.getCik());
                 logger.info("Syncing complete for cik {}", facts.getCik());
                 return syncedFacts;
             } finally {
                 popLock.unlock();
             }
+        }).exceptionally(ex -> {
+            logger.error("Sync aborted for cik {} with an exception",
+                    facts.getCik());
+            completeProcessing(facts.getCik());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
         });
     }
 
     private CompletableFuture<Facts> syncDatabaseWithFacts(Facts facts) {
         logger.info("Syncing DB and API Gateway facts for {}", facts.getCik());
-        try {
-            return CompletableFuture.supplyAsync(() -> this.factsRepository.save(facts));
-        } catch (DataAccessException ex) {
-            logger.error("Error occurred in fact sync handler syncing facts for cik {}",
-                    facts.getCik());
-            throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
-        }
+        return CompletableFuture.supplyAsync(() -> this.factsRepository.save(facts));
+    }
+
+    private void completeProcessing(String cik) {
+        syncMap.remove(cik);
+        atCapacity.signalAll();
     }
 }
