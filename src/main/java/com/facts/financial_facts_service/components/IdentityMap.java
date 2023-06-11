@@ -1,17 +1,17 @@
 package com.facts.financial_facts_service.components;
 
 import com.facts.financial_facts_service.entities.identity.Identity;
-import com.facts.financial_facts_service.repositories.IdentityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -39,21 +39,15 @@ public class IdentityMap implements CommandLineRunner {
     @Autowired
     private WebClientFactory webClientFactory;
 
-    @Autowired
-    private IdentityRepository identityRepository;
-
     private ConcurrentHashMap<String, Identity> identityMap;
 
     private WebClient secWebClient;
 
     private ReentrantLock lock;
 
-    private Condition loading;
-
     public IdentityMap() {
         identityMap = new ConcurrentHashMap<String, Identity>();
         lock = new ReentrantLock();
-        loading = lock.newCondition();
     }
 
     @Override
@@ -67,7 +61,6 @@ public class IdentityMap implements CommandLineRunner {
             identityMap = new ConcurrentHashMap<String, Identity>(this.getIdentityMap(false).block());
             logger.info("Identity map initialized!");
         } finally {
-            loading.signalAll();
             lock.unlock();
         }
     }
@@ -79,9 +72,9 @@ public class IdentityMap implements CommandLineRunner {
     public Mono<Optional<Identity>> getValue(String cik) {
         logger.info("In getValue retrieving current identityMap");
         try {
-            while (lock.isLocked() && Objects.isNull(identityMap.get(cik))) {
+            while (lock.isLocked()) {
+                logger.info("{} is waiting on cik map...", cik);
                 sleep(1000);
-                loading.await();
             }
         } catch (InterruptedException e) {
             logger.info("Finished wait with error {}", e.getMessage());
@@ -96,25 +89,7 @@ public class IdentityMap implements CommandLineRunner {
     // ToDo: Set up scheduler to update identityMap?
     private Mono<Map<String, Identity>> getIdentityMap(boolean update) {
         logger.info("In getIdentityMap retrieving identity map data");
-        try {
-            if (identityRepository.count() == 0 || update) {
-                return this.saveIdentities(this.getIdentityMapFromSEC());
-            }
-            return this.getIdentityMapFromDB();
-        } catch (InvalidDataAccessResourceUsageException ex) {
-            return this.getIdentityMapFromSEC();
-        }
-    }
-
-    private Mono<Map<String, Identity>> getIdentityMapFromDB() {
-        logger.info("in getIdentityMapFromDB");
-        Map<String, Identity> map = new HashMap<String, Identity>();
-        identityRepository
-                .findAll().stream()
-                .forEach(identity -> {
-                    map.put(identity.getCik(), identity);
-                });
-        return Mono.just(map);
+        return this.saveIdentities(this.getIdentityMapFromSEC());
     }
 
     private Mono<Map<String, Identity>> getIdentityMapFromSEC() {
@@ -137,12 +112,8 @@ public class IdentityMap implements CommandLineRunner {
         return mapMono.flatMap(map -> {
             map.keySet().stream().forEach(key -> {
                 boolean componentContainsCik = this.identityMap.containsKey(key);
-                boolean dbContainsCik = this.identityRepository.existsById(key);
                 if (!componentContainsCik) {
                     this.identityMap.put(key, map.get(key));
-                }
-                if (!dbContainsCik) {
-                    this.identityRepository.save(map.get(key));
                 }
             });
             logger.info("Identities save complete!");

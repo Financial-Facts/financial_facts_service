@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -33,15 +34,13 @@ public class FactsSyncHandler {
 
     private ReentrantLock popLock = new ReentrantLock();
 
-    Condition atCapacity = pushLock.newCondition();
-
-    public void pushToHandler(Facts facts) {
+    public CompletableFuture<Void> pushToHandler(Facts facts) {
         logger.info("Facts sync is currently processing: {}", syncMap.keySet());
         if (!syncMap.containsKey(facts.getCik())) {
             try {
                 pushLock.lock();
                 while (syncMap.size() == CAPACITY) {
-                    atCapacity.await();
+                    TimeUnit.SECONDS.sleep(1);
                 }
                 syncMap.put(facts.getCik(), awaitSyncCompletion(facts));
             } catch (InterruptedException ex) {
@@ -52,6 +51,7 @@ public class FactsSyncHandler {
                 pushLock.unlock();
             }
         }
+        return CompletableFuture.completedFuture(null);
     }
 
     private CompletableFuture<Facts> awaitSyncCompletion(Facts facts) {
@@ -65,8 +65,8 @@ public class FactsSyncHandler {
                 popLock.unlock();
             }
         }).exceptionally(ex -> {
-            logger.error("Sync aborted for cik {} with an exception",
-                    facts.getCik());
+            logger.error("Sync aborted for cik {} with an exception {}",
+                    facts.getCik(), ex.getMessage());
             completeProcessing(facts.getCik());
             throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
         });
@@ -79,6 +79,5 @@ public class FactsSyncHandler {
 
     private void completeProcessing(String cik) {
         syncMap.remove(cik);
-        atCapacity.signalAll();
     }
 }

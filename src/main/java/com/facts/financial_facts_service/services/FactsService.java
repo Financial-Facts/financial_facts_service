@@ -61,17 +61,17 @@ public class FactsService implements Constants {
     }
 
     @Retryable(retryFor = ResponseStatusException.class, backoff = @Backoff(delay = 1000))
-    public Mono<ResponseEntity<Facts>> getFactsByCik(String cik) {
+    public Mono<ResponseEntity<String>> getFactsByCik(String cik) {
         logger.info("In facts service retrieving facts for cik {}", cik);
         return getFactsFromDB(cik).flatMap(facts -> {
             // If retrieved facts have been updated within the passed day
             if (Objects.nonNull(facts.getLastSync()) &&
                     facts.getLastSync().isAfter(LocalDate.now().minusDays(1))) {
-                return Mono.just(new ResponseEntity<Facts>(facts, HttpStatus.OK));
+                return Mono.just(new ResponseEntity<String>(facts.getData(), HttpStatus.OK));
             } else {
                 // If not, retrieve updated facts and save them
                 return getFactsFromAPIGateway(cik).flatMap(gatewayFacts ->
-                        Mono.just(new ResponseEntity<Facts>(gatewayFacts, HttpStatus.OK)));
+                        Mono.just(new ResponseEntity<String>(gatewayFacts.getData(), HttpStatus.OK)));
             }
         });
     }

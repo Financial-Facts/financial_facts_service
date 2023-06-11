@@ -19,7 +19,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.facts.financial_facts_service.entities.identity.Identity;
-import com.facts.financial_facts_service.repositories.IdentityRepository;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -35,9 +34,6 @@ public class IdentityMapTest implements TestConstants {
 
     @Mock
     private WebClientFactory webClientFactory;
-
-    @Mock
-    private IdentityRepository identityRepository;
 
     @InjectMocks
     private IdentityMap mockIdentityMap;
@@ -72,24 +68,11 @@ public class IdentityMapTest implements TestConstants {
     }
 
     @Test
-    public void testGetFromDBIfIdentityTablePopulated() {
-        when(identityRepository.count()).thenReturn(1L);
-        ArrayList<Identity> identities = new ArrayList<>();
-        Identity identity = new Identity();
-        identity.setCik(CIK);
-        identities.add(identity);
-        when(identityRepository.findAll()).thenReturn(identities);
-        mockIdentityMap.run();
-        verify(identityRepository, times(1)).findAll();
-    }
-
-    @Test
     public void testGetFromSECIfDBNotPopulated() {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaders.USER_AGENT, USER_AGENT);
         when(webClientFactory.buildWebClient(SEC_URL, Optional.of(headers)))
             .thenReturn(this.secWebClient);
-        when(identityRepository.count()).thenReturn(0L);
         WebClient.RequestHeadersUriSpec mockHeadersUriSpec = mock(WebClient.RequestHeadersUriSpec.class);
         when(secWebClient.get()).thenReturn(mockHeadersUriSpec);
         HashMap<String, Identity> identityHashMap = new HashMap<>();
@@ -104,7 +87,6 @@ public class IdentityMapTest implements TestConstants {
         headers.put(HttpHeaders.USER_AGENT, USER_AGENT);
         when(webClientFactory.buildWebClient(SEC_URL, Optional.of(headers)))
                 .thenReturn(this.secWebClient);
-        when(identityRepository.count()).thenReturn(0L);
         WebClient.RequestHeadersUriSpec mockHeadersUriSpec = mock(WebClient.RequestHeadersUriSpec.class);
         when(secWebClient.get()).thenReturn(mockHeadersUriSpec);
         HashMap<String, Identity> identityHashMap = new HashMap<>();
@@ -114,7 +96,6 @@ public class IdentityMapTest implements TestConstants {
         when(mockHeadersUriSpec.exchangeToMono(any())).thenReturn(Mono.just(identityHashMap));
         mockIdentityMap.run();
         assertNotNull(mockIdentityMap.getValue(CIK));
-        verify(identityRepository, times(1)).save(Mockito.eq(identity));
     }
 
 }
