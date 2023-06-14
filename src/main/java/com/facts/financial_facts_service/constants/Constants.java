@@ -21,4 +21,7 @@ public interface Constants {
     String DISCOUNT_DELETED = "Success: Discount deleted";
     String SLASH = "/";
     String FACTS_FILENAME = "%s.json";
+    String FACTS = "facts";
+    String US_GAAP = "us-gaap";
+    String IFRS_FULL = "ifrs-full";
 }

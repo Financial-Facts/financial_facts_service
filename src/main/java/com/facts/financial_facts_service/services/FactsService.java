@@ -1,9 +1,11 @@
 package com.facts.financial_facts_service.services;
 
+import com.facts.financial_facts_service.components.RetrieverFactory;
 import com.facts.financial_facts_service.components.WebClientFactory;
 import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.constants.ModelType;
 import com.facts.financial_facts_service.entities.facts.Facts;
+import com.facts.financial_facts_service.entities.facts.retriever.IRetriever;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.components.FactsSyncHandler;
 import com.facts.financial_facts_service.repositories.FactsRepository;
@@ -25,6 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -49,6 +52,9 @@ public class FactsService implements Constants {
     @Autowired
     private FactsRepository factsRepository;
 
+    @Autowired
+    private RetrieverFactory retrieverFactory;
+
     private WebClient factsWebClient;
 
     @PostConstruct
@@ -65,6 +71,7 @@ public class FactsService implements Constants {
         logger.info("In facts service retrieving facts for cik {}", cik);
         return getFactsFromDB(cik).flatMap(facts -> {
             // If retrieved facts have been updated within the passed day
+            retrieverFactory.getRetriever(cik, facts.getData());
             if (Objects.nonNull(facts.getLastSync()) &&
                     facts.getLastSync().isAfter(LocalDate.now().minusDays(1))) {
                 return Mono.just(new ResponseEntity<String>(facts.getData(), HttpStatus.OK));
@@ -97,7 +104,13 @@ public class FactsService implements Constants {
         return queryAPIGateway(cik)
                 .flatMap(response -> {
                     // Build facts object with response from api gateway response
-                    Facts facts = new Facts(cik, LocalDate.now(), response.getBody());
+                    IRetriever retriever = retrieverFactory.getRetriever(cik, response.getBody());
+                    Facts facts = new Facts(cik,
+                            LocalDate.now(),
+                            response.getBody(),
+                            retriever.retrieve_quarterly_shareholder_equity(),
+                            retriever.retrieve_quarterly_outstanding_shares(),
+                            retriever.retrieve_quarterly_EPS());
 
                     // Push up-to-date facts to sync handler to update data in DB
                     this.factsSyncHandler.pushToHandler(facts);
