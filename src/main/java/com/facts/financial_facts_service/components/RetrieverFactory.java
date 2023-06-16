@@ -2,6 +2,8 @@ package com.facts.financial_facts_service.components;
 
 import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.constants.ModelType;
+import com.facts.financial_facts_service.constants.Taxonomy;
+import com.facts.financial_facts_service.entities.facts.parser.Parser;
 import com.facts.financial_facts_service.entities.facts.retriever.GaapRetriever;
 import com.facts.financial_facts_service.entities.facts.retriever.IRetriever;
 import com.facts.financial_facts_service.entities.facts.retriever.IfrsRetriever;
@@ -18,7 +20,7 @@ public class RetrieverFactory implements Constants {
         JSONObject json = new JSONObject(facts);
         JSONObject factsJson = (JSONObject) json.get(FACTS);
         if (factsJson.has(US_GAAP)) {
-            return new GaapRetriever(cik, factsJson);
+            return new GaapRetriever(cik, factsJson, new Parser(cik, factsJson, Taxonomy.US_GAAP));
         }
         if (factsJson.has(IFRS_FULL)) {
             return new IfrsRetriever(cik, factsJson);

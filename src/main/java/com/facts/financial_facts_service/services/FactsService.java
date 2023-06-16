@@ -102,32 +102,19 @@ public class FactsService implements Constants {
     private Mono<Facts> getFactsFromAPIGateway(String cik) {
         logger.info("Retrieving facts from API Gateway for cik {}", cik);
         return queryAPIGateway(cik)
-                .flatMap(response -> {
-                    // Build facts object with response from api gateway response
-                    IRetriever retriever = retrieverFactory.getRetriever(cik, response.getBody());
-                    Facts facts = new Facts(cik,
-                            LocalDate.now(),
-                            response.getBody(),
-                            retriever.retrieve_quarterly_shareholder_equity(),
-                            retriever.retrieve_quarterly_outstanding_shares(),
-                            retriever.retrieve_quarterly_EPS());
-
-                    // Push up-to-date facts to sync handler to update data in DB
-                    this.factsSyncHandler.pushToHandler(facts);
-                    return Mono.just(facts);
-                });
+            .flatMap(response -> buildFactsWithGatewayResponse(cik, response.getBody()));
     }
 
     private Mono<ResponseEntity<String>> queryAPIGateway(String cik) {
         String key = String.format(FACTS_FILENAME, cik.toUpperCase());
         try {
             return factsWebClient.get()
-                    .uri(new StringBuilder()
-                            .append(SLASH)
-                            .append(key)
-                            .toString())
-                    .retrieve()
-                    .toEntity(String.class);
+                .uri(new StringBuilder()
+                    .append(SLASH)
+                    .append(key)
+                    .toString())
+                .retrieve()
+                .toEntity(String.class);
         } catch (WebClientResponseException ex) {
             if (ex instanceof WebClientResponseException.NotFound) {
                 logger.error("Facts not found for cik {}", cik);
@@ -136,6 +123,28 @@ public class FactsService implements Constants {
             logger.error("Error occurred in facts service getting facts for cik {}", cik);
             throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
         }
+    }
+
+    private Mono<Facts> buildFactsWithGatewayResponse(String cik, String json) {
+        IRetriever retriever = retrieverFactory.getRetriever(cik, json);
+        return Mono.zip(
+            retriever.retrieve_quarterly_shareholder_equity(),
+            retriever.retrieve_quarterly_outstanding_shares(),
+            retriever.retrieve_quarterly_EPS(),
+            retriever.retrieve_quarterly_long_term_debt())
+        .flatMap((retrievedQuarterlyData -> {
+            Facts builtFacts = new Facts(cik,
+                LocalDate.now(),
+                json,
+                retrievedQuarterlyData.getT1(),
+                retrievedQuarterlyData.getT2(),
+                retrievedQuarterlyData.getT3(),
+                retrievedQuarterlyData.getT4());
+
+            // Push up-to-date facts to sync handler to update data in DB
+            this.factsSyncHandler.pushToHandler(builtFacts);
+            return Mono.just(builtFacts);
+        }));
     }
 
 }

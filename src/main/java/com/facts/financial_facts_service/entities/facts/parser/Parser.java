@@ -2,20 +2,27 @@ package com.facts.financial_facts_service.entities.facts.parser;
 
 import com.facts.financial_facts_service.constants.Taxonomy;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.AbstractQuarterlyData;
+import com.facts.financial_facts_service.entities.facts.parser.models.UnitData;
+import com.facts.financial_facts_service.exceptions.DataNotFoundException;
+import lombok.AllArgsConstructor;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+@AllArgsConstructor
 public class Parser {
 
     private String cik;
 
     private JSONObject facts;
 
-    public Mono<AbstractQuarterlyData> retrieveQuarterlyData(List<String> factsKeys, Taxonomy taxonomy,
+    private Taxonomy taxonomy;
+
+    public <T> Mono<List<T>> retrieveQuarterlyData(List<String> factsKeys,
                                                              Optional<List<String>> deiFactsKeys) {
+        UnitData data = parseFactsForData(factsKeys, deiFactsKeys);
 //        const data = this.parse_facts_for_data(factsKeys, taxonomyType, deiFactsKeys);
 //        const hasStartDate = this.checkHasStartDate(data);
 //
@@ -25,56 +32,45 @@ public class Parser {
         return null;
     }
 
-//
-//        private parse_facts_for_data(
-//                factsKeys: string[],
-//                taxonomyType: TaxonomyType,
-//                deiFactsKeys: string[]
-//        ): UnitsData {
-//            let data: UnitsData | null;
-//            data = this.parse(factsKeys, taxonomyType);
-//            if (data === null && deiFactsKeys.length !== 0) {
-//                data = this.parse(deiFactsKeys);
-//            }
-//            if (data === null) {
-//                throw new DataRetrievalException(`Keys ${factsKeys} invalid for cik ${this.cik}`);
-//            }
-//            return data;
-//        }
-//
-//        private parse(
-//                keys: string[],
-//                taxonomyType?: TaxonomyType
-//        ): UnitsData | null {
-//            let result: UnitsData | null;
-//            if (taxonomyType) {
-//                result = this.processKeys(keys, taxonomyType);
-//            } else {
-//                result = this.processKeys(keys, CONSTANTS.STICKER_PRICE.DEI)
-//            }
-//            return result;
-//        }
-//
-//        private processKeys(keys: string[], taxonomyType: TaxonomyType | string): UnitsData | null {
-//        const lengthMap: Record<number, string> = {};
-//            let max = 0;
-//            keys.forEach(key => {
-//            if (this.facts[taxonomyType][key]) {
-//                const unitsData: UnitsData = this.facts[taxonomyType][key];
-//                const unitsKey: string = Object.keys(unitsData.units)[0];
-//                const unitsLength: number = unitsData.units[unitsKey].length;
-//                if (unitsLength > max) {
-//                    max = unitsLength;
-//                }
-//                lengthMap[unitsLength] = key;
-//            }
-//        });
-//            if  (max !== 0) {
-//                return this.facts[taxonomyType][lengthMap[max]];
-//            }
-//            return null;
-//        }
-//
+    private UnitData parseFactsForData(List<String> factsKeys, Optional<List<String>> deiFactsKeys) {
+        UnitData data = this.parse(factsKeys, false);
+        if (Objects.isNull(data) && deiFactsKeys.isPresent()) {
+            data = this.parse(deiFactsKeys.get(), true);
+        }
+        if (Objects.isNull(data)) {
+            throw new DataNotFoundException("Keys " + factsKeys + " not sufficient for " + cik);
+        }
+        return data;
+    }
+
+    private UnitData parse(List<String> keys, boolean checkDEI) {
+        if (checkDEI) {
+            return this.processKeys(keys, Taxonomy.DEI.toString());
+        }
+        return this.processKeys(keys, taxonomy.toString());
+    }
+
+    private UnitData processKeys(List<String> keys, String taxonomyType) {
+        Map<Integer, String> lengthMap = new HashMap<>();
+        int max = 0;
+        JSONObject financialFacts = this.facts.getJSONObject(taxonomyType);
+        for(String key: keys) {
+            if (financialFacts.has(key)) {
+                UnitData unitData = (UnitData) financialFacts.get(key);
+                String unitKey = unitData.getUnits().keys().next();
+                int dataLength = unitData.getUnits().getJSONArray(unitKey).length();
+                if (dataLength > max) {
+                    max = dataLength;
+                }
+                lengthMap.put(dataLength, key);
+            }
+        }
+        if (max != 0) {
+            return (UnitData) financialFacts.get(lengthMap.get(max));
+        }
+        return null;
+    }
+
 //        private checkHasStartDate(data: any): boolean {
 //        const units = data[CONSTANTS.STICKER_PRICE.UNITS];
 //        const quarter = units[Object.keys(units)[0]][0];

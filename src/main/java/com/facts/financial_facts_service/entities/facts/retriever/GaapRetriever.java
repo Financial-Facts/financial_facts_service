@@ -2,14 +2,19 @@ package com.facts.financial_facts_service.entities.facts.retriever;
 
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.AbstractQuarterlyData;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
+import com.facts.financial_facts_service.entities.facts.parser.FactsKeys;
+import com.facts.financial_facts_service.entities.facts.parser.Parser;
+import com.facts.financial_facts_service.entities.facts.retriever.models.QuarterlyLongTermDebt;
 import com.facts.financial_facts_service.entities.facts.retriever.models.QuarterlyOutstandingShares;
 import com.facts.financial_facts_service.entities.facts.retriever.models.QuarterlyShareholderEquity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.json.JSONObject;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -20,53 +25,55 @@ public class GaapRetriever implements IRetriever {
 
     private JSONObject facts;
 
+    private Parser parser;
+
     @Override
-    public List<QuarterlyShareholderEquity> retrieve_quarterly_shareholder_equity() {
+    public Mono<List<QuarterlyShareholderEquity>> retrieve_quarterly_shareholder_equity() {
+        return parser.retrieveQuarterlyData(FactsKeys.shareholderEquity, Optional.empty());
+    }
+
+    @Override
+    public Mono<List<QuarterlyOutstandingShares>> retrieve_quarterly_outstanding_shares() {
         return null;
     }
 
     @Override
-    public List<QuarterlyOutstandingShares> retrieve_quarterly_outstanding_shares() {
+    public Mono<List<QuarterlyEPS>> retrieve_quarterly_EPS() {
         return null;
     }
 
     @Override
-    public List<QuarterlyEPS> retrieve_quarterly_EPS() {
+    public Mono<List<QuarterlyLongTermDebt>> retrieve_quarterly_long_term_debt() {
         return null;
     }
 
     @Override
-    public List<AbstractQuarterlyData> retrieve_quarterly_long_term_debt() {
+    public Mono<List<List<AbstractQuarterlyData>>> retrieve_quarterly_long_term_debt_parts() {
         return null;
     }
 
     @Override
-    public List<List<AbstractQuarterlyData>> retrieve_quarterly_long_term_debt_parts() {
+    public Mono<Double> retrieve_benchmark_ratio_price(Double benchmark) {
         return null;
     }
 
     @Override
-    public Double retrieve_benchmark_ratio_price(Double benchmark) {
+    public Mono<List<AbstractQuarterlyData>> retrieve_quarterly_net_income() {
         return null;
     }
 
     @Override
-    public List<AbstractQuarterlyData> retrieve_quarterly_net_income() {
+    public Mono<List<AbstractQuarterlyData>> retrieve_quarterly_total_debt() {
         return null;
     }
 
     @Override
-    public List<AbstractQuarterlyData> retrieve_quarterly_total_debt() {
+    public Mono<List<AbstractQuarterlyData>> retrieve_quarterly_total_assets() {
         return null;
     }
 
     @Override
-    public List<AbstractQuarterlyData> retrieve_quarterly_total_assets() {
-        return null;
-    }
-
-    @Override
-    public List<AbstractQuarterlyData> retrieve_quarterly_total_cash() {
+    public Mono<List<AbstractQuarterlyData>> retrieve_quarterly_total_cash() {
         return null;
     }
 }
