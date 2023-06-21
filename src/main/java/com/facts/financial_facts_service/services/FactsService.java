@@ -67,18 +67,18 @@ public class FactsService implements Constants {
     }
 
     @Retryable(retryFor = ResponseStatusException.class, backoff = @Backoff(delay = 1000))
-    public Mono<ResponseEntity<String>> getFactsByCik(String cik) {
+    public Mono<ResponseEntity<Facts>> getFactsByCik(String cik) {
         logger.info("In facts service retrieving facts for cik {}", cik);
         return getFactsFromDB(cik).flatMap(facts -> {
             // If retrieved facts have been updated within the passed day
             retrieverFactory.getRetriever(cik, facts.getData());
             if (Objects.nonNull(facts.getLastSync()) &&
                     facts.getLastSync().isAfter(LocalDate.now().minusDays(1))) {
-                return Mono.just(new ResponseEntity<String>(facts.getData(), HttpStatus.OK));
+                return Mono.just(new ResponseEntity<>(facts, HttpStatus.OK));
             } else {
                 // If not, retrieve updated facts and save them
                 return getFactsFromAPIGateway(cik).flatMap(gatewayFacts ->
-                        Mono.just(new ResponseEntity<String>(gatewayFacts.getData(), HttpStatus.OK)));
+                        Mono.just(new ResponseEntity<>(gatewayFacts, HttpStatus.OK)));
             }
         });
     }
@@ -106,6 +106,7 @@ public class FactsService implements Constants {
     }
 
     private Mono<ResponseEntity<String>> queryAPIGateway(String cik) {
+        logger.info("Querying API gateway with cik {}", cik);
         String key = String.format(FACTS_FILENAME, cik.toUpperCase());
         try {
             return factsWebClient.get()
@@ -126,6 +127,7 @@ public class FactsService implements Constants {
     }
 
     private Mono<Facts> buildFactsWithGatewayResponse(String cik, String json) {
+        logger.info("Building facts with gateway response for cik {}", cik);
         IRetriever retriever = retrieverFactory.getRetriever(cik, json);
         return Mono.zip(
             retriever.retrieve_quarterly_shareholder_equity(),
@@ -142,7 +144,7 @@ public class FactsService implements Constants {
                 retrievedQuarterlyData.getT4());
 
             // Push up-to-date facts to sync handler to update data in DB
-            this.factsSyncHandler.pushToHandler(builtFacts);
+//            this.factsSyncHandler.pushToHandler(builtFacts);
             return Mono.just(builtFacts);
         }));
     }

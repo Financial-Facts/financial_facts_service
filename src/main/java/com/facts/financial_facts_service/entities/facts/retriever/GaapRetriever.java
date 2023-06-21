@@ -29,22 +29,26 @@ public class GaapRetriever implements IRetriever {
 
     @Override
     public Mono<List<QuarterlyShareholderEquity>> retrieve_quarterly_shareholder_equity() {
-        return parser.retrieveQuarterlyData(FactsKeys.shareholderEquity, Optional.empty());
+        return parser.retrieveQuarterlyData(FactsKeys.shareholderEquity,
+                Optional.empty(), QuarterlyShareholderEquity.class);
     }
 
     @Override
     public Mono<List<QuarterlyOutstandingShares>> retrieve_quarterly_outstanding_shares() {
-        return null;
+        return parser.retrieveQuarterlyData(FactsKeys.outstandingShares,
+                Optional.of(FactsKeys.outstandingSharesDEI), QuarterlyOutstandingShares.class);
     }
 
     @Override
     public Mono<List<QuarterlyEPS>> retrieve_quarterly_EPS() {
-        return null;
+        return parser.retrieveQuarterlyData(FactsKeys.earningsPerShare,
+                Optional.empty(), QuarterlyEPS.class);
     }
 
     @Override
     public Mono<List<QuarterlyLongTermDebt>> retrieve_quarterly_long_term_debt() {
-        return null;
+        return parser.retrieveQuarterlyData(FactsKeys.longTermDebt,
+                Optional.empty(), QuarterlyLongTermDebt.class);
     }
 
     @Override

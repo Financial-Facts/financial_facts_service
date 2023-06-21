@@ -35,7 +35,7 @@ public class FactsController implements Constants {
     public FactsController (FactsService factsService) { this.factsService = factsService; }
 
     @GetMapping(path = CIK_PATH_PARAM)
-    public CompletableFuture<ResponseEntity<String>> getFacts(@PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
+    public CompletableFuture<ResponseEntity<Facts>> getFacts(@PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
         logger.info("In facts controller getting facts for cik {}", cik);
         return factsService.getFactsByCik(cik.toUpperCase()).toFuture();
     }

@@ -8,5 +8,4 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "quarterly_long_term_debt", schema = Constants.FINANCIAL_FACTS)
 public class QuarterlyLongTermDebt extends AbstractQuarterlyData {
-
 }

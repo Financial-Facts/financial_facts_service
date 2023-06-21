@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @MappedSuperclass
@@ -17,6 +18,6 @@ public abstract class AbstractQuarterlyData {
 
     private LocalDate announcedDate;
 
-    private Double value;
+    private BigDecimal value;
 
 }

@@ -5,6 +5,8 @@ import com.facts.financial_facts_service.entities.discount.models.quarterlyData.
 import com.facts.financial_facts_service.entities.facts.retriever.models.QuarterlyLongTermDebt;
 import com.facts.financial_facts_service.entities.facts.retriever.models.QuarterlyOutstandingShares;
 import com.facts.financial_facts_service.entities.facts.retriever.models.QuarterlyShareholderEquity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -38,6 +40,7 @@ public class Facts {
     @NotBlank
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
+    @JsonIgnore
     private String data;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
