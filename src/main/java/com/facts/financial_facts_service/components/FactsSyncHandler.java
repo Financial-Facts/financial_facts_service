@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -74,7 +75,18 @@ public class FactsSyncHandler {
 
     private CompletableFuture<Facts> syncDatabaseWithFacts(Facts facts) {
         logger.info("Syncing DB and API Gateway facts for {}", facts.getCik());
-        return CompletableFuture.supplyAsync(() -> this.factsRepository.save(facts));
+        return CompletableFuture.supplyAsync(() -> {
+//            if (factsRepository.existsById(facts.getCik())) {
+//                Facts existingFacts = factsRepository.getReferenceById(facts.getCik());
+//                existingFacts.setLastSync(facts.getLastSync());
+//                existingFacts.setQuarterlyShareholderEquity(facts.getQuarterlyShareholderEquity());
+//                existingFacts.setQuarterlyOutstandingShares(facts.getQuarterlyOutstandingShares());
+//                existingFacts.setQuarterlyEPS(facts.getQuarterlyEPS());
+//                existingFacts.setQuarterlyLongTermDebt(facts.getQuarterlyLongTermDebt());
+//                return existingFacts;
+//            }
+            return this.factsRepository.save(facts);
+        });
     }
 
     private void completeProcessing(String cik) {

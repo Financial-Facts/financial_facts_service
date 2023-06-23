@@ -1,6 +1,6 @@
 package com.facts.financial_facts_service.entities.facts.retriever;
 
-import com.facts.financial_facts_service.entities.discount.models.quarterlyData.AbstractQuarterlyData;
+import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
 import com.facts.financial_facts_service.entities.facts.retriever.models.QuarterlyLongTermDebt;
 import com.facts.financial_facts_service.entities.facts.retriever.models.QuarterlyOutstandingShares;

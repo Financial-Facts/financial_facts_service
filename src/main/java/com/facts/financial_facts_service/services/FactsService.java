@@ -71,7 +71,6 @@ public class FactsService implements Constants {
         logger.info("In facts service retrieving facts for cik {}", cik);
         return getFactsFromDB(cik).flatMap(facts -> {
             // If retrieved facts have been updated within the passed day
-            retrieverFactory.getRetriever(cik, facts.getData());
             if (Objects.nonNull(facts.getLastSync()) &&
                     facts.getLastSync().isAfter(LocalDate.now().minusDays(1))) {
                 return Mono.just(new ResponseEntity<>(facts, HttpStatus.OK));
@@ -96,6 +95,7 @@ public class FactsService implements Constants {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
         }
         // If facts do not exist in DB, query the API Gateway
+        logger.info("Did not retrieve facts from DB for cik {}", cik);
         return getFactsFromAPIGateway(cik);
     }
 
@@ -144,7 +144,7 @@ public class FactsService implements Constants {
                 retrievedQuarterlyData.getT4());
 
             // Push up-to-date facts to sync handler to update data in DB
-//            this.factsSyncHandler.pushToHandler(builtFacts);
+            this.factsSyncHandler.pushToHandler(builtFacts);
             return Mono.just(builtFacts);
         }));
     }

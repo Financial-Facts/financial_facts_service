@@ -3,9 +3,12 @@ package com.facts.financial_facts_service.entities.discount.models.trailingPrice
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @MappedSuperclass
-@Data
+@Getter
+@Setter
 public abstract class AbstractTrailingPriceData {
 
     @Id

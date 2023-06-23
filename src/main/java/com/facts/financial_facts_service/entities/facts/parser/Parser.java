@@ -1,7 +1,7 @@
 package com.facts.financial_facts_service.entities.facts.parser;
 
 import com.facts.financial_facts_service.constants.Taxonomy;
-import com.facts.financial_facts_service.entities.discount.models.quarterlyData.AbstractQuarterlyData;
+import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;
 import com.facts.financial_facts_service.entities.facts.parser.models.Period;
 import com.facts.financial_facts_service.entities.facts.parser.models.UnitData;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;

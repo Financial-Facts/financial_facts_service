@@ -25,7 +25,7 @@ import static com.facts.financial_facts_service.constants.Constants.CIK_REGEX;
 
 @Data
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(force = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Table(schema = Constants.FINANCIAL_FACTS)
 public class Discount {
@@ -47,17 +47,17 @@ public class Discount {
 
     private LocalDate lastUpdated;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne
     @PrimaryKeyJoinColumn
-    private List<TtmPriceData> ttmPriceData;
+    private TtmPriceData ttmPriceData;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne
     @PrimaryKeyJoinColumn
-    private List<TfyPriceData> tfyPriceData;
+    private TfyPriceData tfyPriceData;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne
     @PrimaryKeyJoinColumn
-    private List<TtyPriceData> ttyPriceData;
+    private TtyPriceData ttyPriceData;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn

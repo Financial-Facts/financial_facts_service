@@ -17,9 +17,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeRequests()
+            .authorizeHttpRequests()
             .anyRequest()
             .authenticated()
+            .and()
+            .csrf()
+            .ignoringRequestMatchers("/v1/discount")
             .and()
             .httpBasic()
             .authenticationEntryPoint(authenticationEntryPoint);
