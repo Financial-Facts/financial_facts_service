@@ -40,7 +40,7 @@ class DiscountControllerTest implements TestConstants {
         Discount testDiscount = new Discount();
         testDiscount.setCik(TestConstants.CIK);
         when(discountService.getDiscountByCik(TestConstants.CIK))
-            .thenReturn(Mono.just(new ResponseEntity<>(testDiscount, HttpStatus.OK)));
+            .thenReturn(Mono.just(testDiscount));
         CompletableFuture<ResponseEntity<Discount>> response = discountController.getDiscount(TestConstants.CIK);
         assertEquals(HttpStatus.OK, response.get().getStatusCode());
         verify(discountService, times(1)).getDiscountByCik(TestConstants.CIK);
@@ -51,7 +51,7 @@ class DiscountControllerTest implements TestConstants {
         Discount testDiscount = new Discount();
         testDiscount.setCik(TestConstants.CIK);
         when(discountService.addNewDiscount(any()))
-                .thenReturn(Mono.just(new ResponseEntity<>(SUCCESS, HttpStatus.CREATED)));
+                .thenReturn(Mono.just(SUCCESS));
         CompletableFuture<ResponseEntity<String>> response = discountController.addNewDiscount(testDiscount);
         assertEquals(HttpStatus.CREATED, response.get().getStatusCode());
         verify(discountService, times(1)).addNewDiscount(testDiscount);
@@ -62,7 +62,7 @@ class DiscountControllerTest implements TestConstants {
         Discount testDiscount = new Discount();
         testDiscount.setCik(TestConstants.CIK);
         when(discountService.updateDiscount(any()))
-            .thenReturn(Mono.just(new ResponseEntity<>(SUCCESS, HttpStatus.OK)));
+            .thenReturn(Mono.just(SUCCESS));
         CompletableFuture<ResponseEntity<String>> response = discountController.updateDiscount(testDiscount);
         assertEquals(HttpStatus.OK, response.get().getStatusCode());
         verify(discountService, times(1)).updateDiscount(testDiscount);
@@ -70,8 +70,7 @@ class DiscountControllerTest implements TestConstants {
 
     @Test
     void testDeleteDiscount() throws ExecutionException, InterruptedException {
-        ResponseEntity<String> expected = new ResponseEntity<>(SUCCESS, HttpStatus.OK);
-        when(discountService.deleteDiscount(TestConstants.CIK)).thenReturn(Mono.just(expected));
+        when(discountService.deleteDiscount(TestConstants.CIK)).thenReturn(Mono.just(SUCCESS));
         CompletableFuture<ResponseEntity<String>> response = discountController.deleteDiscount(TestConstants.CIK);
         assertEquals(HttpStatus.OK, response.get().getStatusCode());
         verify(discountService, times(1)).deleteDiscount(any());

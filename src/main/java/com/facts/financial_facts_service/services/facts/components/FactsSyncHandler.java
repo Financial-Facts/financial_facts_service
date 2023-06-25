@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.components;
+package com.facts.financial_facts_service.services.facts.components;
 
 import com.facts.financial_facts_service.entities.facts.Facts;
 import com.facts.financial_facts_service.repositories.FactsRepository;

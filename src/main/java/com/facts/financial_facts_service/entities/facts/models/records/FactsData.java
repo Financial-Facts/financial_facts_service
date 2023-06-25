@@ -1,10 +1,11 @@
-package com.facts.financial_facts_service.entities.facts.models;
+package com.facts.financial_facts_service.entities.facts.models.records;
 
 import com.facts.financial_facts_service.entities.facts.Facts;
+import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
 
 public record FactsData(String cik, FactsWrapper facts) {
 
-    public FactsDataResponse(Facts facts) {
+    public FactsData(Facts facts) {
         this(facts.getCik(), facts.getData());
     }
 

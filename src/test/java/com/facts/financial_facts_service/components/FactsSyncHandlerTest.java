@@ -3,6 +3,7 @@ package com.facts.financial_facts_service.components;
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.entities.facts.Facts;
 import com.facts.financial_facts_service.repositories.FactsRepository;
+import com.facts.financial_facts_service.services.facts.components.FactsSyncHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

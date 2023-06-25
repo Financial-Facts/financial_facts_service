@@ -4,6 +4,8 @@ public interface Constants {
     String EMPTY = "";
     String V1_DISCOUNT = "v1/discount";
     String CIK_PATH_PARAM = "/{cik}";
+    String STICKER_PRICE_DATA = "stickerPriceData";
+    String BULK = "/bulk";
     String DISCOUNT_NOT_FOUND = "Discount with cik %s not found";
     String FACTS_NOT_FOUND = "Facts with cik %s not found";
     String IDENTITY_NOT_FOUND = "Identity with cik %s not found";
@@ -21,7 +23,8 @@ public interface Constants {
     String DISCOUNT_DELETED = "Success: Discount deleted";
     String SLASH = "/";
     String FACTS_FILENAME = "%s.json";
-    String FACTS = "facts";
-    String US_GAAP = "us-gaap";
-    String IFRS_FULL = "ifrs-full";
+    String SHAREHOLDER_EQUITY = "shareholderEquity";
+    String OUTSTANDING_SHARES = "outstandingShares";
+    String EPS = "EPS";
+    String LONG_TERM_DEBT = "longTermDebt";
 }

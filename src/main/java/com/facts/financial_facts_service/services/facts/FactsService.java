@@ -1,20 +1,20 @@
-package com.facts.financial_facts_service.services;
+package com.facts.financial_facts_service.services.facts;
 
-import com.facts.financial_facts_service.components.RetrieverFactory;
+import com.facts.financial_facts_service.services.facts.components.RetrieverFactory;
 import com.facts.financial_facts_service.components.WebClientFactory;
 import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.constants.ModelType;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
 import com.facts.financial_facts_service.entities.facts.Facts;
-import com.facts.financial_facts_service.entities.facts.models.FactsData;
-import com.facts.financial_facts_service.entities.facts.models.StickerPriceData;
-import com.facts.financial_facts_service.entities.facts.parser.models.FactsResponseWrapper;
-import com.facts.financial_facts_service.entities.facts.retriever.IRetriever;
-import com.facts.financial_facts_service.entities.facts.retriever.models.QuarterlyLongTermDebt;
-import com.facts.financial_facts_service.entities.facts.retriever.models.QuarterlyOutstandingShares;
-import com.facts.financial_facts_service.entities.facts.retriever.models.QuarterlyShareholderEquity;
+import com.facts.financial_facts_service.entities.facts.models.records.FactsData;
+import com.facts.financial_facts_service.entities.facts.models.records.StickerPriceData;
+import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
+import com.facts.financial_facts_service.services.facts.components.retriever.IRetriever;
+import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyLongTermDebt;
+import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyOutstandingShares;
+import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyShareholderEquity;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
-import com.facts.financial_facts_service.components.FactsSyncHandler;
+import com.facts.financial_facts_service.services.facts.components.FactsSyncHandler;
 import com.facts.financial_facts_service.repositories.FactsRepository;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -125,7 +125,7 @@ public class FactsService implements Constants {
                 }));
     }
 
-    private Mono<ResponseEntity<FactsResponseWrapper>> queryAPIGateway(String cik) {
+    private Mono<ResponseEntity<FactsWrapper>> queryAPIGateway(String cik) {
         logger.info("Querying API gateway with cik {}", cik);
         String key = String.format(FACTS_FILENAME, cik.toUpperCase());
         try {
@@ -135,7 +135,7 @@ public class FactsService implements Constants {
                     .append(key)
                     .toString())
                 .retrieve()
-                .toEntity(FactsResponseWrapper.class);
+                .toEntity(FactsWrapper.class);
         } catch (WebClientResponseException ex) {
             if (ex instanceof WebClientResponseException.NotFound) {
                 logger.error("Facts not found for cik {}", cik);
@@ -146,7 +146,7 @@ public class FactsService implements Constants {
         }
     }
 
-    private Mono<Facts> buildFactsWithGatewayResponse(String cik, FactsResponseWrapper factsWrapper) {
+    private Mono<Facts> buildFactsWithGatewayResponse(String cik, FactsWrapper factsWrapper) {
         Facts facts = new Facts(cik, LocalDate.now(), factsWrapper);
         IRetriever retriever = retrieverFactory.getRetriever(cik, factsWrapper);
         return retriever.fetchQuarterlyData(

@@ -1,11 +1,11 @@
-package com.facts.financial_facts_service.components;
+package com.facts.financial_facts_service.services.facts.components;
 
 import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.constants.ModelType;
-import com.facts.financial_facts_service.entities.facts.parser.models.FactsResponseWrapper;
-import com.facts.financial_facts_service.entities.facts.retriever.GaapRetriever;
-import com.facts.financial_facts_service.entities.facts.retriever.IRetriever;
-import com.facts.financial_facts_service.entities.facts.retriever.IfrsRetriever;
+import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
+import com.facts.financial_facts_service.services.facts.components.retriever.GaapRetriever;
+import com.facts.financial_facts_service.services.facts.components.retriever.IRetriever;
+import com.facts.financial_facts_service.services.facts.components.retriever.IfrsRetriever;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class RetrieverFactory implements Constants {
     @Autowired
     private IfrsRetriever ifrsRetriever;
 
-    public IRetriever getRetriever(String cik, FactsResponseWrapper factsJson) {
+    public IRetriever getRetriever(String cik, FactsWrapper factsJson) {
         if (Objects.nonNull(factsJson.getTaxonomyReports().getGaap())) {
             return gaapRetriever;
         }

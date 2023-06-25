@@ -30,12 +30,11 @@ public class DiscountService implements Constants {
     @Autowired
     private DiscountRepository discountRepository;
 
-    public Mono<ResponseEntity<Discount>> getDiscountByCik(String cik) {
+    public Mono<Discount> getDiscountByCik(String cik) {
         logger.info("In discount service getting discount with cik {}", cik);
         try {
             Optional<Discount> discountOptional = discountRepository.findById(cik);
             return Mono.just(discountOptional
-                    .map(response -> new ResponseEntity<>(response, HttpStatus.OK))
                     .orElseThrow(() -> new DataNotFoundException(ModelType.DISCOUNT, cik)));
         } catch (DataAccessException ex) {
             logger.error("Error occurred while adding discount");
@@ -44,7 +43,7 @@ public class DiscountService implements Constants {
     }
 
 
-    public Mono<ResponseEntity<String>> addNewDiscount(Discount discount) {
+    public Mono<String> addNewDiscount(Discount discount) {
         logger.info("In discount service adding discount with cik {}", discount.getCik());
         try {
             this.checkIfDiscountAlreadyExists(discount.getCik());
@@ -55,10 +54,10 @@ public class DiscountService implements Constants {
             logger.error("Error occurred while adding discount");
             throw new DiscountOperationException(Operation.ADD, discount.getCik());
         }
-        return Mono.just(new ResponseEntity<>(DISCOUNT_ADDED, HttpStatus.CREATED));
+        return Mono.just(DISCOUNT_ADDED);
     }
 
-    public Mono<ResponseEntity<String>> updateDiscount(Discount discount) {
+    public Mono<String> updateDiscount(Discount discount) {
         logger.info("In discount service updating cik {}", discount.getCik());
         try {
             this.checkIfDiscountDoesNotExists(discount.getCik());
@@ -69,10 +68,10 @@ public class DiscountService implements Constants {
             logger.error("Error occurred while updating discount for cik {}", discount.getCik());
             throw new DiscountOperationException(Operation.UPDATE, discount.getCik());
         }
-        return Mono.just(new ResponseEntity<>(DISCOUNT_UPDATED, HttpStatus.OK));
+        return Mono.just(DISCOUNT_UPDATED);
     }
 
-    public Mono<ResponseEntity<String>> deleteDiscount(String cik) {
+    public Mono<String> deleteDiscount(String cik) {
         try {
             this.checkIfDiscountDoesNotExists(cik);
             discountRepository.deleteById(cik);
@@ -80,7 +79,7 @@ public class DiscountService implements Constants {
             logger.error("Error occurred while deleting discount for cik {}", cik);
             throw new DiscountOperationException(Operation.DELETE, cik);
         }
-        return Mono.just(new ResponseEntity<>(DISCOUNT_DELETED, HttpStatus.OK));
+        return Mono.just(DISCOUNT_DELETED);
     }
 
     private void checkIfDiscountAlreadyExists(String cik) {

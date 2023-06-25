@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.services.retriever;
+package com.facts.financial_facts_service.services.facts.components.retriever;
 
 import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.entities.facts.models.TaxonomyReports;

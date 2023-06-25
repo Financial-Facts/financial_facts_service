@@ -2,7 +2,7 @@ package com.facts.financial_facts_service.controllers;
 
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.entities.identity.Identity;
-import com.facts.financial_facts_service.services.IdentityService;
+import com.facts.financial_facts_service.services.identity.IdentityService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +39,7 @@ public class IdentityControllerTest implements TestConstants {
     public void testGetIdentity() throws ExecutionException, InterruptedException {
         Identity identity = new Identity();
         when(identityService.getIdentityFromIdentityMap(CIK))
-                .thenReturn(Mono.just(new ResponseEntity(identity, HttpStatus.OK)));
+                .thenReturn(Mono.just(identity));
         ResponseEntity<Identity> response = identityController.getIdentityWithCik(CIK).get();
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(identity, response.getBody());

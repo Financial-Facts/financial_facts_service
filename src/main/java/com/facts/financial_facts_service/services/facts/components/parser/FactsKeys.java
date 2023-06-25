@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.services.facts.components.retriever.components.parser;
+package com.facts.financial_facts_service.services.facts.components.parser;
 
 import java.util.List;
 

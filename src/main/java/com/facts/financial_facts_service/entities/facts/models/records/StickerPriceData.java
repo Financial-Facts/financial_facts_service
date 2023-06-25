@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.entities.facts.models;
+package com.facts.financial_facts_service.entities.facts.models.records;
 
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
 import com.facts.financial_facts_service.entities.facts.Facts;

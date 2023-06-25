@@ -1,9 +1,10 @@
 package com.facts.financial_facts_service.services;
 
-import com.facts.financial_facts_service.components.IdentityMap;
+import com.facts.financial_facts_service.services.identity.components.IdentityMap;
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.entities.identity.Identity;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
+import com.facts.financial_facts_service.services.identity.IdentityService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

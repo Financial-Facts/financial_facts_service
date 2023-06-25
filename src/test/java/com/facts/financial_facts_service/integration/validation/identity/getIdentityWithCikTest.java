@@ -2,8 +2,8 @@ package com.facts.financial_facts_service.integration.validation.identity;
 
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.services.DiscountService;
-import com.facts.financial_facts_service.services.FactsService;
-import com.facts.financial_facts_service.services.IdentityService;
+import com.facts.financial_facts_service.services.facts.FactsService;
+import com.facts.financial_facts_service.services.identity.IdentityService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

@@ -1,5 +1,6 @@
 package com.facts.financial_facts_service.services;
 
+import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
@@ -45,8 +46,8 @@ public class DiscountServiceTest implements TestConstants {
         Discount foundDiscount = new Discount();
         foundDiscount.setCik(CIK);
         when(discountRepository.findById(CIK)).thenReturn(Optional.of(foundDiscount));
-        Mono<ResponseEntity<Discount>> response = discountService.getDiscountByCik(CIK);
-        assertEquals(response.block().getBody().getCik(), foundDiscount.getCik());
+        Mono<Discount> response = discountService.getDiscountByCik(CIK);
+        assertEquals(response.block().getCik(), foundDiscount.getCik());
     }
 
     @Test
@@ -74,8 +75,8 @@ public class DiscountServiceTest implements TestConstants {
         discount.setCik(CIK);
         when(discountRepository.existsById(CIK)).thenReturn(false);
         when(discountRepository.save(discount)).thenReturn(discount);
-        ResponseEntity<String> response = discountService.addNewDiscount(discount).block();
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        String response = discountService.addNewDiscount(discount).block();
+        assertEquals(Constants.DISCOUNT_ADDED, response);
     }
 
     @Test
@@ -104,8 +105,8 @@ public class DiscountServiceTest implements TestConstants {
         discount.setCik(CIK);
         when(discountRepository.existsById(CIK)).thenReturn(true);
         when(discountRepository.save(discount)).thenReturn(discount);
-        ResponseEntity<String> response = discountService.updateDiscount(discount).block();
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        String response = discountService.updateDiscount(discount).block();
+        assertEquals(Constants.DISCOUNT_UPDATED, response);
     }
 
     @Test
@@ -133,8 +134,8 @@ public class DiscountServiceTest implements TestConstants {
     @Test
     public void testDeleteDiscountSuccess() {
         when(discountRepository.existsById(CIK)).thenReturn(true);
-        ResponseEntity<String> response = discountService.deleteDiscount(CIK).block();
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        String response = discountService.deleteDiscount(CIK).block();
+        assertEquals(Constants.DISCOUNT_DELETED, response);
     }
 
     @Test
