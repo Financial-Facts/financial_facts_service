@@ -6,16 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Component
@@ -75,18 +72,7 @@ public class FactsSyncHandler {
 
     private CompletableFuture<Facts> syncDatabaseWithFacts(Facts facts) {
         logger.info("Syncing DB and API Gateway facts for {}", facts.getCik());
-        return CompletableFuture.supplyAsync(() -> {
-//            if (factsRepository.existsById(facts.getCik())) {
-//                Facts existingFacts = factsRepository.getReferenceById(facts.getCik());
-//                existingFacts.setLastSync(facts.getLastSync());
-//                existingFacts.setQuarterlyShareholderEquity(facts.getQuarterlyShareholderEquity());
-//                existingFacts.setQuarterlyOutstandingShares(facts.getQuarterlyOutstandingShares());
-//                existingFacts.setQuarterlyEPS(facts.getQuarterlyEPS());
-//                existingFacts.setQuarterlyLongTermDebt(facts.getQuarterlyLongTermDebt());
-//                return existingFacts;
-//            }
-            return this.factsRepository.save(facts);
-        });
+        return CompletableFuture.supplyAsync(() -> this.factsRepository.saveAndFlush(facts));
     }
 
     private void completeProcessing(String cik) {

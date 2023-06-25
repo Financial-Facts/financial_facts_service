@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.entities.facts.retriever.models;
+package com.facts.financial_facts_service.services.retriever.models;
 
 import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;

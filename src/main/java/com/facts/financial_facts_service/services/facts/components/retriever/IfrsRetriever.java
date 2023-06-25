@@ -1,44 +1,43 @@
-package com.facts.financial_facts_service.entities.facts.retriever;
+package com.facts.financial_facts_service.services.retriever;
 
+import com.facts.financial_facts_service.entities.facts.models.TaxonomyReports;
 import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
-import com.facts.financial_facts_service.entities.facts.retriever.models.QuarterlyLongTermDebt;
-import com.facts.financial_facts_service.entities.facts.retriever.models.QuarterlyOutstandingShares;
-import com.facts.financial_facts_service.entities.facts.retriever.models.QuarterlyShareholderEquity;
+import com.facts.financial_facts_service.services.retriever.models.QuarterlyLongTermDebt;
+import com.facts.financial_facts_service.services.retriever.models.QuarterlyOutstandingShares;
+import com.facts.financial_facts_service.services.retriever.models.QuarterlyShareholderEquity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.json.JSONObject;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 @Getter
 @Setter
+@Component
 @AllArgsConstructor
-public class IfrsRetriever implements IRetriever {
-
-    private String cik;
-
-    private JSONObject facts;
+public class IfrsRetriever extends AbstractRetriever implements IRetriever {
 
     @Override
-    public Mono<List<QuarterlyShareholderEquity>> retrieve_quarterly_shareholder_equity() {
+    public Mono<List<QuarterlyShareholderEquity>> retrieve_quarterly_shareholder_equity(String cik, TaxonomyReports taxonomyLayer) {
         return null;
     }
 
     @Override
-    public Mono<List<QuarterlyOutstandingShares>> retrieve_quarterly_outstanding_shares() {
+    public Mono<List<QuarterlyOutstandingShares>> retrieve_quarterly_outstanding_shares(String cik, TaxonomyReports taxonomyLayer) {
         return null;
     }
 
     @Override
-    public Mono<List<QuarterlyEPS>> retrieve_quarterly_EPS() {
+    public Mono<List<QuarterlyEPS>> retrieve_quarterly_EPS(String cik, TaxonomyReports taxonomyLayer) {
         return null;
     }
 
     @Override
-    public Mono<List<QuarterlyLongTermDebt>> retrieve_quarterly_long_term_debt() {
+    public Mono<List<QuarterlyLongTermDebt>> retrieve_quarterly_long_term_debt(String cik, TaxonomyReports taxonomyLayer) {
         return null;
     }
 

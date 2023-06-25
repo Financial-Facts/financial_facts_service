@@ -23,12 +23,12 @@ public class IdentityService {
     @Autowired
     IdentityMap identityMap;
 
-    public Mono<ResponseEntity<Identity>> getIdentityFromIdentityMap(String cik) {
+    public Mono<Identity> getIdentityFromIdentityMap(String cik) {
         logger.info("In identity service getting identity for cik {}", cik);
         try {
             return identityMap.getValue(cik).flatMap(identity -> {
                 if (identity.isPresent()) {
-                    return Mono.just(new ResponseEntity<>(identity.get(), HttpStatus.OK));
+                    return Mono.just(identity.get());
                 }
                 return Mono.empty();
             }).switchIfEmpty(Mono.defer(() -> {
