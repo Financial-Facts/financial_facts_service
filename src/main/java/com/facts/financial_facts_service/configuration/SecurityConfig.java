@@ -23,6 +23,7 @@ public class SecurityConfig {
             .and()
             .csrf()
             .ignoringRequestMatchers("/v1/discount")
+            .ignoringRequestMatchers("/v1/identity/bulk")
             .and()
             .httpBasic()
             .authenticationEntryPoint(authenticationEntryPoint);

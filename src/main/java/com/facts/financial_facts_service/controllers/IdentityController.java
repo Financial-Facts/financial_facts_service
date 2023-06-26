@@ -4,6 +4,7 @@ import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.entities.identity.Identity;
 import com.facts.financial_facts_service.entities.identity.models.BulkIdentitiesRequest;
 import com.facts.financial_facts_service.services.identity.IdentityService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.slf4j.Logger;
@@ -40,10 +41,9 @@ public class IdentityController implements Constants {
     }
 
     @PostMapping(path = BULK)
-    public CompletableFuture<ResponseEntity<List<Identity>>> getBulkIdentities(@RequestBody BulkIdentitiesRequest request) {
+    public CompletableFuture<ResponseEntity<List<Identity>>> getBulkIdentities(@Valid @RequestBody BulkIdentitiesRequest request) {
         logger.info("In identity controller getting bulk identities {}");
-//        return identityService.getBulkIdentities(request);
-        return null;
+        return identityService.getBulkIdentities(request)
+                .flatMap(identities -> Mono.just(new ResponseEntity<>(identities, HttpStatus.OK))).toFuture();
     }
-
 }

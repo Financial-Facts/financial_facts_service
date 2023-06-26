@@ -1,5 +1,6 @@
 package com.facts.financial_facts_service.entities.identity;
 
+import com.amazonaws.util.StringUtils;
 import com.facts.financial_facts_service.constants.Constants;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.persistence.Entity;
@@ -13,7 +14,7 @@ import lombok.*;
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(force = true)
 @Table(schema = Constants.FINANCIAL_FACTS)
 public class Identity {
 
@@ -31,5 +32,4 @@ public class Identity {
     @NotBlank
     @JsonAlias(value = "title")
     String name;
-
 }

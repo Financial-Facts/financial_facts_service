@@ -35,6 +35,8 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDate;
 import java.util.*;
 
+import static com.facts.financial_facts_service.utils.ServiceUtilities.mapRetrievedQuarterlyData;
+
 
 @Service
 public class FactsService implements Constants {
@@ -162,24 +164,4 @@ public class FactsService implements Constants {
         // Push up-to-date facts to sync handler to update data in DB
         this.factsSyncHandler.pushToHandler(facts);
     }
-
-    private void mapRetrievedQuarterlyData(Facts facts, List<?> retrievedQuarterlyData) {
-        retrievedQuarterlyData.stream().forEach(dataSet -> {
-            if (dataSet instanceof List<?> && !((List) dataSet).isEmpty()) {
-                if (((List) dataSet).get(0) instanceof QuarterlyOutstandingShares) {
-                    facts.setQuarterlyOutstandingShares((List<QuarterlyOutstandingShares>) dataSet);
-                }
-                if (((List) dataSet).get(0) instanceof QuarterlyShareholderEquity) {
-                    facts.setQuarterlyShareholderEquity((List<QuarterlyShareholderEquity>) dataSet);
-                }
-                if (((List) dataSet).get(0) instanceof QuarterlyEPS) {
-                    facts.setQuarterlyEPS((List<QuarterlyEPS>) dataSet);
-                }
-                if (((List) dataSet).get(0) instanceof QuarterlyLongTermDebt) {
-                    facts.setQuarterlyLongTermDebt((List<QuarterlyLongTermDebt>) dataSet);
-                }
-            }
-        });
-    }
-
 }

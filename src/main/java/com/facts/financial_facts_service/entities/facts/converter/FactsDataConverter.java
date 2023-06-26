@@ -9,8 +9,7 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 @Converter(autoApply = true)
-public class FactsDataConverter implements
-        AttributeConverter<FactsWrapper, JsonBinaryType> {
+public class FactsDataConverter implements AttributeConverter<FactsWrapper, JsonBinaryType> {
 
     private final ObjectMapper mapper = JsonMapper.builder()
             .addModule(new JavaTimeModule()).build();

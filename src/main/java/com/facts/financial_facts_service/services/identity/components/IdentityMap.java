@@ -63,12 +63,15 @@ public class IdentityMap implements CommandLineRunner {
         }
     }
 
+    public Map<String, Identity> getCurrentIdentityMap() {
+        return new HashMap<>(this.identityMap);
+    }
+
     public void setValue(String cik, Identity identity) {
         identityMap.put(cik, identity);
     }
 
-    public Mono<Optional<Identity>> getValue(String cik) {
-        logger.info("In getValue retrieving current identityMap");
+    public Optional<Identity> getValue(String cik) {
         try {
             while (lock.isLocked()) {
                 logger.info("{} is waiting on cik map...", cik);
@@ -76,12 +79,12 @@ public class IdentityMap implements CommandLineRunner {
             }
         } catch (InterruptedException e) {
             logger.info("Finished wait with error {}", e.getMessage());
-            return Mono.just(Optional.empty());
+            return Optional.empty();
         }
-        if (Objects.isNull(identityMap.get(cik))) {
-            return Mono.just(Optional.empty());
+        if (identityMap.containsKey(cik)) {
+            return Optional.of(identityMap.get(cik));
         }
-        return Mono.just(Optional.of(identityMap.get(cik)));
+        return Optional.empty();
     }
 
     // ToDo: Set up scheduler to update identityMap?
