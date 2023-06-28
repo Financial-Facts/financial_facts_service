@@ -1,7 +1,8 @@
-package com.facts.financial_facts_service.components;
+package com.facts.financial_facts_service.services.facts.components;
 
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.entities.facts.Facts;
+import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
 import com.facts.financial_facts_service.repositories.FactsRepository;
 import com.facts.financial_facts_service.services.facts.components.FactsSyncHandler;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +48,8 @@ public class FactsSyncHandlerTest implements TestConstants
 
     @Test
     public void testPushToHandlerSuccess() throws InterruptedException {
-        Facts facts = new Facts(CIK, LocalDate.now(), FACTS);
+        FactsWrapper factsWrapper = new FactsWrapper();
+        Facts facts = new Facts(CIK, LocalDate.now(), factsWrapper);
         when(factsRepository.save(facts)).thenReturn(facts);
         factsSyncHandler.pushToHandler(facts);
         while (Objects.nonNull(syncMap.get(CIK))) {
@@ -58,7 +60,8 @@ public class FactsSyncHandlerTest implements TestConstants
 
     @Test
     public void testPushToHandlerAlreadyProcessing() {
-        Facts facts = new Facts(CIK, LocalDate.now(), FACTS);
+        FactsWrapper factsWrapper = new FactsWrapper();
+        Facts facts = new Facts(CIK, LocalDate.now(), factsWrapper);
         when(factsRepository.save(facts)).thenReturn(facts);
         factsSyncHandler.pushToHandler(facts);
         factsSyncHandler.pushToHandler(facts);
@@ -69,8 +72,9 @@ public class FactsSyncHandlerTest implements TestConstants
 
     @Test
     public void testPushToHandlerMultiProcessing() throws InterruptedException {
-        Facts facts = new Facts(CIK, LocalDate.now(), FACTS);
-        Facts facts2 = new Facts(CIK2, LocalDate.now(), FACTS);
+        FactsWrapper factsWrapper = new FactsWrapper();
+        Facts facts = new Facts(CIK, LocalDate.now(), factsWrapper);
+        Facts facts2 = new Facts(CIK2, LocalDate.now(), factsWrapper);
         when(factsRepository.save(facts)).thenReturn(facts);
         factsSyncHandler.pushToHandler(facts);
         factsSyncHandler.pushToHandler(facts2);
@@ -81,8 +85,9 @@ public class FactsSyncHandlerTest implements TestConstants
 
     @Test
     public void testPushToHandlerDataAccessError() {
+        FactsWrapper factsWrapper = new FactsWrapper();
         DataAccessException ex = mock(DataAccessException.class);
-        Facts facts = new Facts(CIK, LocalDate.now(), FACTS);
+        Facts facts = new Facts(CIK, LocalDate.now(), factsWrapper);
         when(factsRepository.save(facts)).thenThrow(ex);
         factsSyncHandler.pushToHandler(facts);
         syncMap.get(CIK).exceptionally(e -> {

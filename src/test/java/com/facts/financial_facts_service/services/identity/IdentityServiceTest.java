@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.services;
+package com.facts.financial_facts_service.services.identity;
 
 import com.facts.financial_facts_service.services.identity.components.IdentityMap;
 import com.facts.financial_facts_service.constants.TestConstants;
@@ -45,16 +45,17 @@ public class IdentityServiceTest implements TestConstants {
     public void testGetSymbolFromIdentityMapSuccess() {
         Identity identity = new Identity();
         when(identityMap.getValue(CIK))
-                .thenReturn(Mono.just(Optional.of(identity)));
-        ResponseEntity<Identity> response = identityService.getIdentityFromIdentityMap(CIK).block();
-        assertEquals(identity, response.getBody());
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+                .thenReturn(Optional.of(identity));
+        Identity response = identityService.getIdentityFromIdentityMap(CIK).block();
+        assertEquals(identity.getCik(), response.getCik());
+        assertEquals(identity.getName(), response.getName());
+        assertEquals(identity.getSymbol(), response.getSymbol());
     }
 
     @Test
     public void testGetSymbolFromIdentityMapNotFound() {
         when(identityMap.getValue(CIK))
-                .thenReturn(Mono.just(Optional.empty()));
+                .thenReturn(Optional.empty());
         assertThrows(DataNotFoundException.class, () -> {
             identityService.getIdentityFromIdentityMap(CIK).block();
         });

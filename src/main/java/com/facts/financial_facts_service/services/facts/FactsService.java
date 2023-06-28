@@ -4,15 +4,9 @@ import com.facts.financial_facts_service.services.facts.components.RetrieverFact
 import com.facts.financial_facts_service.components.WebClientFactory;
 import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.constants.ModelType;
-import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
 import com.facts.financial_facts_service.entities.facts.Facts;
-import com.facts.financial_facts_service.entities.facts.models.records.FactsData;
-import com.facts.financial_facts_service.entities.facts.models.records.StickerPriceData;
 import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
 import com.facts.financial_facts_service.services.facts.components.retriever.IRetriever;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyLongTermDebt;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyOutstandingShares;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyShareholderEquity;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.services.facts.components.FactsSyncHandler;
 import com.facts.financial_facts_service.repositories.FactsRepository;
@@ -73,15 +67,9 @@ public class FactsService implements Constants {
     }
 
     @Retryable(retryFor = ResponseStatusException.class, backoff = @Backoff(delay = 1000))
-    public Mono<FactsData> getFactsWithCik(String cik) {
+    public Mono<Facts> getFactsWithCik(String cik) {
         logger.info("In facts service retrieving facts for cik {}", cik);
-        return fetchUpToDateFacts(cik).flatMap(facts -> Mono.just(new FactsData(facts)));
-    }
-
-    @Retryable(retryFor = ResponseStatusException.class, backoff = @Backoff(delay = 1000))
-    public Mono<StickerPriceData> getStickerPriceDataWithCik(String cik) {
-        logger.info("In facts service retrieving sticker price data for cik {}", cik);
-        return fetchUpToDateFacts(cik).flatMap(facts -> Mono.just(new StickerPriceData(facts)));
+        return fetchUpToDateFacts(cik).flatMap(facts -> Mono.just(facts));
     }
 
     private Mono<Facts> fetchUpToDateFacts(String cik) {
@@ -156,6 +144,7 @@ public class FactsService implements Constants {
                 cik, factsWrapper.getTaxonomyReports())
             .flatMap((retrievedQuarterlyData -> {
                 mapRetrievedQuarterlyData(facts, retrievedQuarterlyData);
+
                 return Mono.just(facts);
             }));
     }

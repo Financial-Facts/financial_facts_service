@@ -30,6 +30,7 @@ public class Facts {
 
     @Id
     @NonNull
+    @JsonIgnore
     private String cik;
 
     @NonNull

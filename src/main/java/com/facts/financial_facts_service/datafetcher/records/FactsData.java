@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.entities.facts.models.records;
+package com.facts.financial_facts_service.datafetcher.records;
 
 import com.facts.financial_facts_service.entities.facts.Facts;
 import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;

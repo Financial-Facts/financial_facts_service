@@ -1,9 +1,10 @@
-package com.facts.financial_facts_service.components;
+package com.facts.financial_facts_service.services.identity.components;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.facts.financial_facts_service.components.WebClientFactory;
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.services.identity.components.IdentityMap;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,16 +53,16 @@ public class IdentityMapTest implements TestConstants {
             .symbol(SYMBOL)
             .name(NAME).build();
         mockIdentityMap.setValue(CIK, identity);
-        Mono<Optional<Identity>> resultMono = mockIdentityMap.getValue(CIK);
-        StepVerifier.create(resultMono)
+        Optional<Identity> result = mockIdentityMap.getValue(CIK);
+        StepVerifier.create(Mono.just(result))
                 .expectNext(Optional.of(identity))
                 .verifyComplete();
     }
 
     @Test
     public void testGetValueWithInvalidCik() throws InterruptedException {
-        Mono<Optional<Identity>> resultMono = mockIdentityMap.getValue(CIK);
-        StepVerifier.create(resultMono)
+        Optional<Identity> resultMono = mockIdentityMap.getValue(CIK);
+        StepVerifier.create(Mono.just(resultMono))
                 .expectNext(Optional.empty())
                 .verifyComplete();
     }

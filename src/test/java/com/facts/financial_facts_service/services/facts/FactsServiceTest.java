@@ -1,13 +1,13 @@
-package com.facts.financial_facts_service.services;
+package com.facts.financial_facts_service.services.facts;
 
+import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
 import com.facts.financial_facts_service.services.facts.components.FactsSyncHandler;
 import com.facts.financial_facts_service.components.WebClientFactory;
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.entities.facts.Facts;
-import com.facts.financial_facts_service.entities.facts.models.records.FactsData;
+import com.facts.financial_facts_service.datafetcher.records.FactsData;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.repositories.FactsRepository;
-import com.facts.financial_facts_service.services.facts.FactsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,7 +63,8 @@ public class FactsServiceTest implements TestConstants {
     @Test
     public void testGetFactsWithCikSuccess() {
         mockFactsWebClientExchange();
-        Facts facts = new Facts(CIK, LocalDate.now(), FACTS);
+        FactsWrapper factsWrapper = new FactsWrapper();
+        Facts facts = new Facts(CIK, LocalDate.now(), factsWrapper);
         FactsData response = factsService.getFactsWithCik(CIK).block();
         verify(factsWebClient, times(1)).get();
         assertEquals(facts, response);
@@ -105,11 +106,11 @@ public class FactsServiceTest implements TestConstants {
 
     @Test
     public void testGetFactsWithCikFromDBUpToDate() {
-        Facts facts = new Facts(CIK, LocalDate.now(), FACTS);
+        FactsWrapper factsWrapper = new FactsWrapper();
+        Facts facts = new Facts(CIK, LocalDate.now(), factsWrapper);
         when(factsRepository.findById(CIK)).thenReturn(Optional.of(facts));
         FactsData response = factsService.getFactsWithCik(CIK).block();
-        assertEquals(CIK, response.getCik());
-        assertEquals(FACTS, response.getData());
+        assertEquals(CIK, response.cik());
     }
 
 //    @Test

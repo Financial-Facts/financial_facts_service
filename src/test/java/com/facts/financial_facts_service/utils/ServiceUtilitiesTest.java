@@ -56,27 +56,27 @@ public class ServiceUtilitiesTest {
     public void testAssignPeriodDataCikTtmPriceData() {
         Discount discount = new Discount();
         TtmPriceData ttmPriceData = new TtmPriceData();
-        discount.setTtmPriceData(List.of(ttmPriceData));
+        discount.setTtmPriceData(ttmPriceData);
         ServiceUtilities.assignPeriodDataCik(discount, CIK);
-        assertEquals(CIK, discount.getTtmPriceData().get(0).getCik());
+        assertEquals(CIK, discount.getTtmPriceData().getCik());
     }
 
     @Test
     public void testAssignPeriodDataCikTfyPriceData() {
         Discount discount = new Discount();
         TfyPriceData tfyPriceData = new TfyPriceData();
-        discount.setTfyPriceData(List.of(tfyPriceData));
+        discount.setTfyPriceData(tfyPriceData);
         ServiceUtilities.assignPeriodDataCik(discount, CIK);
-        assertEquals(CIK, discount.getTfyPriceData().get(0).getCik());
+        assertEquals(CIK, discount.getTfyPriceData().getCik());
     }
 
     @Test
     public void testAssignPeriodDataCikTtyPriceData() {
         Discount discount = new Discount();
         TtyPriceData ttyPriceData = new TtyPriceData();
-        discount.setTtyPriceData(List.of(ttyPriceData));
+        discount.setTtyPriceData(ttyPriceData);
         ServiceUtilities.assignPeriodDataCik(discount, CIK);
-        assertEquals(CIK, discount.getTtyPriceData().get(0).getCik());
+        assertEquals(CIK, discount.getTtyPriceData().getCik());
     }
 
     @Test
