@@ -4,6 +4,7 @@ import com.facts.financial_facts_service.entities.discount.models.quarterlyData.
 import com.facts.financial_facts_service.entities.facts.converter.FactsDataConverter;
 import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
 import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyLongTermDebt;
+import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyNetIncome;
 import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyOutstandingShares;
 import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyShareholderEquity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -59,6 +60,10 @@ public class Facts {
     @PrimaryKeyJoinColumn
     private List<QuarterlyLongTermDebt> quarterlyLongTermDebt;
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private List<QuarterlyNetIncome> quarterlyNetIncome;
+
     public Facts(String cik, LocalDate lastSync, FactsWrapper data) {
         this.cik = cik;
         this.lastSync = lastSync;
@@ -67,5 +72,6 @@ public class Facts {
         this.quarterlyOutstandingShares = Collections.emptyList();
         this.quarterlyEPS = Collections.emptyList();
         this.quarterlyLongTermDebt = Collections.emptyList();
+        this.quarterlyNetIncome = Collections.emptyList();
     }
 }

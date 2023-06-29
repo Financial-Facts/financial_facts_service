@@ -140,11 +140,10 @@ public class FactsService implements Constants {
         Facts facts = new Facts(cik, LocalDate.now(), factsWrapper);
         IRetriever retriever = retrieverFactory.getRetriever(cik, factsWrapper);
         return retriever.fetchQuarterlyData(
-                Set.of(SHAREHOLDER_EQUITY, OUTSTANDING_SHARES, EPS, LONG_TERM_DEBT),
+                Set.of(SHAREHOLDER_EQUITY,OUTSTANDING_SHARES, EPS, LONG_TERM_DEBT, NET_INCOME),
                 cik, factsWrapper.getTaxonomyReports())
             .flatMap((retrievedQuarterlyData -> {
                 mapRetrievedQuarterlyData(facts, retrievedQuarterlyData);
-
                 return Mono.just(facts);
             }));
     }

@@ -27,4 +27,8 @@ public class FactsKeys {
     public static List<String> longTermDebt = List.of(
         "LongTermDebt"
     );
+
+    public static List<String> netIncome = List.of(
+        "NetIncomeLoss"
+    );
 }

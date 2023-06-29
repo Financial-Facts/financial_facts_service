@@ -3,6 +3,7 @@ package com.facts.financial_facts_service.services.facts.components.retriever;
 import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.constants.Taxonomy;
 import com.facts.financial_facts_service.entities.facts.models.TaxonomyReports;
+import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyNetIncome;
 import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
 import com.facts.financial_facts_service.services.facts.components.parser.FactsKeys;
@@ -51,13 +52,8 @@ public class GaapRetriever extends AbstractRetriever implements IRetriever, Cons
     @Override
     public Mono<List<QuarterlyLongTermDebt>> retrieve_quarterly_long_term_debt(String cik,
                                                           TaxonomyReports taxonomyReports) {
-        return parser.retrieveQuarterlyData(cik, taxonomyReports, Taxonomy.US_GAAP, FactsKeys.longTermDebt,
-                Optional.empty(), QuarterlyLongTermDebt.class);
-    }
-
-    @Override
-    public Mono<List<List<AbstractQuarterlyData>>> retrieve_quarterly_long_term_debt_parts() {
-        return null;
+        return parser.retrieveQuarterlyData(cik, taxonomyReports, Taxonomy.US_GAAP,
+                        FactsKeys.longTermDebt,Optional.empty(), QuarterlyLongTermDebt.class);
     }
 
     @Override
@@ -66,8 +62,10 @@ public class GaapRetriever extends AbstractRetriever implements IRetriever, Cons
     }
 
     @Override
-    public Mono<List<AbstractQuarterlyData>> retrieve_quarterly_net_income() {
-        return null;
+    public Mono<List<QuarterlyNetIncome>> retrieve_quarterly_net_income(String cik,
+                                                   TaxonomyReports taxonomyReports) {
+        return parser.retrieveQuarterlyData(cik, taxonomyReports, Taxonomy.US_GAAP, FactsKeys.netIncome,
+                Optional.empty(), QuarterlyNetIncome.class);
     }
 
     @Override

@@ -34,6 +34,9 @@ public abstract class AbstractRetriever implements IRetriever, Constants {
                     futures.add(retrieve_quarterly_long_term_debt(cik, taxonomyReports).toFuture());
                     break;
                 }
+                case NET_INCOME: {
+                    futures.add(retrieve_quarterly_net_income(cik, taxonomyReports).toFuture());
+                }
                 default: {
                     break;
                 }

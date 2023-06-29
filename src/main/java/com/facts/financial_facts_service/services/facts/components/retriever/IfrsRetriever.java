@@ -1,6 +1,7 @@
 package com.facts.financial_facts_service.services.facts.components.retriever;
 
 import com.facts.financial_facts_service.entities.facts.models.TaxonomyReports;
+import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyNetIncome;
 import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
 import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyLongTermDebt;
@@ -40,7 +41,6 @@ public class IfrsRetriever extends AbstractRetriever implements IRetriever {
         return null;
     }
 
-    @Override
     public Mono<List<List<AbstractQuarterlyData>>> retrieve_quarterly_long_term_debt_parts() {
         return null;
     }
@@ -51,7 +51,7 @@ public class IfrsRetriever extends AbstractRetriever implements IRetriever {
     }
 
     @Override
-    public Mono<List<AbstractQuarterlyData>> retrieve_quarterly_net_income() {
+    public Mono<List<QuarterlyNetIncome>> retrieve_quarterly_net_income(String cik, TaxonomyReports taxonomyReports) {
         return null;
     }
 

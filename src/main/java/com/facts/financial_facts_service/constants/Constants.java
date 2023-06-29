@@ -27,4 +27,5 @@ public interface Constants {
     String OUTSTANDING_SHARES = "outstandingShares";
     String EPS = "EPS";
     String LONG_TERM_DEBT = "longTermDebt";
+    String NET_INCOME = "netIncome";
 }

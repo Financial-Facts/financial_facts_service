@@ -6,25 +6,27 @@ import com.facts.financial_facts_service.entities.facts.models.Period;
 import com.facts.financial_facts_service.entities.facts.models.UnitData;
 import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
+import com.facts.financial_facts_service.exceptions.FeatureNotImplementedException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
 public class Parser {
 
     public <T extends AbstractQuarterlyData> Mono<List<T>> retrieveQuarterlyData(String cik,
-                                                                                 TaxonomyReports taxonomyReports, Taxonomy taxonomy, List<String> factsKeys,
-                                                                                 Optional<List<String>> deiFactsKeys, Class<T> type) {
+                 TaxonomyReports taxonomyReports, Taxonomy taxonomy, List<String> factsKeys,
+                                         Optional<List<String>> deiFactsKeys, Class<T> type) {
         UnitData data = parseFactsForData(cik, taxonomyReports, taxonomy, factsKeys, deiFactsKeys);
-        String unitKey = data.getUnits().keySet().stream().collect(Collectors.toList()).get(0);
+        String unitKey = data.getUnits().keySet().stream().toList().get(0);
+        checkIsSupportedUnits(unitKey);
         List<Period> periods = data.getUnits().get(unitKey);
         boolean hasStartDate = checkHasStartDate(periods.get(0));
         boolean isShares = unitKey.equalsIgnoreCase("shares");
@@ -59,7 +61,7 @@ public class Parser {
         for(String key: keys) {
             if (reportedValues.containsKey(key)) {
                 UnitData unitData = reportedValues.get(key);
-                String unitKey = unitData.getUnits().keySet().stream().collect(Collectors.toList()).get(0);
+                String unitKey = unitData.getUnits().keySet().stream().toList().get(0);
                 int dataLength = unitData.getUnits().get(unitKey).size();
                 if (dataLength > max) {
                     max = dataLength;
@@ -82,7 +84,7 @@ public class Parser {
             if (Objects.nonNull(period.getEnd()) && Objects.nonNull(period.getStart()) &&
                     !processedEndDates.contains(period.getEnd())) {
                 if (ChronoUnit.DAYS.between(period.getStart(), period.getEnd()) < 105) {
-                    annualSum.add(period.getVal());
+                    annualSum = annualSum.add(period.getVal());
                     quarterlyData.add(mapPeriodToQuarterlyData(cik, period, type));
                     processedEndDates.add(period.getEnd());
                 } else if (period.getFp().equalsIgnoreCase("FY")) {
@@ -118,14 +120,15 @@ public class Parser {
 
     private <T extends AbstractQuarterlyData> T mapPeriodToQuarterlyData (String cik,
                                                         Period period, Class<T> type) {
-        T quarter = null;
+        T quarter;
         try {
-            quarter = type.newInstance();
+            quarter = type.getDeclaredConstructor().newInstance();
             quarter.setCik(cik);
             quarter.setAnnouncedDate(period.getEnd());
             quarter.setValue(period.getVal());
             return type.cast(quarter);
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (InvocationTargetException | NoSuchMethodException |
+                    InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -136,5 +139,14 @@ public class Parser {
             case IFRS_FULL -> taxonomyReports.getIfrs();
             case DEI -> taxonomyReports.getDei();
         };
+    }
+
+    private void checkIsSupportedUnits(String unitKey) {
+        if (unitKey.equalsIgnoreCase("USD") ||
+            unitKey.equalsIgnoreCase("USD/shares") ||
+            unitKey.equalsIgnoreCase("shares")) {
+            return;
+        }
+        throw new FeatureNotImplementedException("Currency " + unitKey+ " not currently supported");
     }
 }
