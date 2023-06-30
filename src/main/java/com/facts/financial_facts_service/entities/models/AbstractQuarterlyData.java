@@ -1,8 +1,8 @@
 package com.facts.financial_facts_service.entities.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import lombok.Data;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.MappedSuperclass;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +19,6 @@ import java.time.LocalDate;
 public abstract class AbstractQuarterlyData {
 
     @Id
-    @JsonIgnore
     private String cik;
 
     @Id

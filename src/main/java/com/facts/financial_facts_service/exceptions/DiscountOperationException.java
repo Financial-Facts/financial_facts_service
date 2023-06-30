@@ -8,4 +8,8 @@ public class DiscountOperationException extends RuntimeException implements Cons
     public DiscountOperationException(Operation operation, String cik) {
         super(String.format(DISCOUNT_OPERATION_ERROR, operation.toString(), cik));
     }
+
+    public DiscountOperationException(Operation operation) {
+        super(String.format(DISCOUNT_OPERATION_ERROR_NO_CIK, operation.toString()));
+    }
 }

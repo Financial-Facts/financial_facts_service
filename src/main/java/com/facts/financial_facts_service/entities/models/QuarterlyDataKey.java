@@ -2,7 +2,6 @@ package com.facts.financial_facts_service.entities.models;
 
 import lombok.*;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 
 @Getter
@@ -10,7 +9,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuarterlyDataKey implements Serializable {
+public class QuarterlyDataKey {
 
     private String cik;
 
