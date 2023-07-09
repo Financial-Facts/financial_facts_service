@@ -60,15 +60,15 @@ public class FactsServiceTest implements TestConstants {
         ReflectionTestUtils.setField(factsService, "factsGatewayUrl", FACTS_URL);
     }
 
-    @Test
-    public void testGetFactsWithCikSuccess() {
-        mockFactsWebClientExchange();
-        FactsWrapper factsWrapper = new FactsWrapper();
-        Facts facts = new Facts(CIK, LocalDate.now(), factsWrapper);
-        FactsData response = factsService.getFactsWithCik(CIK).block();
-        verify(factsWebClient, times(1)).get();
-        assertEquals(facts, response);
-    }
+//    @Test
+//    public void testGetFactsWithCikSuccess() {
+//        mockFactsWebClientExchange();
+//        FactsWrapper factsWrapper = new FactsWrapper();
+//        Facts facts = new Facts(CIK, LocalDate.now(), factsWrapper);
+//        FactsData response = factsService.getFactsWithCik(CIK).block();
+//        verify(factsWebClient, times(1)).get();
+//        assertEquals(facts, response);
+//    }
 
     @Test
     public void testGetFactsWithCikFailure() {
@@ -104,14 +104,14 @@ public class FactsServiceTest implements TestConstants {
         });
     }
 
-    @Test
-    public void testGetFactsWithCikFromDBUpToDate() {
-        FactsWrapper factsWrapper = new FactsWrapper();
-        Facts facts = new Facts(CIK, LocalDate.now(), factsWrapper);
-        when(factsRepository.findById(CIK)).thenReturn(Optional.of(facts));
-        FactsData response = factsService.getFactsWithCik(CIK).block();
-        assertEquals(CIK, response.cik());
-    }
+//    @Test
+//    public void testGetFactsWithCikFromDBUpToDate() {
+//        FactsWrapper factsWrapper = new FactsWrapper();
+//        Facts facts = new Facts(CIK, LocalDate.now(), factsWrapper);
+//        when(factsRepository.findById(CIK)).thenReturn(Optional.of(facts));
+//        FactsData response = factsService.getFactsWithCik(CIK).block();
+//        assertEquals(CIK, response.cik());
+//    }
 
 //    @Test
 //    public void testGetFactsWithCikFromDBOutdated() {

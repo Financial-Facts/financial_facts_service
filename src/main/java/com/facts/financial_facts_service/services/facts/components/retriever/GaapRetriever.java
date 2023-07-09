@@ -23,7 +23,6 @@ import java.util.*;
 @Getter
 @Setter
 @Component
-@AllArgsConstructor
 public class GaapRetriever extends AbstractRetriever implements IRetriever, Constants {
 
     @Autowired

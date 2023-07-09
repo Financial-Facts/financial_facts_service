@@ -22,8 +22,10 @@ public class SecurityConfig {
             .authenticated()
             .and()
             .csrf()
-            .ignoringRequestMatchers("/v1/*")
-            .ignoringRequestMatchers("/v1/*/*)")
+            .ignoringRequestMatchers("/v1/facts/*")
+            .ignoringRequestMatchers("/v1/discount")
+            .ignoringRequestMatchers("/v1/discount/*")
+            .ignoringRequestMatchers("/v1/identity/*")
             .and()
             .httpBasic()
             .authenticationEntryPoint(authenticationEntryPoint);

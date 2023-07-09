@@ -1,8 +1,10 @@
 package com.facts.financial_facts_service.services.facts.components;
 
+import com.amazonaws.services.simplesystemsmanagement.model.FeatureNotAvailableException;
 import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.constants.ModelType;
 import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
+import com.facts.financial_facts_service.exceptions.FeatureNotImplementedException;
 import com.facts.financial_facts_service.services.facts.components.retriever.GaapRetriever;
 import com.facts.financial_facts_service.services.facts.components.retriever.IRetriever;
 import com.facts.financial_facts_service.services.facts.components.retriever.IfrsRetriever;
@@ -24,11 +26,14 @@ public class RetrieverFactory implements Constants {
     private IfrsRetriever ifrsRetriever;
 
     public IRetriever getRetriever(String cik, FactsWrapper factsJson) {
+        if (Objects.isNull(factsJson.getTaxonomyReports())) {
+            throw new DataNotFoundException(ModelType.FACTS, cik);
+        }
         if (Objects.nonNull(factsJson.getTaxonomyReports().getGaap())) {
             return gaapRetriever;
         }
         if (Objects.nonNull(factsJson.getTaxonomyReports().getIfrs())) {
-            return ifrsRetriever;
+            throw new FeatureNotImplementedException("IFRS taxonomy parsing not currently supported");
         }
         throw new DataNotFoundException(ModelType.FACTS, cik);
     }

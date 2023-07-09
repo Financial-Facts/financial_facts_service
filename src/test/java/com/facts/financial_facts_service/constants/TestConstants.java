@@ -1,6 +1,7 @@
 package com.facts.financial_facts_service.constants;
 
 public interface TestConstants {
+    String LOWERCASE_CIK = "cik0123456789";
     String CIK = "CIK0123456789";
     String CIK2 = "CIK1111122222";
     String SYMBOL = "ABC";

@@ -32,7 +32,7 @@ public class DiscountController implements Constants {
         this.discountService = discountService;
     }
 
-    @GetMapping(path = CIK_PATH_PARAM)
+    @GetMapping("/bulk")
     public CompletableFuture<ResponseEntity<List<Discount>>> getBulkDiscount() {
         logger.info("In discount controller getting bulk discounts");
         return discountService.getBulkDiscount()
@@ -43,14 +43,16 @@ public class DiscountController implements Constants {
     public CompletableFuture<ResponseEntity<String>> saveDiscount(@Valid @RequestBody Discount discount) {
         logger.info("In discount controller adding discount with cik {}", discount.getCik());
         return discountService.saveDiscount(discount)
-                .flatMap(response -> Mono.just(new ResponseEntity<>(response, HttpStatus.CREATED))).toFuture();
+                .flatMap(response -> {
+                    logger.info("Save complete for discount with cik {}", discount.getCik());
+                    return Mono.just(new ResponseEntity<>(response, HttpStatus.CREATED));
+                }).toFuture();
     }
 
     @DeleteMapping(path = CIK_PATH_PARAM)
     public CompletableFuture<ResponseEntity<String>> deleteDiscount(@PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
         logger.info("In discount controller deleting discount for cik {}", cik);
-        return discountService.deleteDiscount(cik)
+        return discountService.deleteDiscount(cik.toUpperCase())
                 .flatMap(response -> Mono.just(new ResponseEntity<>(response, HttpStatus.OK))).toFuture();
     }
-
 }

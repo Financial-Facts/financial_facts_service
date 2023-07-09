@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -26,42 +27,25 @@ public class FactsSyncHandler {
     @Autowired
     private FactsRepository factsRepository;
 
-    private Map<String, CompletableFuture<Facts>> syncMap = new HashMap<>();
-
-    private ReentrantLock pushLock = new ReentrantLock();
-
-    private ReentrantLock popLock = new ReentrantLock();
+    private Map<String, CompletableFuture<Void>> syncMap = new ConcurrentHashMap<>();
 
     public CompletableFuture<Void> pushToHandler(Facts facts) {
         logger.info("Facts sync is currently processing: {}", syncMap.keySet());
-        if (!syncMap.containsKey(facts.getCik())) {
-            try {
-                pushLock.lock();
-                while (syncMap.size() == CAPACITY) {
-                    TimeUnit.SECONDS.sleep(1);
+        return CompletableFuture.runAsync(() -> {
+            if (!syncMap.containsKey(facts.getCik())) {
+                if (syncMap.size() == CAPACITY) {
+                    logger.info("Sync handler at capacity {}: aborting for cik {}", CAPACITY, facts.getCik());
+                } else {
+                    syncMap.put(facts.getCik(), awaitSyncCompletion(facts));
                 }
-                syncMap.put(facts.getCik(), awaitSyncCompletion(facts));
-            } catch (InterruptedException ex) {
-                logger.error("Error occurred in fact sync handler syncing facts for cik {}",
-                        facts.getCik());
-                throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
-            } finally {
-                pushLock.unlock();
             }
-        }
-        return CompletableFuture.completedFuture(null);
+        });
     }
 
-    private CompletableFuture<Facts> awaitSyncCompletion(Facts facts) {
-        return this.syncDatabaseWithFacts(facts).thenApply(syncedFacts -> {
-            popLock.lock();
-            try {
-                completeProcessing(facts.getCik());
-                logger.info("Syncing complete for cik {}", facts.getCik());
-                return syncedFacts;
-            } finally {
-                popLock.unlock();
-            }
+    private CompletableFuture<Void> awaitSyncCompletion(Facts facts) {
+        return CompletableFuture.runAsync(() -> {
+            syncDatabaseWithFacts(facts);
+            completeProcessing(facts.getCik());
         }).exceptionally(ex -> {
             logger.error("Sync aborted for cik {} with an exception {}",
                     facts.getCik(), ex.getMessage());
@@ -70,12 +54,13 @@ public class FactsSyncHandler {
         });
     }
 
-    private CompletableFuture<Facts> syncDatabaseWithFacts(Facts facts) {
+    private void syncDatabaseWithFacts(Facts facts) {
         logger.info("Syncing DB and API Gateway facts for {}", facts.getCik());
-        return CompletableFuture.supplyAsync(() -> this.factsRepository.saveAndFlush(facts));
+        this.factsRepository.saveAndFlush(facts);
     }
 
     private void completeProcessing(String cik) {
         syncMap.remove(cik);
+        logger.info("Syncing complete for cik {}", cik);
     }
 }

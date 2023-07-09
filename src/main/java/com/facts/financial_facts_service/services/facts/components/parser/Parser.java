@@ -7,7 +7,10 @@ import com.facts.financial_facts_service.entities.facts.models.UnitData;
 import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.FeatureNotImplementedException;
-import lombok.AllArgsConstructor;
+import com.facts.financial_facts_service.exceptions.InsufficientKeysException;
+import com.facts.financial_facts_service.exceptions.QuarterlyDataMappingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -18,15 +21,16 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Component
-@AllArgsConstructor
 public class Parser {
+
+    Logger logger = LoggerFactory.getLogger(Parser.class);
 
     public <T extends AbstractQuarterlyData> Mono<List<T>> retrieveQuarterlyData(String cik,
                  TaxonomyReports taxonomyReports, Taxonomy taxonomy, List<String> factsKeys,
                                          Optional<List<String>> deiFactsKeys, Class<T> type) {
         UnitData data = parseFactsForData(cik, taxonomyReports, taxonomy, factsKeys, deiFactsKeys);
         String unitKey = data.getUnits().keySet().stream().toList().get(0);
-        checkIsSupportedUnits(unitKey);
+        checkIsSupportedUnits(cik, unitKey);
         List<Period> periods = data.getUnits().get(unitKey);
         boolean hasStartDate = checkHasStartDate(periods.get(0));
         boolean isShares = unitKey.equalsIgnoreCase("shares");
@@ -37,27 +41,28 @@ public class Parser {
 
     private UnitData parseFactsForData(String cik, TaxonomyReports taxonomyReports, Taxonomy taxonomy,
                                        List<String> factsKeys, Optional<List<String>> deiFactsKeys) {
-        UnitData data = this.parse(taxonomyReports, taxonomy, factsKeys, false);
+        UnitData data = this.parse(cik, taxonomyReports, taxonomy, factsKeys, false);
         if (Objects.isNull(data) && deiFactsKeys.isPresent()) {
-            data = this.parse(taxonomyReports, taxonomy, deiFactsKeys.get(), true);
+            data = this.parse(cik, taxonomyReports, taxonomy, deiFactsKeys.get(), true);
         }
         if (Objects.isNull(data)) {
-            throw new DataNotFoundException("Keys " + factsKeys + " not sufficient for " + cik);
+            logger.error("Completed parsing {} with insufficient keys error using keys {}", cik, factsKeys);
+            throw new InsufficientKeysException("Key(s) " + factsKeys + " not sufficient for " + cik);
         }
         return data;
     }
 
-    private UnitData parse(TaxonomyReports taxonomyReports, Taxonomy taxonomy, List<String> keys, boolean checkDEI) {
+    private UnitData parse(String cik, TaxonomyReports taxonomyReports, Taxonomy taxonomy, List<String> keys, boolean checkDEI) {
         if (checkDEI) {
-            return this.processKeys(taxonomyReports, keys, Taxonomy.DEI);
+            return this.processKeys(cik, taxonomyReports, keys, Taxonomy.DEI);
         }
-        return this.processKeys(taxonomyReports, keys, taxonomy);
+        return this.processKeys(cik, taxonomyReports, keys, taxonomy);
     }
 
-    private UnitData processKeys(TaxonomyReports taxonomyReports, List<String> keys, Taxonomy taxonomy) {
+    private UnitData processKeys(String cik, TaxonomyReports taxonomyReports, List<String> keys, Taxonomy taxonomy) {
         Map<Integer, UnitData> lengthMap = new HashMap<>();
         int max = 0;
-        Map<String, UnitData> reportedValues = fetchReportedValues(taxonomyReports, taxonomy);
+        Map<String, UnitData> reportedValues = fetchReportedValues(cik, taxonomyReports, taxonomy);
         for(String key: keys) {
             if (reportedValues.containsKey(key)) {
                 UnitData unitData = reportedValues.get(key);
@@ -87,7 +92,7 @@ public class Parser {
                     annualSum = annualSum.add(period.getVal());
                     quarterlyData.add(mapPeriodToQuarterlyData(cik, period, type));
                     processedEndDates.add(period.getEnd());
-                } else if (period.getFp().equalsIgnoreCase("FY")) {
+                } else if (Objects.nonNull(period.getFp()) && period.getFp().equalsIgnoreCase("FY")) {
                     period.setVal(isShares ? period.getVal() : period.getVal().subtract(annualSum));
                     quarterlyData.add(mapPeriodToQuarterlyData(cik, period, type));
                     processedEndDates.add(period.getEnd());
@@ -105,7 +110,7 @@ public class Parser {
         Set<LocalDate> processedEndDates = new HashSet<>();
         for (Period period: periods) {
             if (!processedEndDates.contains(period.getEnd()) &&
-                    (period.getFp().contains("Q") ||
+                    ((Objects.nonNull(period.getFp()) && period.getFp().contains("Q")) ||
                     (Objects.nonNull(period.getFrame()) && period.getFrame().contains("Q")))) {
                 quarterlyData.add(mapPeriodToQuarterlyData(cik, period, type));
                 processedEndDates.add(period.getEnd());
@@ -129,24 +134,31 @@ public class Parser {
             return type.cast(quarter);
         } catch (InvocationTargetException | NoSuchMethodException |
                     InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new QuarterlyDataMappingException(
+                    String.format("Mapping to type %s failed for %s", type, cik));
         }
     }
 
-    private Map<String, UnitData> fetchReportedValues(TaxonomyReports taxonomyReports, Taxonomy taxonomy) {
-        return switch (taxonomy) {
+    private Map<String, UnitData> fetchReportedValues(String cik, TaxonomyReports taxonomyReports, Taxonomy taxonomy) {
+        Map<String, UnitData> reports = switch (taxonomy) {
             case US_GAAP -> taxonomyReports.getGaap();
             case IFRS_FULL -> taxonomyReports.getIfrs();
             case DEI -> taxonomyReports.getDei();
         };
+        if (Objects.isNull(reports)) {
+            logger.error("Parsing complete for {} with error: missing supported taxonomy", cik);
+            throw new DataNotFoundException(taxonomy + " not found for " + cik);
+        }
+        return reports;
     }
 
-    private void checkIsSupportedUnits(String unitKey) {
+    private void checkIsSupportedUnits(String cik, String unitKey) {
         if (unitKey.equalsIgnoreCase("USD") ||
             unitKey.equalsIgnoreCase("USD/shares") ||
             unitKey.equalsIgnoreCase("shares")) {
             return;
         }
+        logger.error("Parsing complete for {} with error: currency not supported", cik);
         throw new FeatureNotImplementedException("Currency " + unitKey+ " not currently supported");
     }
 }
