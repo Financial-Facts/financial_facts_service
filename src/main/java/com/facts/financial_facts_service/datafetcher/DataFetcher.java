@@ -29,7 +29,7 @@ public class DataFetcher {
 
     public Mono<FactsData> getFactsWithCik(String cik) {
         return factsService.getFactsWithCik(cik).flatMap(facts -> {
-            logger.info("Returning facts for cik {}", cik);
+            logger.info("In datafetcher returning facts for cik {}", cik);
             return Mono.just(new FactsData(facts));
         });
     }
@@ -37,21 +37,22 @@ public class DataFetcher {
     public Mono<StickerPriceData> getStickerPriceDataWithCik(String cik) {
         return factsService.getFactsWithCik(cik).flatMap(facts ->
             identityService.getIdentityFromIdentityMap(facts.getCik()).flatMap(identity -> {
-                logger.info("Returning sticker price data for cik {}", cik);
+                logger.info("In datafetcher returning sticker price data for cik {}", cik);
                 return Mono.just(new StickerPriceData(identity, facts));
             }));
     }
 
     public Mono<IdentitiesAndDiscounts> getIdentitiesAndDiscounts(BulkIdentitiesRequest request,
                                                                   Boolean includeDiscounts) {
-        if (includeDiscounts) {
-            return Mono.zip(identityService.getBulkIdentities(request), discountService.getBulkDiscount())
-                .flatMap(tuple ->
-                    Mono.just(new IdentitiesAndDiscounts(tuple.getT1(), tuple.getT2())));
-        }
-        return identityService.getBulkIdentities(request).flatMap(identities -> {
-            logger.info("Returning bulk identities for request {}", request);
-            return Mono.just(new IdentitiesAndDiscounts(identities));
-        });
+        return includeDiscounts
+            ? Mono.zip(identityService.getBulkIdentities(request), discountService.getBulkSimpleDiscounts())
+                .flatMap(tuple -> {
+                    logger.info("In datafetcher returning bulk identities and discounts for request {}", request);
+                    return Mono.just(new IdentitiesAndDiscounts(tuple.getT1(), tuple.getT2()));
+                })
+            : identityService.getBulkIdentities(request).flatMap(identities -> {
+                logger.info("In datafetcher returning bulk identities for request {}", request);
+                return Mono.just(new IdentitiesAndDiscounts(identities));
+            });
     }
 }

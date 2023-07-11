@@ -6,6 +6,7 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 @Setter
 @EqualsAndHashCode
 @IdClass(QuarterlyDataKey.class)
+@ToString
 public abstract class AbstractQuarterlyData {
 
     @Id

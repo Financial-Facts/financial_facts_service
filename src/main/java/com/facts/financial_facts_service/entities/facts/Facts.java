@@ -3,10 +3,7 @@ package com.facts.financial_facts_service.entities.facts;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
 import com.facts.financial_facts_service.entities.facts.converter.FactsDataConverter;
 import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyLongTermDebt;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyNetIncome;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyOutstandingShares;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyShareholderEquity;
+import com.facts.financial_facts_service.entities.facts.models.quarterlyData.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
@@ -26,7 +23,6 @@ import static com.facts.financial_facts_service.constants.Constants.FINANCIAL_FA
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
-@Table(schema = FINANCIAL_FACTS)
 public class Facts {
 
     @Id
@@ -44,24 +40,19 @@ public class Facts {
     @Convert(converter = FactsDataConverter.class)
     private FactsWrapper data;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<QuarterlyShareholderEquity> quarterlyShareholderEquity;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<QuarterlyOutstandingShares> quarterlyOutstandingShares;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
-    private List<QuarterlyEPS> quarterlyEPS;
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<QuarterlyFactsEPS> quarterlyEPS;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<QuarterlyLongTermDebt> quarterlyLongTermDebt;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<QuarterlyNetIncome> quarterlyNetIncome;
 
     public Facts(String cik, LocalDate lastSync, FactsWrapper data) {

@@ -1,6 +1,7 @@
 package com.facts.financial_facts_service.controllers;
 
 import com.facts.financial_facts_service.constants.Constants;
+import com.facts.financial_facts_service.datafetcher.DataFetcher;
 import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.services.DiscountService;
 import jakarta.validation.Valid;
@@ -8,6 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,16 +28,13 @@ public class DiscountController implements Constants {
 
     Logger logger = LoggerFactory.getLogger(DiscountController.class);
 
-    private final DiscountService discountService;
+    @Autowired
+    private DiscountService discountService;
 
-    public DiscountController(DiscountService discountService) {
-        this.discountService = discountService;
-    }
-
-    @GetMapping("/bulk")
-    public CompletableFuture<ResponseEntity<List<Discount>>> getBulkDiscount() {
+    @GetMapping(path = CIK_PATH_PARAM)
+    public CompletableFuture<ResponseEntity<Discount>> getDiscountWithCik(@PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
         logger.info("In discount controller getting bulk discounts");
-        return discountService.getBulkDiscount()
+        return discountService.getDiscountWithCik(cik)
                 .flatMap(discount -> Mono.just(new ResponseEntity<>(discount, HttpStatus.OK))).toFuture();
     }
 
@@ -53,6 +52,9 @@ public class DiscountController implements Constants {
     public CompletableFuture<ResponseEntity<String>> deleteDiscount(@PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
         logger.info("In discount controller deleting discount for cik {}", cik);
         return discountService.deleteDiscount(cik.toUpperCase())
-                .flatMap(response -> Mono.just(new ResponseEntity<>(response, HttpStatus.OK))).toFuture();
+                .flatMap(response -> {
+                    logger.info("Delete complete for discount with cik {}", cik);
+                    return Mono.just(new ResponseEntity<>(response, HttpStatus.OK));
+                }).toFuture();
     }
 }

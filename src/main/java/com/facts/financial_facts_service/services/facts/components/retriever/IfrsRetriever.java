@@ -1,12 +1,9 @@
 package com.facts.financial_facts_service.services.facts.components.retriever;
 
 import com.facts.financial_facts_service.entities.facts.models.TaxonomyReports;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyNetIncome;
+import com.facts.financial_facts_service.entities.facts.models.quarterlyData.*;
 import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyLongTermDebt;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyOutstandingShares;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyShareholderEquity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,7 +29,7 @@ public class IfrsRetriever extends AbstractRetriever implements IRetriever {
     }
 
     @Override
-    public Mono<List<QuarterlyEPS>> retrieve_quarterly_EPS(String cik, TaxonomyReports taxonomyLayer) {
+    public Mono<List<QuarterlyFactsEPS>> retrieve_quarterly_EPS(String cik, TaxonomyReports taxonomyLayer) {
         return null;
     }
 

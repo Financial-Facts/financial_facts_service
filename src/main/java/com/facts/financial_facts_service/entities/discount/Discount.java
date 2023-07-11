@@ -8,33 +8,25 @@ import com.facts.financial_facts_service.entities.discount.models.quarterlyData.
 import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.TfyPriceData;
 import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.TtmPriceData;
 import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.TtyPriceData;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.NonNull;
+import lombok.*;
 
 import java.time.LocalDate;
 
 import java.util.List;
 
 import static com.facts.financial_facts_service.constants.Constants.CIK_REGEX;
+import static jakarta.persistence.InheritanceType.JOINED;
 
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor(force = true)
-@Table(schema = Constants.FINANCIAL_FACTS)
+@ToString
+@Table(name = "discount")
 public class Discount {
 
     @Id
@@ -50,36 +42,34 @@ public class Discount {
     @NotBlank
     private String name;
 
+    private boolean active;
+
     private Double ratioPrice;
 
     private LocalDate lastUpdated;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
+    @JoinColumn(name = "cik")
     private TtmPriceData ttmPriceData;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
+    @JoinColumn(name = "cik")
     private TfyPriceData tfyPriceData;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
+    @JoinColumn(name = "cik")
     private TtyPriceData ttyPriceData;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<QuarterlyBVPS> quarterlyBVPS;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<QuarterlyPE> quarterlyPE;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<QuarterlyEPS> quarterlyEPS;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<QuarterlyROIC> quarterlyROIC;
 
 }

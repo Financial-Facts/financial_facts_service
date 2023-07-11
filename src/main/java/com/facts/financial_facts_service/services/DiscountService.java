@@ -2,6 +2,7 @@ package com.facts.financial_facts_service.services;
 
 import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.constants.ModelType;
+import com.facts.financial_facts_service.datafetcher.projections.SimpleDiscount;
 import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.constants.Operation;
 import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.AbstractTrailingPriceData;
@@ -29,15 +30,32 @@ public class DiscountService implements Constants {
     @Autowired
     private DiscountRepository discountRepository;
 
-    public Mono<List<Discount>> getBulkDiscount() {
-        logger.info("In discount service getting bulk discounts");
+    public Mono<List<SimpleDiscount>> getBulkSimpleDiscounts() {
+        logger.info("In discount service getting bulk simple discounts");
         try {
-            List<Discount> discounts = discountRepository.findAll();
-            return Mono.just(discounts);
+            return Mono.just(discountRepository.findAllActiveDiscounts());
         } catch (DataAccessException ex) {
-            logger.error("Error occurred while getting bulk discounts");
+            logger.error("Error occurred while getting bulk simple discounts");
             throw new DiscountOperationException(Operation.BULK);
         }
+    }
+
+    public Mono<Discount> getDiscountWithCik(String cik) {
+        logger.info("In discount service getting discount for {}", cik);
+        try {
+            Optional<Discount> discountOptional = discountRepository.findById(cik);
+            if (discountOptional.isPresent()) {
+                return Mono.just(discountOptional.get());
+            }
+            throw new DataNotFoundException(ModelType.DISCOUNT, cik);
+        } catch (DataAccessException ex) {
+            logger.error("Error occurred while getting discount for {}", cik);
+            throw new DiscountOperationException(Operation.BULK);
+        }
+    }
+
+    public Mono<List<String>> getAllCikForActiveDiscounts() {
+
     }
 
     public Mono<String> saveDiscount(Discount discount) {

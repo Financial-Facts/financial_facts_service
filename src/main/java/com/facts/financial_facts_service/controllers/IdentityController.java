@@ -51,7 +51,9 @@ public class IdentityController implements Constants {
         logger.info("In identity controller getting bulk identities {}", request);
         includeDiscounts = Objects.nonNull(includeDiscounts) && includeDiscounts;
         return dataFetcher.getIdentitiesAndDiscounts(request, includeDiscounts)
-            .flatMap(identities ->
-                Mono.just(new ResponseEntity<>(identities, HttpStatus.OK))).toFuture();
+            .flatMap(identities -> {
+                logger.info("Returning bulk entities for {}", request);
+                return Mono.just(new ResponseEntity<>(identities, HttpStatus.OK));
+            }).toFuture();
     }
 }

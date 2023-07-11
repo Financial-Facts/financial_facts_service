@@ -36,16 +36,22 @@ public class FactsController implements Constants {
     @GetMapping(path = CIK_PATH_PARAM)
     public CompletableFuture<ResponseEntity<FactsData>> getFacts(
             @PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
-        logger.info("In facts controller getting facts for cik {}", cik);
+        logger.info("In facts controller getting facts for {}", cik);
         return dataFetcher.getFactsWithCik(cik.toUpperCase())
-                .flatMap(response -> Mono.just(new ResponseEntity<>(response, HttpStatus.OK))).toFuture();
+            .flatMap(response -> {
+                logger.info("Returning facts for {}", cik);
+                return Mono.just(new ResponseEntity<>(response, HttpStatus.OK));
+            }).toFuture();
     }
 
     @GetMapping(path = CIK_PATH_PARAM + SLASH + STICKER_PRICE_DATA)
     public CompletableFuture<ResponseEntity<StickerPriceData>> getStickerPriceData(
             @PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
-        logger.info("In facts controller getting facts for cik {}", cik);
+        logger.info("In facts controller getting facts for {}", cik);
         return dataFetcher.getStickerPriceDataWithCik(cik.toUpperCase())
-                .flatMap(response -> Mono.just(new ResponseEntity<>(response, HttpStatus.OK))).toFuture();
+            .flatMap(response -> {
+                logger.info("Returning sticker price data for {}", cik);
+                return Mono.just(new ResponseEntity<>(response, HttpStatus.OK));
+            }).toFuture();
     }
 }

@@ -5,10 +5,7 @@ import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
 import com.facts.financial_facts_service.entities.facts.Facts;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyLongTermDebt;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyNetIncome;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyOutstandingShares;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyShareholderEquity;
+import com.facts.financial_facts_service.entities.facts.models.quarterlyData.*;
 import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;
 import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.AbstractTrailingPriceData;
 import reactor.core.publisher.Mono;
@@ -28,8 +25,8 @@ public class ServiceUtilities implements Constants {
                 if (((List) dataSet).get(0) instanceof QuarterlyShareholderEquity) {
                     facts.setQuarterlyShareholderEquity((List<QuarterlyShareholderEquity>) dataSet);
                 }
-                if (((List) dataSet).get(0) instanceof QuarterlyEPS) {
-                    facts.setQuarterlyEPS((List<QuarterlyEPS>) dataSet);
+                if (((List) dataSet).get(0) instanceof QuarterlyFactsEPS) {
+                    facts.setQuarterlyEPS((List<QuarterlyFactsEPS>) dataSet);
                 }
                 if (((List) dataSet).get(0) instanceof QuarterlyLongTermDebt) {
                     facts.setQuarterlyLongTermDebt((List<QuarterlyLongTermDebt>) dataSet);
