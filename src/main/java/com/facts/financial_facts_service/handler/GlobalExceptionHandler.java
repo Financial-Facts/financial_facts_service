@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.DiscountOperationException;
+import com.facts.financial_facts_service.exceptions.FeatureNotImplementedException;
+import com.facts.financial_facts_service.exceptions.InsufficientKeysException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -49,6 +51,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
     @ResponseStatus(HttpStatus.NOT_FOUND)
     protected ResponseEntity<Object> handleDiscountNotFoundException(DataNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler({FeatureNotImplementedException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
+    protected ResponseEntity<Object> handleFeatureNotImplementedException(FeatureNotImplementedException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler({InsufficientKeysException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
+    protected ResponseEntity<Object> handleInsufficientKeysException(InsufficientKeysException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler({ResponseStatusException.class})

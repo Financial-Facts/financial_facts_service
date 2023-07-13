@@ -1,15 +1,17 @@
 package com.facts.financial_facts_service.entities.discount.models.trailingPriceData;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import lombok.Data;
+
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+import lombok.Getter;
+import lombok.Setter;
 
 @MappedSuperclass
-@Data
+@Getter
+@Setter
 public abstract class AbstractTrailingPriceData {
 
     @Id
-    @JsonIgnore
     private String cik;
 
     private Double stickerPrice;

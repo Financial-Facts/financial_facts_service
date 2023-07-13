@@ -1,14 +1,42 @@
 package com.facts.financial_facts_service.utils;
 
+import com.amazonaws.util.StringUtils;
 import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.entities.discount.Discount;
-import com.facts.financial_facts_service.entities.discount.models.quarterlyData.AbstractQuarterlyData;
+import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
+import com.facts.financial_facts_service.entities.facts.Facts;
+import com.facts.financial_facts_service.entities.facts.models.quarterlyData.*;
+import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;
 import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.AbstractTrailingPriceData;
+import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple7;
 
 import java.util.List;
 import java.util.Objects;
 
 public class ServiceUtilities implements Constants {
+
+    public static void mapRetrievedQuarterlyData(Facts facts, List<?> retrievedQuarterlyData) {
+        retrievedQuarterlyData.stream().forEach(dataSet -> {
+            if (dataSet instanceof List<?> && !((List) dataSet).isEmpty()) {
+                if (((List) dataSet).get(0) instanceof QuarterlyOutstandingShares) {
+                    facts.setQuarterlyOutstandingShares((List<QuarterlyOutstandingShares>) dataSet);
+                }
+                if (((List) dataSet).get(0) instanceof QuarterlyShareholderEquity) {
+                    facts.setQuarterlyShareholderEquity((List<QuarterlyShareholderEquity>) dataSet);
+                }
+                if (((List) dataSet).get(0) instanceof QuarterlyFactsEPS) {
+                    facts.setQuarterlyEPS((List<QuarterlyFactsEPS>) dataSet);
+                }
+                if (((List) dataSet).get(0) instanceof QuarterlyLongTermDebt) {
+                    facts.setQuarterlyLongTermDebt((List<QuarterlyLongTermDebt>) dataSet);
+                }
+                if (((List) dataSet).get(0) instanceof QuarterlyNetIncome) {
+                    facts.setQuarterlyNetIncome((List<QuarterlyNetIncome>) dataSet);
+                }
+            }
+        });
+    }
 
     public static String padSimpleCik(String simpleCik) {
         StringBuilder result = new StringBuilder();
@@ -22,32 +50,35 @@ public class ServiceUtilities implements Constants {
         return result.toString();
     }
 
-    public static void assignPeriodDataCik(Discount discount, String cik) {
-        setIfNonNull(discount.getTtmPriceData(), cik, false);
-        setIfNonNull(discount.getTfyPriceData(), cik, false);
-        setIfNonNull(discount.getTtyPriceData(), cik, false);
-        setIfNonNull(discount.getQuarterlyBVPS(), cik, true);
-        setIfNonNull(discount.getQuarterlyPE(), cik, true);
-        setIfNonNull(discount.getQuarterlyEPS(), cik, true);
-        setIfNonNull(discount.getQuarterlyROIC(), cik, true);
+    public static Mono<Tuple7<Void, Void, Void, Void, Void, Void, Void>> assignPeriodDataCik(Discount discount, String cik) {
+        return Mono.zip(setTrailingIfNonNull(discount.getTtmPriceData(), cik),
+            setTrailingIfNonNull(discount.getTfyPriceData(), cik),
+            setTrailingIfNonNull(discount.getTtyPriceData(), cik),
+            setQuarterlyIfNonNull(discount.getQuarterlyBVPS(), cik),
+            setQuarterlyIfNonNull(discount.getQuarterlyPE(), cik),
+            setQuarterlyIfNonNull(discount.getQuarterlyEPS(), cik),
+            setQuarterlyIfNonNull(discount.getQuarterlyROIC(), cik));
     }
 
-    private static <T> void setIfNonNull(List<T> periodData, String cik, boolean isQuarterly) {
-        if (!isQuarterly && Objects.nonNull(periodData)) {
-            setTrailingDataCik(periodData, cik);
+    private static <T> Mono<Void> setTrailingIfNonNull(T periodData, String cik) {
+        if (Objects.nonNull(periodData)) {
+            AbstractTrailingPriceData trailingPriceData = (AbstractTrailingPriceData) periodData;
+            if (StringUtils.isNullOrEmpty(trailingPriceData.getCik())) {
+                trailingPriceData.setCik(cik);
+            }
         }
-        if (isQuarterly && Objects.nonNull(periodData)) {
-            setQuarterlyDataCik(periodData, cik);
+        return Mono.empty();
+    }
+
+    private static <T> Mono<Void> setQuarterlyIfNonNull(List<T> periodData, String cik) {
+        if (Objects.nonNull(periodData)) {
+            periodData.forEach(period -> {
+                AbstractQuarterlyData quarterlyData = (AbstractQuarterlyData) period;
+                if (StringUtils.isNullOrEmpty(quarterlyData.getCik())) {
+                    quarterlyData.setCik(cik);
+                }
+            });
         }
+        return Mono.empty();
     }
-
-    private static <T> void setTrailingDataCik(List<T> priceData, String cik) {
-        priceData.forEach(period -> ((AbstractTrailingPriceData) period).setCik(cik));
-    }
-
-    private static <T> void setQuarterlyDataCik(List<T> quarterlyData, String cik) {
-        quarterlyData.forEach(period -> ((AbstractQuarterlyData) period).setCik(cik));
-    }
-
-
 }

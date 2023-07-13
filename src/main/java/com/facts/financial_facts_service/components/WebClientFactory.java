@@ -17,7 +17,7 @@ import java.util.Optional;
 @Component
 public class WebClientFactory {
 
-    private static Logger logger = LoggerFactory.getLogger(WebClientFactory.class);
+    static Logger logger = LoggerFactory.getLogger(WebClientFactory.class);
 
     public WebClient buildWebClient(String url, Optional<Map<String, String>> headersOptional) {
         logger.info("Initializing webclient for url {}...", url);

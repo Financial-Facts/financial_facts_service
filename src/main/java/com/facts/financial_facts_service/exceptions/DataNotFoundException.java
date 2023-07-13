@@ -9,6 +9,10 @@ public class DataNotFoundException extends RuntimeException implements Constants
 
     private String message;
 
+    public DataNotFoundException(String message) {
+        this.message = message;
+    }
+
     public DataNotFoundException(ModelType type, String cik) {
         switch(type) {
             case DISCOUNT -> this.message = String.format(DISCOUNT_NOT_FOUND, cik);
