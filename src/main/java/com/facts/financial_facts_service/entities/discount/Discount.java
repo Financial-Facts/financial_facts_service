@@ -13,12 +13,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
-import java.time.LocalDate;
-
 import java.util.List;
 
 import static com.facts.financial_facts_service.constants.Constants.CIK_REGEX;
-import static jakarta.persistence.InheritanceType.JOINED;
 
 
 @Entity
@@ -45,8 +42,6 @@ public class Discount {
     private boolean active;
 
     private Double ratioPrice;
-
-    private LocalDate lastUpdated;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "cik")

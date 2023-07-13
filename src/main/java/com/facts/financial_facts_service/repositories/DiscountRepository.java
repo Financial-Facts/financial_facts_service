@@ -12,10 +12,7 @@ import java.util.List;
 @Repository
 public interface DiscountRepository extends JpaRepository<Discount, String>, Queries {
 
-    @Query(value = getAllActiveSimpleDiscounts, nativeQuery = true)
-    List<SimpleDiscount> findAllActiveDiscounts();
-
-    @Query(value = getAllCikForActiveDiscounts, nativeQuery = true)
-    List<String> getALlCikForActiveDiscounts();
+    @Query(value = getAllSimpleDiscounts, nativeQuery = true)
+    List<SimpleDiscount> findAllSimpleDiscounts();
 
 }

@@ -5,6 +5,7 @@ import com.facts.financial_facts_service.constants.ModelType;
 import com.facts.financial_facts_service.datafetcher.projections.SimpleDiscount;
 import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.constants.Operation;
+import com.facts.financial_facts_service.entities.discount.models.UpdateDiscountInput;
 import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.AbstractTrailingPriceData;
 import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
@@ -30,13 +31,17 @@ public class DiscountService implements Constants {
     @Autowired
     private DiscountRepository discountRepository;
 
-    public Mono<List<SimpleDiscount>> getBulkSimpleDiscounts() {
+    public Mono<List<SimpleDiscount>> getBulkSimpleDiscounts(boolean filterInactive) {
         logger.info("In discount service getting bulk simple discounts");
         try {
-            return Mono.just(discountRepository.findAllActiveDiscounts());
+            return Mono.just(discountRepository.findAllSimpleDiscounts())
+                .flatMap(simpleDiscounts -> filterInactive
+                    ? Mono.just(simpleDiscounts.stream()
+                        .filter(SimpleDiscount::getActive).collect(Collectors.toList()))
+                    : Mono.just(simpleDiscounts));
         } catch (DataAccessException ex) {
             logger.error("Error occurred while getting bulk simple discounts");
-            throw new DiscountOperationException(Operation.BULK);
+            throw new DiscountOperationException(Operation.BULK_SIMPLE);
         }
     }
 
@@ -50,18 +55,31 @@ public class DiscountService implements Constants {
             throw new DataNotFoundException(ModelType.DISCOUNT, cik);
         } catch (DataAccessException ex) {
             logger.error("Error occurred while getting discount for {}", cik);
-            throw new DiscountOperationException(Operation.BULK);
+            throw new DiscountOperationException(Operation.GET);
         }
     }
 
-    public Mono<List<String>> getAllCikForActiveDiscounts() {
-
+    public Mono<String> updateDiscountStatus(UpdateDiscountInput input) {
+        logger.info("In discount service updating status for {} to {}", input.getCik(), input.isActive());
+        try {
+            Optional<Discount> discountOptional = discountRepository.findById(input.getCik());
+            if (discountOptional.isPresent()) {
+                Discount discount = discountOptional.get();
+                discount.setActive(input.isActive());
+                discountRepository.saveAndFlush(discount);
+                return Mono.just(DISCOUNT_UPDATED);
+            }
+            throw new DataNotFoundException(ModelType.DISCOUNT, input.getCik());
+        } catch (DataAccessException ex) {
+            logger.error("Error occurred while updating status for discount with cik {}: {}", input.getCik(),
+                    ex.getMessage());
+            throw new DiscountOperationException(Operation.UPDATE, input.getCik());
+        }
     }
 
     public Mono<String> saveDiscount(Discount discount) {
         logger.info("In discount service adding discount with cik {}", discount.getCik());
         try {
-            discount.setLastUpdated(LocalDate.now());
             if (discountRepository.existsById(discount.getCik())) {
                 Discount current = discountRepository.getReferenceById(discount.getCik());
                 updateDiscount(current, discount);
@@ -101,7 +119,6 @@ public class DiscountService implements Constants {
         current.setSymbol(update.getSymbol());
         current.setName(update.getName());
         current.setRatioPrice(update.getRatioPrice());
-        current.setLastUpdated(update.getLastUpdated());
 
         updateTrailingPeriod(current.getTtmPriceData(), update.getTtmPriceData());
         updateTrailingPeriod(current.getTfyPriceData(), update.getTfyPriceData());
@@ -121,7 +138,7 @@ public class DiscountService implements Constants {
     private <T extends AbstractQuarterlyData> void updateQuarterlyData(List<T> current, List<T> update) {
         Set<LocalDate> currentSet = current.stream()
                 .map(AbstractQuarterlyData::getAnnouncedDate).collect(Collectors.toSet());
-        update.stream().forEach(quarter -> {
+        update.forEach(quarter -> {
             if (!currentSet.contains(quarter.getAnnouncedDate())) {
                 current.add(quarter);
             }
