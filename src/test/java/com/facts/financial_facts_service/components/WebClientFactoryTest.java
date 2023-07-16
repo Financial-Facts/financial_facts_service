@@ -48,6 +48,5 @@ public class WebClientFactoryTest implements TestConstants {
         WebClient webClient = webClientFactory.buildWebClient(SEC_URL, Optional.of(headers));
         assertNotNull(webClient);
         verify(mockLogger).info("Initializing webclient for url {}...", SEC_URL);
-
     }
 }

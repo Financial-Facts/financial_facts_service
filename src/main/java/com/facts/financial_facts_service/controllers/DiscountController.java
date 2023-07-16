@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -36,7 +37,7 @@ public class DiscountController implements Constants {
     @GetMapping(path = CIK_PATH_PARAM)
     public CompletableFuture<ResponseEntity<Discount>> getDiscountWithCik(@PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
         logger.info("In discount controller getting bulk discounts");
-        return discountService.getDiscountWithCik(cik)
+        return discountService.getDiscountWithCik(cik.toUpperCase())
             .flatMap(discount -> {
                 logger.info("Fetch complete for discount with cik {}", cik);
                 return Mono.just(new ResponseEntity<>(discount, HttpStatus.OK));
@@ -54,11 +55,12 @@ public class DiscountController implements Constants {
     }
 
     @PutMapping
-    public CompletableFuture<ResponseEntity<String>> updateDiscountStatus(@Valid @RequestBody UpdateDiscountInput input) {
-        logger.info("In discount controller updating discount status for {}", input.getCik());
-        return discountService.updateDiscountStatus(input)
+    public CompletableFuture<ResponseEntity<List<String>>> updateBulkDiscountStatus(@Valid @RequestBody UpdateDiscountInput input) {
+        String discountCiksToUpdate = StringUtils.collectionToCommaDelimitedString(input.getDiscountUpdateMap().keySet());
+        logger.info("In discount controller updating discount status for {}", discountCiksToUpdate);
+        return discountService.updateBulkDiscountStatus(discountCiksToUpdate, input)
             .flatMap(response -> {
-                logger.info("Update complete for discount with cik {}", input.getCik());
+                logger.info("Update complete for discounts with ciks {}", discountCiksToUpdate);
                 return Mono.just(new ResponseEntity<>(response, HttpStatus.OK));
             }).toFuture();
     }

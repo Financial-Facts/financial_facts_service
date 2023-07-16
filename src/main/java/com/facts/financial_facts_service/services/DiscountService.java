@@ -14,6 +14,7 @@ import com.facts.financial_facts_service.repositories.DiscountRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -27,6 +28,9 @@ import java.util.stream.Collectors;
 public class DiscountService implements Constants {
 
     Logger logger = LoggerFactory.getLogger(DiscountService.class);
+
+    @Value("${discount-update.batch.capacity}")
+    private int UPDATE_BATCH_CAPACITY;
 
     @Autowired
     private DiscountRepository discountRepository;
@@ -59,22 +63,27 @@ public class DiscountService implements Constants {
         }
     }
 
-    public Mono<String> updateDiscountStatus(UpdateDiscountInput input) {
-        logger.info("In discount service updating status for {} to {}", input.getCik(), input.isActive());
-        try {
-            Optional<Discount> discountOptional = discountRepository.findById(input.getCik());
-            if (discountOptional.isPresent()) {
-                Discount discount = discountOptional.get();
-                discount.setActive(input.isActive());
-                discountRepository.saveAndFlush(discount);
-                return Mono.just(DISCOUNT_UPDATED);
-            }
-            throw new DataNotFoundException(ModelType.DISCOUNT, input.getCik());
-        } catch (DataAccessException ex) {
-            logger.error("Error occurred while updating status for discount with cik {}: {}", input.getCik(),
-                    ex.getMessage());
-            throw new DiscountOperationException(Operation.UPDATE, input.getCik());
+    public Mono<List<String>> updateBulkDiscountStatus(String cikList, UpdateDiscountInput input) {
+        logger.info("In discount service updating status for discounts {}", cikList);
+        List<String> updates = new ArrayList<>();
+        List<String> keyList = input.getDiscountUpdateMap().keySet().stream().toList();
+        int i = 0;
+        while (i < keyList.size()) {
+            int value = Math.min(i + UPDATE_BATCH_CAPACITY, keyList.size());
+            List<String> batchKeys = keyList.subList(i, value);
+            List<Discount> discountReferenceList = discountRepository.findAllById(batchKeys);
+            discountReferenceList.forEach(discountReference -> {
+                String cik = discountReference.getCik();
+                boolean settingToActive = input.getDiscountUpdateMap().get(cik);
+                discountReference.setActive(settingToActive);
+                updates.add(settingToActive
+                    ? String.format(SET_TO_ACTIVE_UPDATE, cik)
+                    : String.format(SET_TO_INACTIVE_UPDATE, cik));
+            });
+            discountRepository.saveAllAndFlush(discountReferenceList);
+            i += UPDATE_BATCH_CAPACITY;
         }
+        return Mono.just(updates);
     }
 
     public Mono<String> saveDiscount(Discount discount) {

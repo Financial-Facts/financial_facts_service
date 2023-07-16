@@ -5,16 +5,14 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
+import java.util.Map;
+
 import static com.facts.financial_facts_service.constants.Constants.CIK_REGEX;
 
 @Getter
 @Setter
 public class UpdateDiscountInput {
 
-    @NonNull
-    @Pattern(regexp = CIK_REGEX)
-    private String cik;
-
-    private boolean active;
+    Map<@Pattern(regexp = CIK_REGEX) String, Boolean> discountUpdateMap;
 
 }

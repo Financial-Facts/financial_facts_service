@@ -28,4 +28,7 @@ public interface Constants {
     String EPS = "EPS";
     String LONG_TERM_DEBT = "longTermDebt";
     String NET_INCOME = "netIncome";
+    String SET_TO_ACTIVE_UPDATE = "Discount for %s has been set to active";
+    String SET_TO_INACTIVE_UPDATE = "Discount for %s has been set to inactive";
+
 }
