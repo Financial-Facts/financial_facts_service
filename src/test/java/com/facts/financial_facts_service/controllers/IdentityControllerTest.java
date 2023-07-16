@@ -114,10 +114,10 @@ public class IdentityControllerTest implements TestConstants {
             identity.setCik(CIK);
             List<Identity> identities = List.of(identity);
             BulkIdentitiesRequest request = new BulkIdentitiesRequest();
-            when(dataFetcher.getIdentitiesAndDiscounts(request, false))
+            when(dataFetcher.getIdentitiesAndOptionalDiscounts(request, false))
                     .thenReturn(Mono.just(new IdentitiesAndDiscounts(identities)));
-            ResponseEntity<IdentitiesAndDiscounts> actual = identityController.getBulkIdentities(request, false).get();
-            verify(dataFetcher, times(1)).getIdentitiesAndDiscounts(request, false);
+            ResponseEntity<IdentitiesAndDiscounts> actual = identityController.getBulkIdentitiesAndOptionalDiscounts(request, false).get();
+            verify(dataFetcher, times(1)).getIdentitiesAndOptionalDiscounts(request, false);
             assertEquals(HttpStatus.OK, actual.getStatusCode());
             assertEquals(1, actual.getBody().identities().size());
             assertEquals(CIK, actual.getBody().identities().get(0).getCik());
@@ -131,10 +131,10 @@ public class IdentityControllerTest implements TestConstants {
             List<Identity> identities = List.of(identity);
             BulkIdentitiesRequest request = new BulkIdentitiesRequest();
             SimpleDiscount simpleDiscount = mock(SimpleDiscount.class);
-            when(dataFetcher.getIdentitiesAndDiscounts(request, true))
+            when(dataFetcher.getIdentitiesAndOptionalDiscounts(request, true))
                     .thenReturn(Mono.just(new IdentitiesAndDiscounts(identities, List.of(simpleDiscount))));
-            ResponseEntity<IdentitiesAndDiscounts> actual = identityController.getBulkIdentities(request, true).get();
-            verify(dataFetcher, times(1)).getIdentitiesAndDiscounts(request, true);
+            ResponseEntity<IdentitiesAndDiscounts> actual = identityController.getBulkIdentitiesAndOptionalDiscounts(request, true).get();
+            verify(dataFetcher, times(1)).getIdentitiesAndOptionalDiscounts(request, true);
             assertNotNull(actual.getBody().discounts());
             assertEquals(HttpStatus.OK, actual.getStatusCode());
             assertEquals(1, actual.getBody().discounts().size());
@@ -148,10 +148,10 @@ public class IdentityControllerTest implements TestConstants {
             List<Identity> identities = List.of(identity);
             BulkIdentitiesRequest request = new BulkIdentitiesRequest();
             SimpleDiscount simpleDiscount = mock(SimpleDiscount.class);
-            when(dataFetcher.getIdentitiesAndDiscounts(request, false))
+            when(dataFetcher.getIdentitiesAndOptionalDiscounts(request, false))
                     .thenReturn(Mono.just(new IdentitiesAndDiscounts(identities, List.of(simpleDiscount))));
-            identityController.getBulkIdentities(request, null).get();
-            verify(dataFetcher, times(1)).getIdentitiesAndDiscounts(request, false);
+            identityController.getBulkIdentitiesAndOptionalDiscounts(request, null).get();
+            verify(dataFetcher, times(1)).getIdentitiesAndOptionalDiscounts(request, false);
         }
 
         @Test

@@ -38,11 +38,9 @@ public class DiscountService implements Constants {
     public Mono<List<SimpleDiscount>> getBulkSimpleDiscounts(boolean filterInactive) {
         logger.info("In discount service getting bulk simple discounts");
         try {
-            return Mono.just(discountRepository.findAllSimpleDiscounts())
-                .flatMap(simpleDiscounts -> filterInactive
-                    ? Mono.just(simpleDiscounts.stream()
-                        .filter(SimpleDiscount::getActive).collect(Collectors.toList()))
-                    : Mono.just(simpleDiscounts));
+            return filterInactive
+                ? Mono.just(discountRepository.findAllActiveSimpleDiscounts())
+                : Mono.just(discountRepository.findAllSimpleDiscounts());
         } catch (DataAccessException ex) {
             logger.error("Error occurred while getting bulk simple discounts");
             throw new DiscountOperationException(Operation.BULK_SIMPLE);

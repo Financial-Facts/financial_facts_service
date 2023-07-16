@@ -45,12 +45,12 @@ public class IdentityController implements Constants {
     }
 
     @PostMapping(path = BULK)
-    public CompletableFuture<ResponseEntity<IdentitiesAndDiscounts>> getBulkIdentities(
+    public CompletableFuture<ResponseEntity<IdentitiesAndDiscounts>> getBulkIdentitiesAndOptionalDiscounts(
             @Valid @RequestBody BulkIdentitiesRequest request,
             @RequestParam(required = false) Boolean includeDiscounts) {
         logger.info("In identity controller getting bulk identities {}", request);
         includeDiscounts = Objects.nonNull(includeDiscounts) && includeDiscounts;
-        return dataFetcher.getIdentitiesAndDiscounts(request, includeDiscounts)
+        return dataFetcher.getIdentitiesAndOptionalDiscounts(request, includeDiscounts)
             .flatMap(identities -> {
                 logger.info("Returning bulk entities for {}", request);
                 return Mono.just(new ResponseEntity<>(identities, HttpStatus.OK));
