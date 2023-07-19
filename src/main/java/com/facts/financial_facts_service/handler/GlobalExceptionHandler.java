@@ -30,10 +30,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
                                                                   HttpStatusCode status, WebRequest request) {
         List<String> errors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.toList());
+            .getFieldErrors()
+            .stream()
+            .map(DefaultMessageSourceResolvable::getDefaultMessage)
+            .collect(Collectors.toList());
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
@@ -41,15 +41,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex) {
         List<String> errors = ex.getConstraintViolations()
-                .stream()
-                .map(ConstraintViolation::getMessage)
-                .collect(Collectors.toList());
+            .stream()
+            .map(ConstraintViolation::getMessage)
+            .collect(Collectors.toList());
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({DataNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    protected ResponseEntity<Object> handleDiscountNotFoundException(DataNotFoundException ex) {
+    protected ResponseEntity<Object> handleDataNotFoundException(DataNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 

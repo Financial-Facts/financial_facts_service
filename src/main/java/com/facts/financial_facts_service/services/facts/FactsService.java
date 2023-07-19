@@ -139,9 +139,7 @@ public class FactsService implements Constants {
     private Mono<Facts> buildFactsWithGatewayResponse(String cik, FactsWrapper factsWrapper) {
         Facts facts = new Facts(cik, LocalDate.now(), factsWrapper);
         IRetriever retriever = retrieverFactory.getRetriever(cik, factsWrapper);
-        return retriever.fetchQuarterlyData(
-                Set.of(SHAREHOLDER_EQUITY,OUTSTANDING_SHARES, EPS, LONG_TERM_DEBT, NET_INCOME),
-                cik, factsWrapper.getTaxonomyReports())
+        return retriever.retrieveStickerPriceData(cik, factsWrapper.getTaxonomyReports())
             .flatMap((retrievedQuarterlyData -> {
                 mapRetrievedQuarterlyData(facts, retrievedQuarterlyData);
                 return Mono.just(facts);

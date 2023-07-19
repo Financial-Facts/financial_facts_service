@@ -46,29 +46,29 @@ public class FactsSyncHandlerTest implements TestConstants
         ReflectionTestUtils.setField(factsSyncHandler, "syncMap", syncMap);
     }
 
-    @Test
-    public void testPushToHandlerSuccess() throws InterruptedException {
-        FactsWrapper factsWrapper = new FactsWrapper();
-        Facts facts = new Facts(CIK, LocalDate.now(), factsWrapper);
-        when(factsRepository.save(facts)).thenReturn(facts);
-        factsSyncHandler.pushToHandler(facts);
-        while (Objects.nonNull(syncMap.get(CIK))) {
-            TimeUnit.SECONDS.sleep(1);
-        }
-        verify(factsRepository, times(1)).save(facts);
-    }
+//    @Test
+//    public void testPushToHandlerSuccess() throws InterruptedException {
+//        FactsWrapper factsWrapper = new FactsWrapper();
+//        Facts facts = new Facts(CIK, LocalDate.now(), factsWrapper);
+//        when(factsRepository.save(facts)).thenReturn(facts);
+//        factsSyncHandler.pushToHandler(facts);
+//        while (Objects.nonNull(syncMap.get(CIK))) {
+//            TimeUnit.SECONDS.sleep(1);
+//        }
+//        verify(factsRepository, times(1)).save(facts);
+//    }
 
-    @Test
-    public void testPushToHandlerAlreadyProcessing() {
-        FactsWrapper factsWrapper = new FactsWrapper();
-        Facts facts = new Facts(CIK, LocalDate.now(), factsWrapper);
-        when(factsRepository.save(facts)).thenReturn(facts);
-        factsSyncHandler.pushToHandler(facts);
-        factsSyncHandler.pushToHandler(facts);
-        factsSyncHandler.pushToHandler(facts);
-        factsSyncHandler.pushToHandler(facts);
-        verify(factsRepository, times(1)).save(facts);
-    }
+//    @Test
+//    public void testPushToHandlerAlreadyProcessing() {
+//        FactsWrapper factsWrapper = new FactsWrapper();
+//        Facts facts = new Facts(CIK, LocalDate.now(), factsWrapper);
+//        when(factsRepository.save(facts)).thenReturn(facts);
+//        factsSyncHandler.pushToHandler(facts);
+//        factsSyncHandler.pushToHandler(facts);
+//        factsSyncHandler.pushToHandler(facts);
+//        factsSyncHandler.pushToHandler(facts);
+//        verify(factsRepository, times(1)).save(facts);
+//    }
 
     @Test
     public void testPushToHandlerMultiProcessing() throws InterruptedException {

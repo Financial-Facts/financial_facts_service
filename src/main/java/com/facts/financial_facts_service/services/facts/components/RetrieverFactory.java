@@ -25,15 +25,15 @@ public class RetrieverFactory implements Constants {
     @Autowired
     private IfrsRetriever ifrsRetriever;
 
-    public IRetriever getRetriever(String cik, FactsWrapper factsJson) {
-        if (Objects.isNull(factsJson.getTaxonomyReports())) {
+    public IRetriever getRetriever(String cik, FactsWrapper factsWrapper) {
+        if (Objects.isNull(factsWrapper.getTaxonomyReports())) {
             throw new DataNotFoundException(ModelType.FACTS, cik);
         }
-        if (Objects.nonNull(factsJson.getTaxonomyReports().getGaap())) {
+        if (Objects.nonNull(factsWrapper.getTaxonomyReports().getGaap())) {
             return gaapRetriever;
         }
-        if (Objects.nonNull(factsJson.getTaxonomyReports().getIfrs())) {
-            throw new FeatureNotImplementedException("IFRS taxonomy parsing not currently supported");
+        if (Objects.nonNull(factsWrapper.getTaxonomyReports().getIfrs())) {
+            return ifrsRetriever;
         }
         throw new DataNotFoundException(ModelType.FACTS, cik);
     }

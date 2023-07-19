@@ -1,5 +1,6 @@
 package com.facts.financial_facts_service.services.facts.components.parser;
 
+import com.amazonaws.util.CollectionUtils;
 import com.facts.financial_facts_service.constants.Taxonomy;
 import com.facts.financial_facts_service.entities.facts.models.TaxonomyReports;
 import com.facts.financial_facts_service.entities.facts.models.Period;
@@ -27,11 +28,12 @@ public class Parser {
 
     public <T extends AbstractQuarterlyData> Mono<List<T>> retrieveQuarterlyData(String cik,
                  TaxonomyReports taxonomyReports, Taxonomy taxonomy, List<String> factsKeys,
-                                         Optional<List<String>> deiFactsKeys, Class<T> type) {
+                                         List<String> deiFactsKeys, Class<T> type) {
         UnitData data = parseFactsForData(cik, taxonomyReports, taxonomy, factsKeys, deiFactsKeys);
-        String unitKey = data.getUnits().keySet().stream().toList().get(0);
+        Map<String, List<Period>> units = data.getUnits();
+        String unitKey = units.keySet().stream().toList().get(0);
         checkIsSupportedUnits(cik, unitKey);
-        List<Period> periods = data.getUnits().get(unitKey);
+        List<Period> periods = units.get(unitKey);
         boolean hasStartDate = checkHasStartDate(periods.get(0));
         boolean isShares = unitKey.equalsIgnoreCase("shares");
         return Mono.just(hasStartDate ?
@@ -40,10 +42,10 @@ public class Parser {
     }
 
     private UnitData parseFactsForData(String cik, TaxonomyReports taxonomyReports, Taxonomy taxonomy,
-                                       List<String> factsKeys, Optional<List<String>> deiFactsKeys) {
+                                       List<String> factsKeys, List<String> deiFactsKeys) {
         UnitData data = this.parse(cik, taxonomyReports, taxonomy, factsKeys, false);
-        if (Objects.isNull(data) && deiFactsKeys.isPresent()) {
-            data = this.parse(cik, taxonomyReports, taxonomy, deiFactsKeys.get(), true);
+        if (Objects.isNull(data) && !CollectionUtils.isNullOrEmpty(deiFactsKeys)) {
+            data = this.parse(cik, taxonomyReports, taxonomy, deiFactsKeys, true);
         }
         if (Objects.isNull(data)) {
             logger.error("Completed parsing {} with insufficient keys error using keys {}", cik, factsKeys);
@@ -66,8 +68,9 @@ public class Parser {
         for(String key: keys) {
             if (reportedValues.containsKey(key)) {
                 UnitData unitData = reportedValues.get(key);
-                String unitKey = unitData.getUnits().keySet().stream().toList().get(0);
-                int dataLength = unitData.getUnits().get(unitKey).size();
+                Map<String, List<Period>> units = unitData.getUnits();
+                String unitKey = units.keySet().stream().toList().get(0);
+                int dataLength = units.get(unitKey).size();
                 if (dataLength > max) {
                     max = dataLength;
                 }
@@ -153,9 +156,8 @@ public class Parser {
     }
 
     private void checkIsSupportedUnits(String cik, String unitKey) {
-        if (unitKey.equalsIgnoreCase("USD") ||
-            unitKey.equalsIgnoreCase("USD/shares") ||
-            unitKey.equalsIgnoreCase("shares")) {
+        Set<String> supportedUnits = Set.of("USD", "USD/shares", "shares");
+        if (supportedUnits.contains(unitKey)) {
             return;
         }
         logger.error("Parsing complete for {} with error: currency not supported", cik);
