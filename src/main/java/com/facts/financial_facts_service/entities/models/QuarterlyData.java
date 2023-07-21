@@ -18,7 +18,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 @IdClass(QuarterlyDataKey.class)
 @ToString
-public abstract class AbstractQuarterlyData {
+public class QuarterlyData {
 
     @Id
     private String cik;

@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.services.facts.components;
+package com.facts.financial_facts_service.handlers;
 
 import com.facts.financial_facts_service.entities.facts.Facts;
 import com.facts.financial_facts_service.repositories.FactsRepository;
@@ -13,8 +13,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Component
 public class FactsSyncHandler {

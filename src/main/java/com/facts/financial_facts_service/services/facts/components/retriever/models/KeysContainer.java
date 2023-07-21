@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.services.facts.components.retriever.model;
+package com.facts.financial_facts_service.services.facts.components.retriever.models;
 
 import java.util.List;
 

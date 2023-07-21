@@ -1,6 +1,8 @@
 package com.facts.financial_facts_service.entities.facts.models;
 
+import com.facts.financial_facts_service.constants.Taxonomy;
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +15,9 @@ import java.util.Map;
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TaxonomyReports implements Serializable {
+
+    @JsonIgnore
+    private Taxonomy primaryTaxonomy;
 
     @JsonAlias("us-gaap")
     private Map<String, UnitData> gaap;

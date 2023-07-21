@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.configuration;
+package com.facts.financial_facts_service.configurations;
 
 import com.facts.financial_facts_service.components.BasicAuthEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;

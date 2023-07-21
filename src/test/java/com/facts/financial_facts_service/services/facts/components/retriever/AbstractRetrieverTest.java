@@ -4,8 +4,9 @@ import com.facts.financial_facts_service.constants.Taxonomy;
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.entities.facts.models.TaxonomyReports;
 import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyShareholderEquity;
-import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;
+import com.facts.financial_facts_service.entities.models.QuarterlyData;
 import com.facts.financial_facts_service.services.facts.components.parser.Parser;
+import com.facts.financial_facts_service.services.facts.components.retriever.models.StickerPriceQuarterlyData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,22 +42,20 @@ public class AbstractRetrieverTest implements TestConstants {
     public void testFetchQuarterlyDataShareholderEquity() {
         TaxonomyReports taxonomyReports = new TaxonomyReports();
 
-        List<?> actual = abstractRetriever.retrieveStickerPriceData(CIK, taxonomyReports).block();
-        verify(parser).retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP, List.of("StockholdersEquity",
+        StickerPriceQuarterlyData actual = abstractRetriever.retrieveStickerPriceData(CIK, taxonomyReports).block();
+        verify(parser).retrieveQuarterlyData(CIK, taxonomyReports, List.of("StockholdersEquity",
                         "LiabilitiesAndStockholdersEquity"),
-                Collections.emptyList(), QuarterlyShareholderEquity.class);
-        assertEquals(1, actual.size());
-        assertEquals(CIK, actual.get(0));
+                Collections.emptyList());
     }
 
-    private  <T extends AbstractQuarterlyData> void mockRetrieveQuarterlyDataCall(TaxonomyReports taxonomyReports, Class<T> type) {
+    private  <T extends QuarterlyData> void mockRetrieveQuarterlyDataCall(TaxonomyReports taxonomyReports, Class<T> type) {
         T quarterlyData = buildQuarterlyData(type);
-        when(parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP, List.of("StockholdersEquity",
+        when(parser.retrieveQuarterlyData(CIK, taxonomyReports, List.of("StockholdersEquity",
                         "LiabilitiesAndStockholdersEquity"),
-                Collections.emptyList(), type)).thenReturn(Mono.just(List.of(quarterlyData)));
+                Collections.emptyList())).thenReturn(Mono.just(List.of(quarterlyData)));
     }
 
-    private <T extends AbstractQuarterlyData> T buildQuarterlyData(Class<T> type) {
+    private <T extends QuarterlyData> T buildQuarterlyData(Class<T> type) {
         try {
             T result = type.getDeclaredConstructor().newInstance();
             result.setCik(CIK);

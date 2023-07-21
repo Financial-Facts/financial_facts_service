@@ -6,6 +6,7 @@ import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.DiscountOperationException;
 import com.facts.financial_facts_service.exceptions.FeatureNotImplementedException;
 import com.facts.financial_facts_service.exceptions.InsufficientKeysException;
+import com.facts.financial_facts_service.handlers.GlobalExceptionHandler;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;

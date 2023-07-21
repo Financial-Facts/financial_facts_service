@@ -4,7 +4,7 @@ import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.entities.facts.Facts;
 import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
 import com.facts.financial_facts_service.repositories.FactsRepository;
-import com.facts.financial_facts_service.services.facts.components.FactsSyncHandler;
+import com.facts.financial_facts_service.handlers.FactsSyncHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,9 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;

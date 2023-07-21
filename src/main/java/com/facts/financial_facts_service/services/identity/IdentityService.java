@@ -3,14 +3,16 @@ package com.facts.financial_facts_service.services.identity;
 import com.facts.financial_facts_service.constants.ModelType;
 import com.facts.financial_facts_service.entities.identity.Identity;
 import com.facts.financial_facts_service.entities.identity.models.BulkIdentitiesRequest;
+import com.facts.financial_facts_service.entities.identity.models.SortBy;
 import com.facts.financial_facts_service.entities.identity.models.SortOrder;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
-import com.facts.financial_facts_service.services.identity.components.ComparatorMap;
-import com.facts.financial_facts_service.services.identity.components.IdentityMap;
+import com.facts.financial_facts_service.services.identity.comparators.IdentityCikComparator;
+import com.facts.financial_facts_service.services.identity.comparators.IdentityNameComparator;
+import com.facts.financial_facts_service.services.identity.comparators.IdentitySymbolComparator;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,7 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 @Service
@@ -29,37 +31,40 @@ public class IdentityService {
     Logger logger = LoggerFactory.getLogger(IdentityService.class);
 
     @Autowired
-    IdentityMap identityMap;
+    ConcurrentHashMap<String, Identity> identityMap;
 
-    @Autowired
-    ComparatorMap comparatorMap;
+    ConcurrentHashMap<SortBy, Comparator<Identity>> comparatorMap;
+
+    @PostConstruct
+    public void init() {
+        comparatorMap = new ConcurrentHashMap<>();
+        comparatorMap.put(SortBy.CIK, new IdentityCikComparator());
+        comparatorMap.put(SortBy.NAME, new IdentityNameComparator());
+        comparatorMap.put(SortBy.SYMBOL, new IdentitySymbolComparator());
+    }
 
     public Mono<Identity> getIdentityFromIdentityMap(String cik) {
         logger.info("In identity service getting identity for cik {}", cik);
-        try {
-            return Mono.just(identityMap.getValue(cik).orElseGet(() -> {
-                logger.error("Identity not found for cik {}", cik);
-                throw new DataNotFoundException(ModelType.IDENTITY, cik);
-            }));
-        } catch (DataAccessException error) {
-            logger.error("Error occurred while retrieving identity for cik {}: {}", cik, error.getMessage());
-            throw new ResponseStatusException(HttpStatus.CONFLICT, error.getMessage());
+        Identity identity = identityMap.get(cik);
+        if (Objects.isNull(identity)) {
+            logger.error("Identity not found for cik {}", cik);
+            throw new DataNotFoundException(ModelType.IDENTITY, cik);
         }
+        return Mono.just(identity);
     }
 
     public Mono<List<Identity>> getBulkIdentities(BulkIdentitiesRequest request) {
         logger.info("In identity service getting bulk identities for {}", request);
-        Map<String, Identity> currentIdentityMap = identityMap.getCurrentIdentityMap();
-        checkIsValidBulkRequest(currentIdentityMap, request);
+        checkIsValidBulkRequest(identityMap, request);
         int limit = request.getLimit();
-        if (limit > currentIdentityMap.size()) {
-            limit = currentIdentityMap.size();
+        if (limit > identityMap.size()) {
+            limit = identityMap.size();
         }
-        Comparator<Identity> comparator = comparatorMap.getComparator(request.getSortBy());
+        Comparator<Identity> comparator = comparatorMap.get(request.getSortBy());
         if (Objects.nonNull(request.getOrder()) && request.getOrder().equals(SortOrder.DESC)) {
             comparator = comparator.reversed();
         }
-        List<Identity> identities = currentIdentityMap.values().stream()
+        List<Identity> identities = identityMap.values().stream()
                 .sorted(comparator).toList().subList(request.getStartIndex(), limit);
         return Mono.just(identities);
     }

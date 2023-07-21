@@ -1,21 +1,17 @@
 package com.facts.financial_facts_service.services.facts;
 
 import com.facts.financial_facts_service.exceptions.GatewayServiceException;
-import com.facts.financial_facts_service.services.facts.components.RetrieverFactory;
-import com.facts.financial_facts_service.components.WebClientFactory;
 import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.constants.ModelType;
 import com.facts.financial_facts_service.entities.facts.Facts;
 import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
-import com.facts.financial_facts_service.services.facts.components.retriever.IRetriever;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
-import com.facts.financial_facts_service.services.facts.components.FactsSyncHandler;
+import com.facts.financial_facts_service.handlers.FactsSyncHandler;
 import com.facts.financial_facts_service.repositories.FactsRepository;
-import jakarta.annotation.PostConstruct;
+import com.facts.financial_facts_service.services.facts.components.RetrieverSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -32,40 +28,22 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 
-import static com.facts.financial_facts_service.utils.ServiceUtilities.mapRetrievedQuarterlyData;
-
-
 @Service
 public class FactsService implements Constants {
 
     Logger logger = LoggerFactory.getLogger(FactsService.class);
 
-    @Value("${facts-gateway.baseUrl}")
-    private String factsGatewayUrl;
-
-    @Value("${facts-gateway.bucket-name}")
-    private String bucketName;
+    @Autowired
+    private FactsRepository factsRepository;
 
     @Autowired
-    private WebClientFactory webClientFactory;
+    private WebClient gatewayWebClient;
 
     @Autowired
     private FactsSyncHandler factsSyncHandler;
 
     @Autowired
-    private FactsRepository factsRepository;
-
-    @Autowired
-    private RetrieverFactory retrieverFactory;
-
-    private WebClient factsWebClient;
-
-    @PostConstruct
-    public void init() {
-        String getFactsFromGatewayUrl = factsGatewayUrl + SLASH + bucketName;
-        this.factsWebClient = webClientFactory
-                .buildWebClient(getFactsFromGatewayUrl, Optional.empty());
-    }
+    private RetrieverSelector retrieverSelector;
 
     @Retryable(noRetryFor = DataNotFoundException.class, backoff = @Backoff(delay = 1000))
     public Mono<Facts> getFactsWithCik(String cik) {
@@ -76,8 +54,7 @@ public class FactsService implements Constants {
     private Mono<Facts> fetchUpToDateFacts(String cik) {
         return getFactsFromDB(cik).flatMap(facts -> {
             // If retrieved facts have been updated within the passed week
-            if (Objects.nonNull(facts.getLastSync()) &&
-                    facts.getLastSync().isAfter(LocalDate.now().minusDays(7))) {
+            if (facts.getLastSync().isAfter(LocalDate.now().minusDays(7))) {
                 return Mono.just(facts);
             } else {
                 // If not, retrieve updated facts and save them
@@ -118,17 +95,14 @@ public class FactsService implements Constants {
     private Mono<ResponseEntity<FactsWrapper>> queryAPIGateway(String cik) {
         logger.info("Querying API gateway with cik {}", cik);
         String key = String.format(FACTS_FILENAME, cik.toUpperCase());
-            return factsWebClient.get()
-                .uri(new StringBuilder()
-                        .append(SLASH)
-                        .append(key)
-                        .toString())
+            return gatewayWebClient.get()
+                .uri(SLASH + key)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                     response -> Mono.error(new DataNotFoundException(ModelType.FACTS, cik)))
                 .onStatus(HttpStatusCode::is5xxServerError,
                     response -> {
-                    logger.info("Retrying api gateway for {} facts");
+                    logger.info("Retrying api gateway for {} facts", cik);
                     return Mono.error(new GatewayServiceException());
                 })
                 .toEntity(FactsWrapper.class)
@@ -137,13 +111,10 @@ public class FactsService implements Constants {
     }
 
     private Mono<Facts> buildFactsWithGatewayResponse(String cik, FactsWrapper factsWrapper) {
-        Facts facts = new Facts(cik, LocalDate.now(), factsWrapper);
-        IRetriever retriever = retrieverFactory.getRetriever(cik, factsWrapper);
-        return retriever.retrieveStickerPriceData(cik, factsWrapper.getTaxonomyReports())
-            .flatMap((retrievedQuarterlyData -> {
-                mapRetrievedQuarterlyData(facts, retrievedQuarterlyData);
-                return Mono.just(facts);
-            }));
+        return retrieverSelector.getRetriever(cik, factsWrapper)
+            .retrieveStickerPriceData(cik, factsWrapper.getTaxonomyReports())
+            .flatMap((stickerPriceQuarterlyData ->
+                Mono.just(new Facts(cik, LocalDate.now(), factsWrapper, stickerPriceQuarterlyData))));
     }
 
     private void saveFacts(Facts facts) {

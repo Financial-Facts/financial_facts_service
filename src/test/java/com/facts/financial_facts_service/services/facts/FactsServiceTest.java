@@ -1,11 +1,7 @@
 package com.facts.financial_facts_service.services.facts;
 
-import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
-import com.facts.financial_facts_service.services.facts.components.FactsSyncHandler;
-import com.facts.financial_facts_service.components.WebClientFactory;
+import com.facts.financial_facts_service.handlers.FactsSyncHandler;
 import com.facts.financial_facts_service.constants.TestConstants;
-import com.facts.financial_facts_service.entities.facts.Facts;
-import com.facts.financial_facts_service.datafetcher.records.FactsData;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.repositories.FactsRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,9 +20,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDate;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

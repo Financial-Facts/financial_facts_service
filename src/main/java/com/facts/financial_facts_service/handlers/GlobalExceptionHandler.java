@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.handler;
+package com.facts.financial_facts_service.handlers;
 
 import java.util.List;
 import java.util.stream.Collectors;

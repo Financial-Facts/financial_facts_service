@@ -7,7 +7,7 @@ import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.constants.Operation;
 import com.facts.financial_facts_service.entities.discount.models.UpdateDiscountInput;
 import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.AbstractTrailingPriceData;
-import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;
+import com.facts.financial_facts_service.entities.models.QuarterlyData;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.DiscountOperationException;
 import com.facts.financial_facts_service.repositories.DiscountRepository;
@@ -142,9 +142,9 @@ public class DiscountService implements Constants {
         current.setSalePrice(update.getSalePrice());
     }
 
-    private <T extends AbstractQuarterlyData> void updateQuarterlyData(List<T> current, List<T> update) {
+    private <T extends QuarterlyData> void updateQuarterlyData(List<T> current, List<T> update) {
         Set<LocalDate> currentSet = current.stream()
-                .map(AbstractQuarterlyData::getAnnouncedDate).collect(Collectors.toSet());
+                .map(QuarterlyData::getAnnouncedDate).collect(Collectors.toSet());
         update.forEach(quarter -> {
             if (!currentSet.contains(quarter.getAnnouncedDate())) {
                 current.add(quarter);

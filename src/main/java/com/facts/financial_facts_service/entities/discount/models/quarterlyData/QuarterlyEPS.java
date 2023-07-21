@@ -1,12 +1,10 @@
 package com.facts.financial_facts_service.entities.discount.models.quarterlyData;
 
-import com.facts.financial_facts_service.constants.Constants;
-import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;
+import com.facts.financial_facts_service.entities.models.QuarterlyData;
 import jakarta.persistence.Entity;
-import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "quarterly_eps")
-public class QuarterlyEPS extends AbstractQuarterlyData {
+public class QuarterlyEPS extends QuarterlyData {
 }

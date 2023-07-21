@@ -6,6 +6,7 @@ import com.facts.financial_facts_service.entities.facts.models.Period;
 import com.facts.financial_facts_service.entities.facts.models.TaxonomyReports;
 import com.facts.financial_facts_service.entities.facts.models.UnitData;
 import com.facts.financial_facts_service.entities.facts.models.quarterlyData.*;
+import com.facts.financial_facts_service.entities.models.QuarterlyData;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.FeatureNotImplementedException;
 import com.facts.financial_facts_service.exceptions.InsufficientKeysException;
@@ -42,8 +43,8 @@ public class ParserTest implements TestConstants {
         public void testTaxonomyReportNotFound() {
             TaxonomyReports taxonomyReports = new TaxonomyReports();
             assertThrows(DataNotFoundException.class, () -> {
-                parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                        FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+                parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                        FACTS_KEYS, Collections.emptyList()).block();
             });
         }
 
@@ -51,8 +52,8 @@ public class ParserTest implements TestConstants {
         public void testUsingUsGaapReport() {
             TaxonomyReports taxonomyReports = mock(TaxonomyReports.class);
             try {
-                parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                        FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+                parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                        FACTS_KEYS, Collections.emptyList()).block();
             } catch (InsufficientKeysException ex) {
                 verify(taxonomyReports, times(1)).getGaap();
             }
@@ -62,8 +63,8 @@ public class ParserTest implements TestConstants {
         public void testUsingIfrsFullReport() {
             TaxonomyReports taxonomyReports = mock(TaxonomyReports.class);
             try {
-                parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.IFRS_FULL,
-                        FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+                parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                        FACTS_KEYS, Collections.emptyList()).block();
             } catch (InsufficientKeysException ex) {
                 verify(taxonomyReports, times(1)).getIfrs();
             }
@@ -73,8 +74,8 @@ public class ParserTest implements TestConstants {
         public void testUsingDeiReport() {
             TaxonomyReports taxonomyReports = mock(TaxonomyReports.class);
             try {
-                parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                        List.of(FACTS_KEY_1), List.of(FACTS_KEY_2), QuarterlyShareholderEquity.class).block();
+                parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                        List.of(FACTS_KEY_1), List.of(FACTS_KEY_2)).block();
             } catch (InsufficientKeysException ex) {
                 verify(taxonomyReports, times(1)).getGaap();
                 verify(taxonomyReports, times(1)).getDei();
@@ -92,8 +93,8 @@ public class ParserTest implements TestConstants {
             Map<String, UnitData> report = new HashMap<>();
             taxonomyReports.setGaap(report);
             assertThrows(InsufficientKeysException.class, () -> {
-                parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                        FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+                parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                        FACTS_KEYS, Collections.emptyList()).block();
             });
         }
 
@@ -104,8 +105,8 @@ public class ParserTest implements TestConstants {
             taxonomyReports.getGaap().put(FACTS_KEYS.get(0), mockUnitData);
             when(mockUnitData.getUnits()).thenReturn(buildUnits(USD));
             try {
-                parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                        FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+                parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                        FACTS_KEYS, Collections.emptyList()).block();
             } catch (InsufficientKeysException ex) {
                 verify(mockUnitData, times(1)).getUnits();
             }
@@ -116,8 +117,8 @@ public class ParserTest implements TestConstants {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS);
             UnitData mockUnitData = mockUnitData(1, USD);
             taxonomyReports.getGaap().put(FACTS_KEYS.get(0), mockUnitData);
-            parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+            parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             verify(mockUnitData, times(2)).getUnits();
         }
 
@@ -128,8 +129,8 @@ public class ParserTest implements TestConstants {
             UnitData mockUnitData2 = mockUnitData(2, USD);
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
             taxonomyReports.getGaap().put(FACTS_KEY_2, mockUnitData2);
-            parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+            parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             verify(mockUnitData1, times(1)).getUnits();
             verify(mockUnitData2, times(2)).getUnits();
         }
@@ -144,8 +145,8 @@ public class ParserTest implements TestConstants {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS);
             UnitData mockUnitData1 = mockUnitData(1, USD);
             taxonomyReports.getDei().put(FACTS_KEY_1, mockUnitData1);
-            parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+            parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             verify(mockUnitData1, times(2)).getUnits();
         }
 
@@ -153,8 +154,8 @@ public class ParserTest implements TestConstants {
         public void testParseFactsForDataThrowsInsufficientKeysExceptionIfNoValidKeys() {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS);
             assertThrows(InsufficientKeysException.class, () -> {
-                parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                        List.of("InvalidKey"), Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+                parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                        List.of("InvalidKey"), Collections.emptyList()).block();
             });
         }
 
@@ -164,8 +165,8 @@ public class ParserTest implements TestConstants {
             UnitData mockUnitData1 = mockUnitData(0, USD);
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
             assertThrows(InsufficientKeysException.class, () -> {
-                parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                        FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+                parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                        FACTS_KEYS, Collections.emptyList()).block();
             });
         }
 
@@ -175,8 +176,8 @@ public class ParserTest implements TestConstants {
             UnitData mockUnitData1 = mockUnitData(2, USD);
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
             try {
-                parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                        FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+                parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                        FACTS_KEYS, Collections.emptyList()).block();
             } catch (InsufficientKeysException ex) {
                 fail();
             }
@@ -193,8 +194,8 @@ public class ParserTest implements TestConstants {
             UnitData mockUnitData1 = mockUnitData(2, USD);
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
             try {
-                parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                        FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+                parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                        FACTS_KEYS, Collections.emptyList()).block();
             } catch (FeatureNotImplementedException ex) {
                 fail();
             }
@@ -206,8 +207,8 @@ public class ParserTest implements TestConstants {
             UnitData mockUnitData1 = mockUnitData(2, DOGE_COIN);
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
             assertThrows(FeatureNotImplementedException.class, () -> {
-                parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                        FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+                parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                        FACTS_KEYS, Collections.emptyList()).block();
             });
         }
     }
@@ -223,8 +224,8 @@ public class ParserTest implements TestConstants {
             Period mockPeriod = mock(Period.class);
             mockUnitData.getUnits().get(USD).add(0, mockPeriod);
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData);
-            parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+            parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             verify(mockPeriod, times(1)).getStart();
         }
     }
@@ -238,8 +239,8 @@ public class ParserTest implements TestConstants {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS);
             UnitData mockUnitData1 = mockUnitDataWithStartAndEndDates(1, USD, LocalDate.now(), null);
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
-            List<QuarterlyShareholderEquity> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+            List<QuarterlyData> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             assertNotNull(actual);
             assertEquals(0, actual.size());
         }
@@ -249,8 +250,8 @@ public class ParserTest implements TestConstants {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS);
             UnitData mockUnitData1 = mockUnitDataWithStartAndEndDates(1, USD, null, LocalDate.now());
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
-            List<QuarterlyShareholderEquity> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+            List<QuarterlyData> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             assertNotNull(actual);
             assertEquals(0, actual.size());
         }
@@ -260,8 +261,8 @@ public class ParserTest implements TestConstants {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS);
             UnitData mockUnitData1 = mockUnitDataWithStartAndEndDates(1, USD, LocalDate.now().minusDays(106), LocalDate.now());
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
-            List<QuarterlyShareholderEquity> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+            List<QuarterlyData> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             assertNotNull(actual);
             assertEquals(0, actual.size());
         }
@@ -271,8 +272,8 @@ public class ParserTest implements TestConstants {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS);
             UnitData mockUnitData1 = mockUnitDataWithStartAndEndDates(1, USD, LocalDate.now().minusDays(100), LocalDate.now());
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
-            List<QuarterlyShareholderEquity> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+            List<QuarterlyData> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             assertNotNull(actual);
             assertEquals(1, actual.size());
         }
@@ -289,8 +290,8 @@ public class ParserTest implements TestConstants {
             period2.setVal(BigDecimal.valueOf(-1));
             addPeriodToUnitData(mockUnitData, period2);
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData);
-            List<QuarterlyShareholderEquity> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+            List<QuarterlyData> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             assertNotNull(actual);
             assertEquals(1, actual.size());
             assertEquals(BigDecimal.valueOf(-1), actual.get(0).getValue());
@@ -305,8 +306,8 @@ public class ParserTest implements TestConstants {
                     LocalDate.now().minusDays(1));
             addPeriodToUnitData(mockUnitData, period2);
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData);
-            List<QuarterlyShareholderEquity> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+            List<QuarterlyData> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             assertNotNull(actual);
             assertEquals(2, actual.size());
             assertEquals(BigDecimal.valueOf(-1001), actual.get(1).getValue());
@@ -318,15 +319,15 @@ public class ParserTest implements TestConstants {
     class mapPeriodToQuarterlyDataTests {
 
         @Test
-        public void testMapsPeriodsToQuarterlyShareholderEquity() {
+        public void testMapsPeriodsToQuarterlyData() {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS);
             UnitData mockUnitData1 = mockUnitDataWithStartAndEndDates(1, USD, LocalDate.now().minusDays(100), LocalDate.now());
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
-            List<QuarterlyShareholderEquity> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+            List<QuarterlyData> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             assertNotNull(actual);
             assertEquals(1, actual.size());
-            assertInstanceOf(QuarterlyShareholderEquity.class, actual.get(0));
+            assertInstanceOf(QuarterlyData.class, actual.get(0));
             assertEquals(CIK, actual.get(0).getCik());
         }
 
@@ -335,8 +336,8 @@ public class ParserTest implements TestConstants {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS);
             UnitData mockUnitData1 = mockUnitDataWithStartAndEndDates(1, USD, LocalDate.now().minusDays(100), LocalDate.now());
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
-            List<QuarterlyOutstandingShares> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyOutstandingShares.class).block();
+            List<QuarterlyData> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             assertNotNull(actual);
             assertEquals(1, actual.size());
             assertInstanceOf(QuarterlyOutstandingShares.class, actual.get(0));
@@ -348,8 +349,8 @@ public class ParserTest implements TestConstants {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS);
             UnitData mockUnitData1 = mockUnitDataWithStartAndEndDates(1, USD, LocalDate.now().minusDays(100), LocalDate.now());
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
-            List<QuarterlyNetIncome> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyNetIncome.class).block();
+            List<QuarterlyData> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             assertNotNull(actual);
             assertEquals(1, actual.size());
             assertInstanceOf(QuarterlyNetIncome.class, actual.get(0));
@@ -361,8 +362,8 @@ public class ParserTest implements TestConstants {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS);
             UnitData mockUnitData1 = mockUnitDataWithStartAndEndDates(1, USD, LocalDate.now().minusDays(100), LocalDate.now());
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
-            List<QuarterlyLongTermDebt> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyLongTermDebt.class).block();
+            List<QuarterlyData> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             assertNotNull(actual);
             assertEquals(1, actual.size());
             assertInstanceOf(QuarterlyLongTermDebt.class, actual.get(0));
@@ -374,8 +375,8 @@ public class ParserTest implements TestConstants {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS);
             UnitData mockUnitData1 = mockUnitDataWithStartAndEndDates(1, USD, LocalDate.now().minusDays(100), LocalDate.now());
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
-            List<QuarterlyFactsEPS> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyFactsEPS.class).block();
+            List<QuarterlyData> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             assertNotNull(actual);
             assertEquals(1, actual.size());
             assertInstanceOf(QuarterlyFactsEPS.class, actual.get(0));
@@ -392,8 +393,8 @@ public class ParserTest implements TestConstants {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS);
             UnitData mockUnitData1 = mockUnitDataWithFPorFrame(1, USD, null, null);
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
-            List<QuarterlyShareholderEquity> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+            List<QuarterlyData> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             assertNotNull(actual);
             assertEquals(0, actual.size());
         }
@@ -403,8 +404,8 @@ public class ParserTest implements TestConstants {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS);
             UnitData mockUnitData1 = mockUnitDataWithFPorFrame(1, USD, "Q1", null);
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
-            List<QuarterlyShareholderEquity> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+            List<QuarterlyData> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             assertNotNull(actual);
             assertEquals(1, actual.size());
         }
@@ -414,8 +415,8 @@ public class ParserTest implements TestConstants {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS);
             UnitData mockUnitData1 = mockUnitDataWithFPorFrame(1, USD, null, "FY2012Q3");
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
-            List<QuarterlyShareholderEquity> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports, Taxonomy.US_GAAP,
-                    FACTS_KEYS, Collections.emptyList(), QuarterlyShareholderEquity.class).block();
+            List<QuarterlyData> actual = parser.retrieveQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block();
             assertNotNull(actual);
             assertEquals(1, actual.size());
         }

@@ -5,47 +5,52 @@ import com.facts.financial_facts_service.constants.Taxonomy;
 import com.facts.financial_facts_service.entities.facts.models.TaxonomyReports;
 import com.facts.financial_facts_service.entities.facts.models.Period;
 import com.facts.financial_facts_service.entities.facts.models.UnitData;
-import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;
-import com.facts.financial_facts_service.exceptions.DataNotFoundException;
+import com.facts.financial_facts_service.entities.models.QuarterlyData;
 import com.facts.financial_facts_service.exceptions.FeatureNotImplementedException;
 import com.facts.financial_facts_service.exceptions.InsufficientKeysException;
-import com.facts.financial_facts_service.exceptions.QuarterlyDataMappingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 @Component
 public class Parser {
 
     Logger logger = LoggerFactory.getLogger(Parser.class);
 
-    public <T extends AbstractQuarterlyData> Mono<List<T>> retrieveQuarterlyData(String cik,
-                 TaxonomyReports taxonomyReports, Taxonomy taxonomy, List<String> factsKeys,
-                                         List<String> deiFactsKeys, Class<T> type) {
-        UnitData data = parseFactsForData(cik, taxonomyReports, taxonomy, factsKeys, deiFactsKeys);
+    public Mono<List<QuarterlyData>> retrieveQuarterlyData(String cik, TaxonomyReports taxonomyReports,
+                                                                   List<String> factsKeys, List<String> deiFactsKeys) {
+        UnitData data = parseFactsForData(cik, taxonomyReports, factsKeys, deiFactsKeys);
         Map<String, List<Period>> units = data.getUnits();
         String unitKey = units.keySet().stream().toList().get(0);
         checkIsSupportedUnits(cik, unitKey);
         List<Period> periods = units.get(unitKey);
-        boolean hasStartDate = checkHasStartDate(periods.get(0));
+        boolean hasStartDate = Objects.nonNull(periods.get(0).getStart());
         boolean isShares = unitKey.equalsIgnoreCase("shares");
         return Mono.just(hasStartDate ?
-                populateQuarterlyDataWithStartDate(cik, periods, isShares, type) :
-                populateQuarterlyDataWithoutStartDate(cik, periods, type));
+                populateQuarterlyDataWithStartDate(cik, periods, isShares) :
+                populateQuarterlyDataWithoutStartDate(cik, periods));
     }
 
-    private UnitData parseFactsForData(String cik, TaxonomyReports taxonomyReports, Taxonomy taxonomy,
-                                       List<String> factsKeys, List<String> deiFactsKeys) {
-        UnitData data = this.parse(cik, taxonomyReports, taxonomy, factsKeys, false);
+    private UnitData parseFactsForData(String cik, TaxonomyReports taxonomyReports,
+                                 List<String> factsKeys, List<String> deiFactsKeys) {
+        Taxonomy primaryTaxonomy = taxonomyReports.getPrimaryTaxonomy();
+        Map<String, UnitData> reportedValues = fetchReportedValues(taxonomyReports, primaryTaxonomy);
+        UnitData data = this.processKeys(factsKeys, reportedValues);
         if (Objects.isNull(data) && !CollectionUtils.isNullOrEmpty(deiFactsKeys)) {
-            data = this.parse(cik, taxonomyReports, taxonomy, deiFactsKeys, true);
+            reportedValues = fetchReportedValues(taxonomyReports, Taxonomy.DEI);
+            data = this.processKeys(deiFactsKeys, reportedValues);
         }
         if (Objects.isNull(data)) {
             logger.error("Completed parsing {} with insufficient keys error using keys {}", cik, factsKeys);
@@ -54,17 +59,9 @@ public class Parser {
         return data;
     }
 
-    private UnitData parse(String cik, TaxonomyReports taxonomyReports, Taxonomy taxonomy, List<String> keys, boolean checkDEI) {
-        if (checkDEI) {
-            return this.processKeys(cik, taxonomyReports, keys, Taxonomy.DEI);
-        }
-        return this.processKeys(cik, taxonomyReports, keys, taxonomy);
-    }
-
-    private UnitData processKeys(String cik, TaxonomyReports taxonomyReports, List<String> keys, Taxonomy taxonomy) {
+    private UnitData processKeys(List<String> keys, Map<String, UnitData> reportedValues) {
         Map<Integer, UnitData> lengthMap = new HashMap<>();
         int max = 0;
-        Map<String, UnitData> reportedValues = fetchReportedValues(cik, taxonomyReports, taxonomy);
         for(String key: keys) {
             if (reportedValues.containsKey(key)) {
                 UnitData unitData = reportedValues.get(key);
@@ -83,9 +80,9 @@ public class Parser {
         return null;
     }
 
-    private <T extends AbstractQuarterlyData> List<T> populateQuarterlyDataWithStartDate(String cik,
-                                             List<Period> periods, boolean isShares, Class<T> type) {
-        List<T> quarterlyData = new ArrayList<>();
+    private List<QuarterlyData> populateQuarterlyDataWithStartDate(String cik,
+                                              List<Period> periods, boolean isShares) {
+        List<QuarterlyData> quarterlyData = new ArrayList<>();
         Set<LocalDate> processedEndDates = new HashSet<>();
         BigDecimal annualSum = new BigDecimal(0);
         for (Period period: periods) {
@@ -93,11 +90,11 @@ public class Parser {
                     !processedEndDates.contains(period.getEnd())) {
                 if (ChronoUnit.DAYS.between(period.getStart(), period.getEnd()) < 105) {
                     annualSum = annualSum.add(period.getVal());
-                    quarterlyData.add(mapPeriodToQuarterlyData(cik, period, type));
+                    quarterlyData.add(mapPeriodToQuarterlyData(cik, period));
                     processedEndDates.add(period.getEnd());
                 } else if (Objects.nonNull(period.getFp()) && period.getFp().equalsIgnoreCase("FY")) {
                     period.setVal(isShares ? period.getVal() : period.getVal().subtract(annualSum));
-                    quarterlyData.add(mapPeriodToQuarterlyData(cik, period, type));
+                    quarterlyData.add(mapPeriodToQuarterlyData(cik, period));
                     processedEndDates.add(period.getEnd());
                     annualSum = new BigDecimal(0);
                 }
@@ -106,53 +103,34 @@ public class Parser {
         return quarterlyData;
     }
 
-    private <T extends AbstractQuarterlyData> List<T> populateQuarterlyDataWithoutStartDate(String cik,
-                                                                                            List<Period> periods,
-                                                                                            Class<T> type) {
-        List<T> quarterlyData = new ArrayList<>();
+    private List<QuarterlyData> populateQuarterlyDataWithoutStartDate(String cik, List<Period> periods) {
+        List<QuarterlyData> quarterlyData = new ArrayList<>();
         Set<LocalDate> processedEndDates = new HashSet<>();
         for (Period period: periods) {
             if (!processedEndDates.contains(period.getEnd()) &&
                     ((Objects.nonNull(period.getFp()) && period.getFp().contains("Q")) ||
                     (Objects.nonNull(period.getFrame()) && period.getFrame().contains("Q")))) {
-                quarterlyData.add(mapPeriodToQuarterlyData(cik, period, type));
+                quarterlyData.add(mapPeriodToQuarterlyData(cik, period));
                 processedEndDates.add(period.getEnd());
             }
         }
         return quarterlyData;
     }
 
-    private boolean checkHasStartDate(Period period) {
-        return Objects.nonNull(period.getStart());
+    private QuarterlyData mapPeriodToQuarterlyData (String cik, Period period) {
+        QuarterlyData quarter = new QuarterlyData();
+        quarter.setCik(cik);
+        quarter.setAnnouncedDate(period.getEnd());
+        quarter.setValue(period.getVal());
+        return quarter;
     }
 
-    private <T extends AbstractQuarterlyData> T mapPeriodToQuarterlyData (String cik,
-                                                        Period period, Class<T> type) {
-        T quarter;
-        try {
-            quarter = type.getDeclaredConstructor().newInstance();
-            quarter.setCik(cik);
-            quarter.setAnnouncedDate(period.getEnd());
-            quarter.setValue(period.getVal());
-            return type.cast(quarter);
-        } catch (InvocationTargetException | NoSuchMethodException |
-                    InstantiationException | IllegalAccessException e) {
-            throw new QuarterlyDataMappingException(
-                    String.format("Mapping to type %s failed for %s", type, cik));
-        }
-    }
-
-    private Map<String, UnitData> fetchReportedValues(String cik, TaxonomyReports taxonomyReports, Taxonomy taxonomy) {
-        Map<String, UnitData> reports = switch (taxonomy) {
+    private Map<String, UnitData> fetchReportedValues(TaxonomyReports taxonomyReports, Taxonomy taxonomy) {
+        return switch (taxonomy) {
             case US_GAAP -> taxonomyReports.getGaap();
             case IFRS_FULL -> taxonomyReports.getIfrs();
             case DEI -> taxonomyReports.getDei();
         };
-        if (Objects.isNull(reports)) {
-            logger.error("Parsing complete for {} with error: missing supported taxonomy", cik);
-            throw new DataNotFoundException(taxonomy + " not found for " + cik);
-        }
-        return reports;
     }
 
     private void checkIsSupportedUnits(String cik, String unitKey) {

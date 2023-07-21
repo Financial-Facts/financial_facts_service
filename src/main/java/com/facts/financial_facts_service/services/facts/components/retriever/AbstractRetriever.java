@@ -1,17 +1,17 @@
 package com.facts.financial_facts_service.services.facts.components.retriever;
 
+import com.facts.financial_facts_service.configurations.TaxonomyKeyMap.models.TaxonomyKeyMap;
 import com.facts.financial_facts_service.constants.Constants;
-import com.facts.financial_facts_service.constants.Taxonomy;
 import com.facts.financial_facts_service.entities.facts.models.TaxonomyReports;
 import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyFactsEPS;
 import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyLongTermDebt;
 import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyNetIncome;
 import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyOutstandingShares;
 import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyShareholderEquity;
-import com.facts.financial_facts_service.entities.models.AbstractQuarterlyData;
+import com.facts.financial_facts_service.entities.models.QuarterlyData;
 import com.facts.financial_facts_service.services.facts.components.parser.Parser;
-import com.facts.financial_facts_service.services.facts.components.retriever.components.FactsKeysManager;
-import com.facts.financial_facts_service.services.facts.components.retriever.model.KeysContainer;
+import com.facts.financial_facts_service.services.facts.components.retriever.models.KeysContainer;
+import com.facts.financial_facts_service.services.facts.components.retriever.models.StickerPriceQuarterlyData;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
@@ -25,28 +25,34 @@ public abstract class AbstractRetriever implements IRetriever, Constants {
     private Parser parser;
 
     @Autowired
-    protected FactsKeysManager factsKeysManager;
+    protected TaxonomyKeyMap taxonomyKeyMap;
 
-    protected Map<Class<? extends AbstractQuarterlyData>, KeysContainer> keysMap;
+    protected Map<Class<? extends QuarterlyData>, KeysContainer> keyMap;
 
-    protected Taxonomy taxonomy;
-
-    public Mono<List<?>> retrieveStickerPriceData(String cik, TaxonomyReports taxonomyReports) {
+    public Mono<StickerPriceQuarterlyData> retrieveStickerPriceData(String cik, TaxonomyReports taxonomyReports) {
         return Mono.zip(
             this.retrieveQuarterlyData(cik, taxonomyReports, QuarterlyShareholderEquity.class),
             this.retrieveQuarterlyData(cik, taxonomyReports, QuarterlyOutstandingShares.class),
             this.retrieveQuarterlyData(cik, taxonomyReports, QuarterlyFactsEPS.class),
             this.retrieveQuarterlyData(cik, taxonomyReports, QuarterlyLongTermDebt.class),
             this.retrieveQuarterlyData(cik, taxonomyReports, QuarterlyNetIncome.class))
-        .flatMap(tuples -> Mono.just(
-            List.of(tuples.getT1(), tuples.getT2(), tuples.getT3(),
-                    tuples.getT4(), tuples.getT5())));
+        .flatMap(tuples -> Mono.just(StickerPriceQuarterlyData.builder()
+            .quarterlyShareholderEquity(tuples.getT1())
+            .quarterlyOutstandingShares(tuples.getT2())
+            .quarterlyFactsEPS(tuples.getT3())
+            .quarterlyLongTermDebt(tuples.getT4())
+            .quarterlyNetIncome(tuples.getT5()).build()));
     }
 
-    public <T extends AbstractQuarterlyData> Mono<List<T>> retrieveQuarterlyData(String cik, TaxonomyReports taxonomyReports,
-                                                                                 Class<T> type) {
-        KeysContainer keysContainer = keysMap.get(type);
-        return parser.retrieveQuarterlyData(cik, taxonomyReports, taxonomy, keysContainer.keys(),
-                keysContainer.deiKeys(), type);
+    private <T extends QuarterlyData> Mono<List<T>> retrieveQuarterlyData(String cik,
+                                      TaxonomyReports taxonomyReports, Class<T> type) {
+        KeysContainer keysContainer = keyMap.get(type);
+        return parser.retrieveQuarterlyData(cik, taxonomyReports, keysContainer.keys(), keysContainer.deiKeys())
+            .flatMap(quarterlyData -> {
+                // It is safe to suppress the warning because we are down casting from Quarterly Data Object to child
+                @SuppressWarnings("unchecked")
+                List<T> castQuarterlyData = (List<T>) quarterlyData;
+                return Mono.just(castQuarterlyData);
+            });
     }
 }
