@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.constants;
+package com.facts.financial_facts_service.constants.interfaces;
 
 public interface Queries {
 

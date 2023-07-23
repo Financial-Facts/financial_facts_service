@@ -3,6 +3,7 @@ package com.facts.financial_facts_service.entities.discount.models.trailingPrice
 
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 

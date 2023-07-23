@@ -1,16 +1,13 @@
 package com.facts.financial_facts_service.services.facts.components;
 
-import com.amazonaws.services.simplesystemsmanagement.model.FeatureNotAvailableException;
-import com.facts.financial_facts_service.constants.Constants;
-import com.facts.financial_facts_service.constants.ModelType;
-import com.facts.financial_facts_service.constants.Taxonomy;
+import com.facts.financial_facts_service.constants.interfaces.Constants;
+import com.facts.financial_facts_service.constants.enums.ModelType;
+import com.facts.financial_facts_service.constants.enums.Taxonomy;
 import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
-import com.facts.financial_facts_service.exceptions.FeatureNotImplementedException;
 import com.facts.financial_facts_service.services.facts.components.retriever.GaapRetriever;
 import com.facts.financial_facts_service.services.facts.components.retriever.IRetriever;
 import com.facts.financial_facts_service.services.facts.components.retriever.IfrsRetriever;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

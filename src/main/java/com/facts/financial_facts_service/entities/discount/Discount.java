@@ -1,6 +1,5 @@
 package com.facts.financial_facts_service.entities.discount;
 
-import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyBVPS;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyPE;
@@ -16,7 +15,7 @@ import lombok.*;
 
 import java.util.List;
 
-import static com.facts.financial_facts_service.constants.Constants.CIK_REGEX;
+import static com.facts.financial_facts_service.constants.interfaces.Constants.CIK_REGEX;
 
 
 @Entity

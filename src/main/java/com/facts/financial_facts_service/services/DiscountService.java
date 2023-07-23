@@ -1,10 +1,10 @@
 package com.facts.financial_facts_service.services;
 
-import com.facts.financial_facts_service.constants.Constants;
-import com.facts.financial_facts_service.constants.ModelType;
+import com.facts.financial_facts_service.constants.interfaces.Constants;
+import com.facts.financial_facts_service.constants.enums.ModelType;
 import com.facts.financial_facts_service.datafetcher.projections.SimpleDiscount;
 import com.facts.financial_facts_service.entities.discount.Discount;
-import com.facts.financial_facts_service.constants.Operation;
+import com.facts.financial_facts_service.constants.enums.Operation;
 import com.facts.financial_facts_service.entities.discount.models.UpdateDiscountInput;
 import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.AbstractTrailingPriceData;
 import com.facts.financial_facts_service.entities.models.QuarterlyData;
@@ -20,7 +20,10 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -35,18 +38,6 @@ public class DiscountService implements Constants {
     @Autowired
     private DiscountRepository discountRepository;
 
-    public Mono<List<SimpleDiscount>> getBulkSimpleDiscounts(boolean filterInactive) {
-        logger.info("In discount service getting bulk simple discounts");
-        try {
-            return filterInactive
-                ? Mono.just(discountRepository.findAllActiveSimpleDiscounts())
-                : Mono.just(discountRepository.findAllSimpleDiscounts());
-        } catch (DataAccessException ex) {
-            logger.error("Error occurred while getting bulk simple discounts");
-            throw new DiscountOperationException(Operation.BULK_SIMPLE);
-        }
-    }
-
     public Mono<Discount> getDiscountWithCik(String cik) {
         logger.info("In discount service getting discount for {}", cik);
         try {
@@ -58,6 +49,18 @@ public class DiscountService implements Constants {
         } catch (DataAccessException ex) {
             logger.error("Error occurred while getting discount for {}", cik);
             throw new DiscountOperationException(Operation.GET);
+        }
+    }
+
+    public Mono<List<SimpleDiscount>> getBulkSimpleDiscounts(boolean activeOnly) {
+        logger.info("In discount service getting bulk simple discounts");
+        try {
+            return activeOnly
+                    ? Mono.just(discountRepository.findAllActiveSimpleDiscounts())
+                    : Mono.just(discountRepository.findAllSimpleDiscounts());
+        } catch (DataAccessException ex) {
+            logger.error("Error occurred while getting bulk simple discounts");
+            throw new DiscountOperationException(Operation.BULK_SIMPLE);
         }
     }
 

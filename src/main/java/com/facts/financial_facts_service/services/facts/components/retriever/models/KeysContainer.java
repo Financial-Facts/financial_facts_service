@@ -2,5 +2,7 @@ package com.facts.financial_facts_service.services.facts.components.retriever.mo
 
 import java.util.List;
 
-public record KeysContainer(List<String> keys, List<String> deiKeys) {
+public record KeysContainer (List<String> gaapKeys,
+                             List<String> ifrsKeys,
+                             List<String> deiKeys) {
 }

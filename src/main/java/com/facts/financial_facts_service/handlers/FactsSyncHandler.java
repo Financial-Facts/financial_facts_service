@@ -25,7 +25,7 @@ public class FactsSyncHandler {
     @Autowired
     private FactsRepository factsRepository;
 
-    private Map<String, CompletableFuture<Void>> syncMap = new ConcurrentHashMap<>();
+    private final Map<String, CompletableFuture<Void>> syncMap = new ConcurrentHashMap<>();
 
     public CompletableFuture<Void> pushToHandler(Facts facts) {
         logger.info("Facts sync is currently processing: {}", syncMap.keySet());
@@ -43,11 +43,10 @@ public class FactsSyncHandler {
     private CompletableFuture<Void> awaitSyncCompletion(Facts facts) {
         return CompletableFuture.runAsync(() -> {
             syncDatabaseWithFacts(facts);
-            completeProcessing(facts.getCik());
         }).exceptionally(ex -> {
             logger.error("Sync aborted for cik {} with an exception {}",
                     facts.getCik(), ex.getMessage());
-            completeProcessing(facts.getCik());
+            syncMap.remove(facts.getCik());
             throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
         });
     }
@@ -55,10 +54,7 @@ public class FactsSyncHandler {
     private void syncDatabaseWithFacts(Facts facts) {
         logger.info("Syncing DB and API Gateway facts for {}", facts.getCik());
         this.factsRepository.saveAndFlush(facts);
-    }
-
-    private void completeProcessing(String cik) {
-        syncMap.remove(cik);
-        logger.info("Syncing complete for cik {}", cik);
+        syncMap.remove(facts.getCik());
+        logger.info("Syncing complete for cik {}", facts.getCik());
     }
 }

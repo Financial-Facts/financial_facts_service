@@ -4,7 +4,6 @@ import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.datafetcher.DataFetcher;
 import com.facts.financial_facts_service.datafetcher.projections.SimpleDiscount;
 import com.facts.financial_facts_service.datafetcher.records.IdentitiesAndDiscounts;
-import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.entities.identity.Identity;
 import com.facts.financial_facts_service.entities.identity.models.BulkIdentitiesRequest;
 import com.facts.financial_facts_service.entities.identity.models.SortBy;
@@ -82,7 +81,7 @@ public class IdentityControllerTest implements TestConstants {
             when(identityService.getIdentityFromIdentityMap(CIK))
                     .thenReturn(Mono.just(identity));
             ResponseEntity<Identity> response = identityController.getIdentityWithCik(CIK).get();
-            verify(identityService, times(1)).getIdentityFromIdentityMap(CIK);
+            verify(identityService).getIdentityFromIdentityMap(CIK);
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertEquals(identity, response.getBody());
         }
@@ -93,7 +92,7 @@ public class IdentityControllerTest implements TestConstants {
             when(identityService.getIdentityFromIdentityMap(CIK))
                     .thenReturn(Mono.just(identity));
             identityController.getIdentityWithCik(LOWERCASE_CIK).get();
-            verify(identityService, times(1)).getIdentityFromIdentityMap(CIK);
+            verify(identityService).getIdentityFromIdentityMap(CIK);
         }
 
         @Test
@@ -117,8 +116,9 @@ public class IdentityControllerTest implements TestConstants {
             when(dataFetcher.getIdentitiesAndOptionalDiscounts(request, false))
                     .thenReturn(Mono.just(new IdentitiesAndDiscounts(identities)));
             ResponseEntity<IdentitiesAndDiscounts> actual = identityController.getBulkIdentitiesAndOptionalDiscounts(request, false).get();
-            verify(dataFetcher, times(1)).getIdentitiesAndOptionalDiscounts(request, false);
+            verify(dataFetcher).getIdentitiesAndOptionalDiscounts(request, false);
             assertEquals(HttpStatus.OK, actual.getStatusCode());
+            assertNotNull(actual.getBody());
             assertEquals(1, actual.getBody().identities().size());
             assertEquals(CIK, actual.getBody().identities().get(0).getCik());
             assertNull(actual.getBody().discounts());
@@ -134,7 +134,8 @@ public class IdentityControllerTest implements TestConstants {
             when(dataFetcher.getIdentitiesAndOptionalDiscounts(request, true))
                     .thenReturn(Mono.just(new IdentitiesAndDiscounts(identities, List.of(simpleDiscount))));
             ResponseEntity<IdentitiesAndDiscounts> actual = identityController.getBulkIdentitiesAndOptionalDiscounts(request, true).get();
-            verify(dataFetcher, times(1)).getIdentitiesAndOptionalDiscounts(request, true);
+            verify(dataFetcher).getIdentitiesAndOptionalDiscounts(request, true);
+            assertNotNull(actual.getBody());
             assertNotNull(actual.getBody().discounts());
             assertEquals(HttpStatus.OK, actual.getStatusCode());
             assertEquals(1, actual.getBody().discounts().size());
@@ -151,7 +152,7 @@ public class IdentityControllerTest implements TestConstants {
             when(dataFetcher.getIdentitiesAndOptionalDiscounts(request, false))
                     .thenReturn(Mono.just(new IdentitiesAndDiscounts(identities, List.of(simpleDiscount))));
             identityController.getBulkIdentitiesAndOptionalDiscounts(request, null).get();
-            verify(dataFetcher, times(1)).getIdentitiesAndOptionalDiscounts(request, false);
+            verify(dataFetcher).getIdentitiesAndOptionalDiscounts(request, false);
         }
 
         @Test

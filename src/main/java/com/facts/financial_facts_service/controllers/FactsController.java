@@ -1,10 +1,9 @@
 package com.facts.financial_facts_service.controllers;
 
-import com.facts.financial_facts_service.constants.Constants;
+import com.facts.financial_facts_service.constants.interfaces.Constants;
 import com.facts.financial_facts_service.datafetcher.DataFetcher;
 import com.facts.financial_facts_service.datafetcher.records.FactsData;
 import com.facts.financial_facts_service.datafetcher.records.StickerPriceData;
-import com.facts.financial_facts_service.services.facts.FactsService;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.slf4j.Logger;
@@ -21,7 +20,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletableFuture;
 
-import static com.facts.financial_facts_service.constants.Constants.V1_FACTS;
+import static com.facts.financial_facts_service.constants.interfaces.Constants.V1_FACTS;
 
 @RestController
 @Validated

@@ -1,8 +1,8 @@
 package com.facts.financial_facts_service.services.facts;
 
 import com.facts.financial_facts_service.exceptions.GatewayServiceException;
-import com.facts.financial_facts_service.constants.Constants;
-import com.facts.financial_facts_service.constants.ModelType;
+import com.facts.financial_facts_service.constants.interfaces.Constants;
+import com.facts.financial_facts_service.constants.enums.ModelType;
 import com.facts.financial_facts_service.entities.facts.Facts;
 import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -85,29 +84,28 @@ public class FactsService implements Constants {
         logger.info("Retrieving facts from API Gateway for cik {}", cik);
         return queryAPIGateway(cik)
             .flatMap(response ->
-                buildFactsWithGatewayResponse(cik, response.getBody()).flatMap(builtFacts -> {
+                buildFactsWithGatewayResponse(cik, response).flatMap(builtFacts -> {
                     saveFacts(builtFacts);
                     logger.info("Returning facts for {} from API gateway", cik);
                     return Mono.just(builtFacts);
                 }));
     }
 
-    private Mono<ResponseEntity<FactsWrapper>> queryAPIGateway(String cik) {
+    private Mono<FactsWrapper> queryAPIGateway(String cik) {
         logger.info("Querying API gateway with cik {}", cik);
         String key = String.format(FACTS_FILENAME, cik.toUpperCase());
-            return gatewayWebClient.get()
-                .uri(SLASH + key)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                    response -> Mono.error(new DataNotFoundException(ModelType.FACTS, cik)))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                    response -> {
-                    logger.info("Retrying api gateway for {} facts", cik);
-                    return Mono.error(new GatewayServiceException());
-                })
-                .toEntity(FactsWrapper.class)
-                .retryWhen(Retry.backoff(3, Duration.ofSeconds(1))
-                .filter(throwable -> throwable instanceof GatewayServiceException));
+        return gatewayWebClient.get()
+            .uri(SLASH + key)
+            .retrieve()
+            .onStatus(HttpStatusCode::is4xxClientError,
+                response -> Mono.error(new DataNotFoundException(ModelType.FACTS, cik)))
+            .onStatus(HttpStatusCode::is5xxServerError, response -> {
+                logger.info("Retrying api gateway for {} facts", cik);
+                return Mono.error(new GatewayServiceException());
+            })
+            .bodyToMono(FactsWrapper.class)
+            .retryWhen(Retry.backoff(3, Duration.ofSeconds(1))
+            .filter(throwable -> throwable instanceof GatewayServiceException));
     }
 
     private Mono<Facts> buildFactsWithGatewayResponse(String cik, FactsWrapper factsWrapper) {

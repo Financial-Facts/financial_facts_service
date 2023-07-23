@@ -1,7 +1,6 @@
 package com.facts.financial_facts_service.controllers;
 
-import com.facts.financial_facts_service.constants.Constants;
-import com.facts.financial_facts_service.datafetcher.DataFetcher;
+import com.facts.financial_facts_service.constants.interfaces.Constants;
 import com.facts.financial_facts_service.datafetcher.projections.SimpleDiscount;
 import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.entities.discount.models.UpdateDiscountInput;
@@ -22,7 +21,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static com.facts.financial_facts_service.constants.Constants.V1_DISCOUNT;
+import static com.facts.financial_facts_service.constants.interfaces.Constants.V1_DISCOUNT;
 
 @RestController
 @Validated

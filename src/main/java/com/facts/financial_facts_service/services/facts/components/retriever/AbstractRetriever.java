@@ -1,7 +1,7 @@
 package com.facts.financial_facts_service.services.facts.components.retriever;
 
-import com.facts.financial_facts_service.configurations.TaxonomyKeyMap.models.TaxonomyKeyMap;
-import com.facts.financial_facts_service.constants.Constants;
+import com.facts.financial_facts_service.constants.interfaces.Constants;
+import com.facts.financial_facts_service.constants.interfaces.FactKeys;
 import com.facts.financial_facts_service.entities.facts.models.TaxonomyReports;
 import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyFactsEPS;
 import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyLongTermDebt;
@@ -9,25 +9,22 @@ import com.facts.financial_facts_service.entities.facts.models.quarterlyData.Qua
 import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyOutstandingShares;
 import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyShareholderEquity;
 import com.facts.financial_facts_service.entities.models.QuarterlyData;
-import com.facts.financial_facts_service.services.facts.components.parser.Parser;
-import com.facts.financial_facts_service.services.facts.components.retriever.models.KeysContainer;
+import com.facts.financial_facts_service.services.facts.components.retriever.components.Parser;
 import com.facts.financial_facts_service.services.facts.components.retriever.models.StickerPriceQuarterlyData;
-import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 
-public abstract class AbstractRetriever implements IRetriever, Constants {
+public abstract class AbstractRetriever implements IRetriever, Constants, FactKeys {
 
-    @Autowired
-    private Parser parser;
+    private final Parser parser = new Parser();
 
-    @Autowired
-    protected TaxonomyKeyMap taxonomyKeyMap;
+    protected Map<Class<? extends QuarterlyData>, List<String>> primaryTaxonomyKeysMap;
 
-    protected Map<Class<? extends QuarterlyData>, KeysContainer> keyMap;
+    protected final Map<Class<? extends QuarterlyData>, List<String>> deiKeysMap = buildDeiKeysMap();
 
     public Mono<StickerPriceQuarterlyData> retrieveStickerPriceData(String cik, TaxonomyReports taxonomyReports) {
         return Mono.zip(
@@ -46,13 +43,26 @@ public abstract class AbstractRetriever implements IRetriever, Constants {
 
     private <T extends QuarterlyData> Mono<List<T>> retrieveQuarterlyData(String cik,
                                       TaxonomyReports taxonomyReports, Class<T> type) {
-        KeysContainer keysContainer = keyMap.get(type);
-        return parser.retrieveQuarterlyData(cik, taxonomyReports, keysContainer.keys(), keysContainer.deiKeys())
-            .flatMap(quarterlyData -> {
+        System.out.println(cik);
+        System.out.println(taxonomyReports);
+        System.out.println(type);
+        return parser.parseReportsForQuarterlyData(cik, taxonomyReports,
+                        primaryTaxonomyKeysMap.get(type), deiKeysMap.get(type))
+            .map(quarterlyData -> {
                 // It is safe to suppress the warning because we are down casting from Quarterly Data Object to child
                 @SuppressWarnings("unchecked")
                 List<T> castQuarterlyData = (List<T>) quarterlyData;
-                return Mono.just(castQuarterlyData);
+                return castQuarterlyData;
             });
+    }
+
+    private Map<Class<? extends QuarterlyData>, List<String>> buildDeiKeysMap() {
+        Map<Class<? extends QuarterlyData>, List<String>> deiKeysMap = new HashMap<>();
+        deiKeysMap.put(QuarterlyShareholderEquity.class, SHAREHOLDER_EQUITY_KEYS.deiKeys());
+        deiKeysMap.put(QuarterlyOutstandingShares.class, OUTSTANDING_SHARES_KEYS.deiKeys());
+        deiKeysMap.put(QuarterlyFactsEPS.class, EARNINGS_PER_SHARE_KEYS.deiKeys());
+        deiKeysMap.put(QuarterlyLongTermDebt.class, LONG_TERM_DEBT_KEYS.deiKeys());
+        deiKeysMap.put(QuarterlyNetIncome.class, NET_INCOME_KEYS.deiKeys());
+        return deiKeysMap;
     }
 }

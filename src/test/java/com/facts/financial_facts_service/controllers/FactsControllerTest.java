@@ -1,7 +1,6 @@
 package com.facts.financial_facts_service.controllers;
 
 import com.facts.financial_facts_service.constants.TestConstants;
-import com.facts.financial_facts_service.controllers.FactsController;
 import com.facts.financial_facts_service.datafetcher.DataFetcher;
 import com.facts.financial_facts_service.datafetcher.records.FactsData;
 import com.facts.financial_facts_service.datafetcher.records.StickerPriceData;
@@ -33,6 +32,7 @@ import reactor.core.publisher.Mono;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @WebMvcTest
@@ -71,8 +71,9 @@ public class FactsControllerTest implements TestConstants {
             FactsData data = new FactsData(facts);
             when(dataFetcher.getFactsWithCik(CIK)).thenReturn(Mono.just(data));
             ResponseEntity<FactsData> actual = factsController.getFacts(CIK).get();
-            verify(dataFetcher, times(1)).getFactsWithCik(CIK);
+            verify(dataFetcher).getFactsWithCik(CIK);
             assertEquals(HttpStatus.OK, actual.getStatusCode());
+            assertNotNull(actual.getBody());
             assertEquals(CIK, actual.getBody().cik());
         }
 
@@ -83,7 +84,7 @@ public class FactsControllerTest implements TestConstants {
             FactsData data = new FactsData(facts);
             when(dataFetcher.getFactsWithCik(CIK)).thenReturn(Mono.just(data));
             factsController.getFacts(CIK).get();
-            verify(dataFetcher, times(1)).getFactsWithCik(CIK);
+            verify(dataFetcher).getFactsWithCik(CIK);
         }
 
         @Test
@@ -107,8 +108,9 @@ public class FactsControllerTest implements TestConstants {
             StickerPriceData data = new StickerPriceData(identity, facts);
             when(dataFetcher.getStickerPriceDataWithCik(CIK)).thenReturn(Mono.just(data));
             ResponseEntity<StickerPriceData> actual = factsController.getStickerPriceData(CIK).get();
-            verify(dataFetcher, times(1)).getStickerPriceDataWithCik(CIK);
+            verify(dataFetcher).getStickerPriceDataWithCik(CIK);
             assertEquals(HttpStatus.OK, actual.getStatusCode());
+            assertNotNull(actual.getBody());
             assertEquals(CIK, actual.getBody().cik());
         }
 
@@ -121,7 +123,7 @@ public class FactsControllerTest implements TestConstants {
             StickerPriceData data = new StickerPriceData(identity, facts);
             when(dataFetcher.getStickerPriceDataWithCik(CIK)).thenReturn(Mono.just(data));
             factsController.getStickerPriceData(LOWERCASE_CIK).get();
-            verify(dataFetcher, times(1)).getStickerPriceDataWithCik(CIK);
+            verify(dataFetcher).getStickerPriceDataWithCik(CIK);
         }
 
         @Test

@@ -8,4 +8,5 @@ import reactor.core.publisher.Mono;
 public interface IRetriever {
 
     Mono<StickerPriceQuarterlyData> retrieveStickerPriceData(String cik, TaxonomyReports taxonomyReports);
+
 }

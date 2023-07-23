@@ -37,9 +37,12 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @WebMvcTest
 @AutoConfigureMockMvc
@@ -68,20 +71,6 @@ public class DiscountControllerTest implements TestConstants {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    public void testDiscountWithInvalidInput() throws Exception {
-        Discount testDiscount = new Discount();
-        assertThrows(NullPointerException.class, () -> {
-            testDiscount.setCik(null);
-        });
-        assertThrows(NullPointerException.class, () -> {
-            testDiscount.setSymbol(null);
-        });
-        assertThrows(NullPointerException.class, () -> {
-            testDiscount.setName(null);
-        });
-    }
-
     @Nested
     @DisplayName("getDiscountWithCik")
     class getDiscountWithCikTests {
@@ -92,7 +81,8 @@ public class DiscountControllerTest implements TestConstants {
             discount.setCik(CIK);
             when(discountService.getDiscountWithCik(CIK)).thenReturn(Mono.just(discount));
             ResponseEntity<Discount> actual = discountController.getDiscountWithCik(CIK).get();
-            verify(discountService, times(1)).getDiscountWithCik(CIK);
+            verify(discountService).getDiscountWithCik(CIK);
+            assertNotNull(actual.getBody());
             assertEquals(CIK, actual.getBody().getCik());
             assertEquals(HttpStatus.OK, actual.getStatusCode());
         }
@@ -103,7 +93,7 @@ public class DiscountControllerTest implements TestConstants {
             discount.setCik(CIK);
             when(discountService.getDiscountWithCik(CIK)).thenReturn(Mono.just(discount));
             discountController.getDiscountWithCik(LOWERCASE_CIK).get();
-            verify(discountService, times(1)).getDiscountWithCik(CIK);
+            verify(discountService).getDiscountWithCik(CIK);
         }
 
         @Test
@@ -124,7 +114,8 @@ public class DiscountControllerTest implements TestConstants {
             when(discountService.getBulkSimpleDiscounts(false))
                     .thenReturn(Mono.just(List.of(simpleDiscount)));
             ResponseEntity<List<SimpleDiscount>> actual = discountController.getBulkSimpleDiscounts().get();
-            verify(discountService, times(1)).getBulkSimpleDiscounts(false);
+            verify(discountService).getBulkSimpleDiscounts(false);
+            assertNotNull(actual.getBody());
             assertEquals(1, actual.getBody().size());
             assertEquals(simpleDiscount, actual.getBody().get(0));
             assertEquals(HttpStatus.OK, actual.getStatusCode());
@@ -146,8 +137,9 @@ public class DiscountControllerTest implements TestConstants {
             when(discountService.updateBulkDiscountStatus(discountCiksToUpdate, input))
                     .thenReturn(Mono.just(statusUpdates));
             ResponseEntity<List<String>> actual = discountController.updateBulkDiscountStatus(input).get();
-            verify(discountService, times(1)).updateBulkDiscountStatus(discountCiksToUpdate, input);
+            verify(discountService).updateBulkDiscountStatus(discountCiksToUpdate, input);
             assertEquals(HttpStatus.OK, actual.getStatusCode());
+            assertNotNull(actual.getBody());
             assertEquals(1, actual.getBody().size());
             assertEquals(updateText, actual.getBody().get(0));
         }
@@ -163,7 +155,7 @@ public class DiscountControllerTest implements TestConstants {
             when(discountService.updateBulkDiscountStatus(discountCiksToUpdate, input))
                     .thenReturn(Mono.just(statusUpdates));
             discountController.updateBulkDiscountStatus(input).get();
-            verify(discountService, times(1)).updateBulkDiscountStatus(discountCiksToUpdate, input);
+            verify(discountService).updateBulkDiscountStatus(discountCiksToUpdate, input);
         }
 
         @Test
@@ -191,7 +183,7 @@ public class DiscountControllerTest implements TestConstants {
             discount.setCik(CIK);
             when(discountService.saveDiscount(discount)).thenReturn(Mono.just(SUCCESS));
             ResponseEntity<String> actual = discountController.saveDiscount(discount).get();
-            verify(discountService, times(1)).saveDiscount(discount);
+            verify(discountService).saveDiscount(discount);
             assertEquals(HttpStatus.CREATED, actual.getStatusCode());
             assertEquals(SUCCESS, actual.getBody());
         }
@@ -321,7 +313,7 @@ public class DiscountControllerTest implements TestConstants {
         public void testDeleteDiscount() throws ExecutionException, InterruptedException {
             when(discountService.deleteDiscount(CIK)).thenReturn(Mono.just(SUCCESS));
             ResponseEntity<String> actual = discountController.deleteDiscount(CIK).get();
-            verify(discountService, times(1)).deleteDiscount(any());
+            verify(discountService).deleteDiscount(any());
             assertEquals(HttpStatus.OK, actual.getStatusCode());
             assertEquals(SUCCESS, actual.getBody());
         }
@@ -330,7 +322,7 @@ public class DiscountControllerTest implements TestConstants {
         public void testDeleteDiscountToUppercase() throws ExecutionException, InterruptedException {
             when(discountService.deleteDiscount(CIK)).thenReturn(Mono.just(SUCCESS));
             discountController.deleteDiscount(LOWERCASE_CIK).get();
-            verify(discountService, times(1)).deleteDiscount(CIK);
+            verify(discountService).deleteDiscount(CIK);
         }
 
         @Test

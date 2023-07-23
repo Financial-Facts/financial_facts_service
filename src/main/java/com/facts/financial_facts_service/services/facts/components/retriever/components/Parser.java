@@ -1,7 +1,7 @@
-package com.facts.financial_facts_service.services.facts.components.parser;
+package com.facts.financial_facts_service.services.facts.components.retriever.components;
 
 import com.amazonaws.util.CollectionUtils;
-import com.facts.financial_facts_service.constants.Taxonomy;
+import com.facts.financial_facts_service.constants.enums.Taxonomy;
 import com.facts.financial_facts_service.entities.facts.models.TaxonomyReports;
 import com.facts.financial_facts_service.entities.facts.models.Period;
 import com.facts.financial_facts_service.entities.facts.models.UnitData;
@@ -10,7 +10,6 @@ import com.facts.financial_facts_service.exceptions.FeatureNotImplementedExcepti
 import com.facts.financial_facts_service.exceptions.InsufficientKeysException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -24,12 +23,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-@Component
 public class Parser {
 
     Logger logger = LoggerFactory.getLogger(Parser.class);
 
-    public Mono<List<QuarterlyData>> retrieveQuarterlyData(String cik, TaxonomyReports taxonomyReports,
+    public Mono<List<QuarterlyData>> parseReportsForQuarterlyData(String cik, TaxonomyReports taxonomyReports,
                                                                    List<String> factsKeys, List<String> deiFactsKeys) {
         UnitData data = parseFactsForData(cik, taxonomyReports, factsKeys, deiFactsKeys);
         Map<String, List<Period>> units = data.getUnits();

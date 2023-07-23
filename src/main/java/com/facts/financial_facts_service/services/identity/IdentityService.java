@@ -1,11 +1,12 @@
 package com.facts.financial_facts_service.services.identity;
 
-import com.facts.financial_facts_service.constants.ModelType;
+import com.facts.financial_facts_service.constants.enums.ModelType;
 import com.facts.financial_facts_service.entities.identity.Identity;
 import com.facts.financial_facts_service.entities.identity.models.BulkIdentitiesRequest;
 import com.facts.financial_facts_service.entities.identity.models.SortBy;
 import com.facts.financial_facts_service.entities.identity.models.SortOrder;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
+import com.facts.financial_facts_service.exceptions.InvalidRequestException;
 import com.facts.financial_facts_service.services.identity.comparators.IdentityCikComparator;
 import com.facts.financial_facts_service.services.identity.comparators.IdentityNameComparator;
 import com.facts.financial_facts_service.services.identity.comparators.IdentitySymbolComparator;
@@ -13,14 +14,11 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -55,7 +53,7 @@ public class IdentityService {
 
     public Mono<List<Identity>> getBulkIdentities(BulkIdentitiesRequest request) {
         logger.info("In identity service getting bulk identities for {}", request);
-        checkIsValidBulkRequest(identityMap, request);
+        checkIsValidBulkRequest(request);
         int limit = request.getLimit();
         if (limit > identityMap.size()) {
             limit = identityMap.size();
@@ -69,15 +67,15 @@ public class IdentityService {
         return Mono.just(identities);
     }
 
-    private void checkIsValidBulkRequest(Map<String, Identity> currentIdentityMap, BulkIdentitiesRequest request) {
+    private void checkIsValidBulkRequest(BulkIdentitiesRequest request) {
         if (request.getStartIndex() > request.getLimit()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start index cannot be greater than limit index");
+            throw new InvalidRequestException("Start index cannot be greater than limit index");
         }
-        if (request.getStartIndex() >= currentIdentityMap.size()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start index is out of bounds");
+        if (request.getStartIndex() >= identityMap.size()) {
+            throw new InvalidRequestException("Start index is out of bounds");
         }
         if (Objects.isNull(request.getSortBy())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "SortBy cannot be null");
+            throw new InvalidRequestException("Invalid sort by in request");
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.facts.financial_facts_service.configurations;
 
-import com.facts.financial_facts_service.constants.Constants;
+import com.facts.financial_facts_service.constants.interfaces.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

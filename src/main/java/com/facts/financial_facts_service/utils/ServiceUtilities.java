@@ -1,17 +1,6 @@
 package com.facts.financial_facts_service.utils;
 
-import com.facts.financial_facts_service.constants.Constants;
-import com.facts.financial_facts_service.entities.facts.Facts;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyFactsEPS;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyLongTermDebt;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyNetIncome;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyOutstandingShares;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyShareholderEquity;
-import com.facts.financial_facts_service.entities.models.QuarterlyData;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.facts.financial_facts_service.constants.interfaces.Constants;
 
 public class ServiceUtilities implements Constants {
 

@@ -1,7 +1,7 @@
 package com.facts.financial_facts_service.exceptions;
 
-import com.facts.financial_facts_service.constants.Constants;
-import com.facts.financial_facts_service.constants.ModelType;
+import com.facts.financial_facts_service.constants.interfaces.Constants;
+import com.facts.financial_facts_service.constants.enums.ModelType;
 import lombok.Getter;
 
 @Getter

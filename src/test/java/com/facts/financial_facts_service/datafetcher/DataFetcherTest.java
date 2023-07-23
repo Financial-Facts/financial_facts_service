@@ -57,7 +57,7 @@ public class DataFetcherTest implements TestConstants {
             facts.setCik(CIK);
             when(factsService.getFactsWithCik(CIK)).thenReturn(Mono.just(facts));
             FactsData actual = dataFetcher.getFactsWithCik(CIK).block();
-            verify(factsService, times(1)).getFactsWithCik(CIK);
+            verify(factsService).getFactsWithCik(CIK);
             assertNotNull(actual);
             assertEquals(CIK, actual.cik());
         }
@@ -78,8 +78,8 @@ public class DataFetcherTest implements TestConstants {
             when(factsService.getFactsWithCik(CIK)).thenReturn(Mono.just(facts));
             when(identityService.getIdentityFromIdentityMap(CIK)).thenReturn(Mono.just(identity));
             StickerPriceData actual = dataFetcher.getStickerPriceDataWithCik(CIK).block();
-            verify(factsService, times(1)).getFactsWithCik(CIK);
-            verify(identityService, times(1)).getIdentityFromIdentityMap(CIK);
+            verify(factsService).getFactsWithCik(CIK);
+            verify(identityService).getIdentityFromIdentityMap(CIK);
             assertNotNull(actual);
             assertEquals(CIK, actual.cik());
             assertEquals(NAME, actual.name());
@@ -102,8 +102,9 @@ public class DataFetcherTest implements TestConstants {
             when(discountService.getBulkSimpleDiscounts(true))
                     .thenReturn(Mono.just(List.of(simpleDiscount)));
             IdentitiesAndDiscounts actual = dataFetcher.getIdentitiesAndOptionalDiscounts(request, true).block();
-            verify(identityService, times(1)).getBulkIdentities(request);
-            verify(discountService, times(1)).getBulkSimpleDiscounts(true);
+            verify(identityService).getBulkIdentities(request);
+            verify(discountService).getBulkSimpleDiscounts(true);
+            assertNotNull(actual);
             assertNotNull(actual.identities());
             assertEquals(1, actual.identities().size());
             assertEquals(CIK, actual.identities().get(0).getCik());
@@ -120,8 +121,9 @@ public class DataFetcherTest implements TestConstants {
             List<Identity> identityList = List.of(identity);
             when(identityService.getBulkIdentities(request)).thenReturn(Mono.just(identityList));
             IdentitiesAndDiscounts actual = dataFetcher.getIdentitiesAndOptionalDiscounts(request, false).block();
-            verify(identityService, times(1)).getBulkIdentities(request);
+            verify(identityService).getBulkIdentities(request);
             verify(discountService, times(0)).getBulkSimpleDiscounts(true);
+            assertNotNull(actual);
             assertNotNull(actual.identities());
             assertEquals(1, actual.identities().size());
             assertEquals(CIK, actual.identities().get(0).getCik());

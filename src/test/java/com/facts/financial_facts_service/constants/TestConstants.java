@@ -6,6 +6,7 @@ public interface TestConstants {
     String LOWERCASE_CIK = "cik0123456789";
     String CIK = "CIK0123456789";
     String CIK2 = "CIK1111122222";
+    String CIK3 = "CIK0000011119";
     String SYMBOL = "ABC";
     String NAME = "Company";
     String SUCCESS = "Success";
@@ -16,6 +17,7 @@ public interface TestConstants {
     String SEC_URL = "https://www.sec.com/test";
     String USER_AGENT = "user@agent.com";
     String FACTS_URL = "https://www.facts.com/test";
+    String BUCKET_NAME = "bucket";
     String INVALID_CIK = "invalidCik";
     String DISCOUNT_OPERATION_ERROR = "Error occurred performing %s operation on CIK %s";
     String DISCOUNT_OPERATION_ERROR_NO_CIK = "Error occurred performing %s operation";

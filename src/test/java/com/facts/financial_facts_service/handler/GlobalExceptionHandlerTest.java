@@ -1,11 +1,12 @@
 package com.facts.financial_facts_service.handler;
 
-import com.facts.financial_facts_service.constants.Operation;
+import com.facts.financial_facts_service.constants.enums.Operation;
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.DiscountOperationException;
 import com.facts.financial_facts_service.exceptions.FeatureNotImplementedException;
 import com.facts.financial_facts_service.exceptions.InsufficientKeysException;
+import com.facts.financial_facts_service.exceptions.InvalidRequestException;
 import com.facts.financial_facts_service.handlers.GlobalExceptionHandler;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -58,6 +60,7 @@ public class GlobalExceptionHandlerTest implements TestConstants {
 
         ResponseEntity<Object> actual =
                 globalExceptionHandler.handleMethodArgumentNotValid(ex, headers, httpStatusCode, webRequest);
+        assertNotNull(actual);
         assertEquals(HttpStatus.BAD_REQUEST, actual.getStatusCode());
         assertEquals(List.of("defaultMessage"),  actual.getBody());
     }
@@ -65,7 +68,7 @@ public class GlobalExceptionHandlerTest implements TestConstants {
     @Test
     public void testHandleConstraintViolationException() {
         ConstraintViolationException ex = mock(ConstraintViolationException.class);
-        ConstraintViolation constraintViolation = mock(ConstraintViolation.class);
+        ConstraintViolation<?> constraintViolation = mock(ConstraintViolation.class);
         when(ex.getConstraintViolations()).thenReturn(Set.of(constraintViolation));
         when(constraintViolation.getMessage()).thenReturn("message");
         ResponseEntity<Object> actual = globalExceptionHandler.handleConstraintViolationException(ex);
@@ -98,11 +101,18 @@ public class GlobalExceptionHandlerTest implements TestConstants {
     }
 
     @Test
+    public void testHandleInvalidRequestException() {
+        InvalidRequestException ex = new InvalidRequestException("message");
+        ResponseEntity<Object> actual = globalExceptionHandler.handleInvalidRequestionException(ex);
+        assertEquals("message", actual.getBody());
+    }
+
+    @Test
     public void testHandleResponseStatusException() {
         ResponseStatusException ex = new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "message");
         ResponseEntity<Object> actual = globalExceptionHandler.handleResponseStatusException(ex);
         assertEquals(HttpStatus.I_AM_A_TEAPOT, actual.getStatusCode());
-        assertEquals("message", actual.getBody());
+        assertEquals(HttpStatus.I_AM_A_TEAPOT + " \"message\"", actual.getBody());
     }
 
     @Nested
