@@ -137,9 +137,7 @@ public class FactsServiceTest implements TestConstants {
         public void testBuildsFactsWithGatewayResponse() {
             when(retrieverSelector.getRetriever(CIK, factsWrapper))
                     .thenThrow(new RuntimeException("stop"));
-            assertThrows(RuntimeException.class, () -> {
-               factsService.getFactsWithCik(CIK).block();
-            });
+            assertThrows(RuntimeException.class, () -> factsService.getFactsWithCik(CIK).block());
         }
 
         @Test
@@ -152,9 +150,7 @@ public class FactsServiceTest implements TestConstants {
                     .thenReturn(Mono.just(StickerPriceQuarterlyData.builder().build()));
             when(factsSyncHandler.pushToHandler(any(Facts.class)))
                     .thenThrow(new RuntimeException("stop"));
-            assertThrows(RuntimeException.class, () -> {
-                factsService.getFactsWithCik(CIK).block();
-            });
+            assertThrows(RuntimeException.class, () -> factsService.getFactsWithCik(CIK).block());
         }
 
     }

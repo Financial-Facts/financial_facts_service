@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Service
 public class DiscountService implements Constants {
 
-    Logger logger = LoggerFactory.getLogger(DiscountService.class);
+    final Logger logger = LoggerFactory.getLogger(DiscountService.class);
 
     @Value("${discount-update.batch.capacity}")
     private int UPDATE_BATCH_CAPACITY;

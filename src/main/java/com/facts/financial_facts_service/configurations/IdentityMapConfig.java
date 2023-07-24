@@ -20,7 +20,7 @@ import static com.facts.financial_facts_service.utils.ServiceUtilities.padSimple
 @Configuration
 public class IdentityMapConfig {
 
-    Logger logger = LoggerFactory.getLogger(IdentityMapConfig.class);
+    final Logger logger = LoggerFactory.getLogger(IdentityMapConfig.class);
 
     @Autowired
     private WebClient secWebClient;

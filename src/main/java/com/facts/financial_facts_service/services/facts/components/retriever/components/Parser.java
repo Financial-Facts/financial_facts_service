@@ -25,7 +25,7 @@ import java.util.Set;
 
 public class Parser {
 
-    Logger logger = LoggerFactory.getLogger(Parser.class);
+    final Logger logger = LoggerFactory.getLogger(Parser.class);
 
     public Mono<List<QuarterlyData>> parseReportsForQuarterlyData(String cik, TaxonomyReports taxonomyReports,
                                                                    List<String> factsKeys, List<String> deiFactsKeys) {

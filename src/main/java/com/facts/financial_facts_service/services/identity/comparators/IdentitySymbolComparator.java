@@ -2,7 +2,6 @@ package com.facts.financial_facts_service.services.identity.comparators;
 
 import com.amazonaws.util.StringUtils;
 import com.facts.financial_facts_service.entities.identity.Identity;
-import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 

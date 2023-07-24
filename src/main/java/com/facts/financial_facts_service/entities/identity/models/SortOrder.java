@@ -9,11 +9,11 @@ public enum SortOrder {
     DESC;
 
     public SortOrder from(String val) {
-        switch(val.toUpperCase()) {
-            case("ASC"): {
+        switch (val.toUpperCase()) {
+            case ("ASC") -> {
                 return ASC;
             }
-            case("DESC"): {
+            case ("DESC") -> {
                 return DESC;
             }
         }

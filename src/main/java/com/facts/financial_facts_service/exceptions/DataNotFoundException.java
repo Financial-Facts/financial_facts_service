@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public class DataNotFoundException extends RuntimeException implements Constants {
 
-    private String message;
+    private final String message;
 
     public DataNotFoundException(String message) {
         this.message = message;

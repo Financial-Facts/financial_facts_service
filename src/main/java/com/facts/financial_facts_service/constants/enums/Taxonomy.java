@@ -8,16 +8,12 @@ public enum Taxonomy {
 
     @Override
     public String toString() {
-        switch (this) {
-            case US_GAAP:
-                return "us-gaap";
-            case IFRS_FULL:
-                return "ifrs-full";
-            case DEI:
-                return "dei";
-            default:
-                return null;
-        }
+        return switch (this) {
+            case US_GAAP -> "us-gaap";
+            case IFRS_FULL -> "ifrs-full";
+            case DEI -> "dei";
+            default -> null;
+        };
     }
 
 }

@@ -59,9 +59,7 @@ public class WebClientConfig implements Constants {
             .defaultHeaders(consumer -> {
                 consumer.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
                 if (Objects.nonNull(headers)) {
-                    headers.keySet().forEach(key -> {
-                        consumer.add(key, headers.get(key));
-                    });
+                    headers.keySet().forEach(key -> consumer.add(key, headers.get(key)));
                 }
             }).build();
     }

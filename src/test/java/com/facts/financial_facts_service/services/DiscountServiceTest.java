@@ -72,18 +72,14 @@ public class DiscountServiceTest implements TestConstants {
         public void testGetDiscountNotFound() {
             when(discountRepository.findById(CIK))
                     .thenReturn(Optional.empty());
-            assertThrows(DataNotFoundException.class, () -> {
-                discountService.getDiscountWithCik(CIK).block();
-            });
+            assertThrows(DataNotFoundException.class, () -> discountService.getDiscountWithCik(CIK).block());
         }
 
         @Test
         public void testGetDiscountDataAccessError() {
             when(discountRepository.findById(CIK))
                     .thenThrow(mock(DataAccessException.class));
-            assertThrows(DiscountOperationException.class, () -> {
-                discountService.getDiscountWithCik(CIK).block();
-            });
+            assertThrows(DiscountOperationException.class, () -> discountService.getDiscountWithCik(CIK).block());
         }
     }
 
@@ -99,7 +95,8 @@ public class DiscountServiceTest implements TestConstants {
         public void testGetBulkActiveSimpleDiscounts() {
             when(discountRepository.findAllActiveSimpleDiscounts())
                     .thenReturn(List.of(activeSimpleDiscount));
-            List<SimpleDiscount> actual = discountService.getBulkSimpleDiscounts(true).block();
+            List<SimpleDiscount> actual =
+                    discountService.getBulkSimpleDiscounts(true).block();
             assertNotNull(actual);
             assertEquals(1, actual.size());
             assertEquals(activeSimpleDiscount, actual.get(0));
@@ -109,7 +106,8 @@ public class DiscountServiceTest implements TestConstants {
         public void testGetBulkSimpleDiscounts() {
             when(discountRepository.findAllSimpleDiscounts())
                     .thenReturn(List.of(simpleDiscount));
-            List<SimpleDiscount> actual = discountService.getBulkSimpleDiscounts(false).block();
+            List<SimpleDiscount> actual =
+                    discountService.getBulkSimpleDiscounts(false).block();
             assertNotNull(actual);
             assertEquals(1, actual.size());
             assertEquals(simpleDiscount, actual.get(0));
@@ -119,18 +117,16 @@ public class DiscountServiceTest implements TestConstants {
         public void testGetBulkActiveDiscountsDataAccessError() {
             when(discountRepository.findAllActiveSimpleDiscounts())
                     .thenThrow(mock(DataAccessException.class));
-            assertThrows(DiscountOperationException.class, () -> {
-                discountService.getBulkSimpleDiscounts(true).block();
-            });
+            assertThrows(DiscountOperationException.class, () ->
+                    discountService.getBulkSimpleDiscounts(true).block());
         }
 
         @Test
         public void testGetBulkSimpleDiscountsDataAccessError() {
             when(discountRepository.findAllSimpleDiscounts())
                     .thenThrow(mock(DataAccessException.class));
-            assertThrows(DiscountOperationException.class, () -> {
-                discountService.getBulkSimpleDiscounts(false).block();
-            });
+            assertThrows(DiscountOperationException.class, () ->
+                    discountService.getBulkSimpleDiscounts(false).block());
         }
     }
 
@@ -226,9 +222,8 @@ public class DiscountServiceTest implements TestConstants {
             discount.setCik(CIK);
             when(discountRepository.existsById(CIK))
                     .thenThrow(mock(DataAccessException.class));
-            assertThrows(DiscountOperationException.class, () -> {
-                discountService.saveDiscount(discount).block();
-            });
+            assertThrows(DiscountOperationException.class, () ->
+                    discountService.saveDiscount(discount).block());
         }
 
         @Test
@@ -239,9 +234,8 @@ public class DiscountServiceTest implements TestConstants {
                     .thenReturn(false);
             when(discountRepository.save(discount))
                     .thenThrow(mock(DataAccessException.class));
-            assertThrows(DiscountOperationException.class, () -> {
-                discountService.saveDiscount(discount).block();
-            });
+            assertThrows(DiscountOperationException.class, () ->
+                    discountService.saveDiscount(discount).block());
         }
 
         @Test
@@ -253,9 +247,8 @@ public class DiscountServiceTest implements TestConstants {
                     .thenReturn(discount);
             when(discountRepository.save(discount))
                     .thenThrow(mock(DataAccessException.class));
-            assertThrows(DiscountOperationException.class, () -> {
-                discountService.saveDiscount(discount).block();
-            });
+            assertThrows(DiscountOperationException.class, () ->
+                    discountService.saveDiscount(discount).block());
         }
 
         private Discount buildValidDiscount() {
@@ -303,18 +296,16 @@ public class DiscountServiceTest implements TestConstants {
         @Test
         public void testDeleteDiscountDoesNotExist() {
             when(discountRepository.existsById(CIK)).thenReturn(false);
-            assertThrows(DataNotFoundException.class, () -> {
-                discountService.deleteDiscount(CIK);
-            });
+            assertThrows(DataNotFoundException.class, () ->
+                    discountService.deleteDiscount(CIK));
         }
 
         @Test
         public void testDeleteDataAccessError() {
             DataAccessException ex = mock(DataAccessException.class);
             when(discountRepository.existsById(CIK)).thenThrow(ex);
-            assertThrows(DiscountOperationException.class, () -> {
-                discountService.deleteDiscount(CIK);
-            });
+            assertThrows(DiscountOperationException.class, () ->
+                    discountService.deleteDiscount(CIK));
         }
     }
 }

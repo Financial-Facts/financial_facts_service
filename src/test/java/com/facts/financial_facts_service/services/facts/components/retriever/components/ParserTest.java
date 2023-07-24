@@ -95,15 +95,15 @@ public class ParserTest implements TestConstants {
             taxonomyReports.setPrimaryTaxonomy(Taxonomy.US_GAAP);
             Map<String, UnitData> report = new HashMap<>();
             taxonomyReports.setGaap(report);
-            assertThrows(InsufficientKeysException.class, () -> {
-                parser.parseReportsForQuarterlyData(CIK, taxonomyReports,
-                        FACTS_KEYS, Collections.emptyList()).block();
-            });
+            assertThrows(InsufficientKeysException.class, () ->
+                    parser.parseReportsForQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block());
         }
 
         @Test
         public void testProcessKeysKeyFoundWithoutValues() {
-            TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS, Taxonomy.US_GAAP);
+            TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(
+                    FACTS_KEYS, Taxonomy.US_GAAP);
             taxonomyReports.setPrimaryTaxonomy(Taxonomy.US_GAAP);
             UnitData mockUnitData = mock(UnitData.class);
             taxonomyReports.getGaap().put(FACTS_KEYS.get(0), mockUnitData);
@@ -118,7 +118,8 @@ public class ParserTest implements TestConstants {
 
         @Test
         public void testProcessKeysKeyFoundWithValues() {
-            TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS, Taxonomy.US_GAAP);
+            TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(
+                    FACTS_KEYS, Taxonomy.US_GAAP);
             taxonomyReports.setPrimaryTaxonomy(Taxonomy.US_GAAP);
             UnitData mockUnitData = mockUnitData(1, USD);
             taxonomyReports.getGaap().put(FACTS_KEYS.get(0), mockUnitData);
@@ -129,7 +130,8 @@ public class ParserTest implements TestConstants {
 
         @Test
         public void testProcessKeysUsesKeyWithMostValues() {
-            TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS, Taxonomy.US_GAAP);
+            TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(
+                    FACTS_KEYS, Taxonomy.US_GAAP);
             taxonomyReports.setPrimaryTaxonomy(Taxonomy.US_GAAP);
             UnitData mockUnitData1 = mockUnitData(1, USD);
             UnitData mockUnitData2 = mockUnitData(2, USD);
@@ -159,10 +161,8 @@ public class ParserTest implements TestConstants {
         @Test
         public void testParseFactsForDataThrowsInsufficientKeysExceptionIfNoValidKeys() {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS, Taxonomy.US_GAAP);
-            assertThrows(InsufficientKeysException.class, () -> {
-                parser.parseReportsForQuarterlyData(CIK, taxonomyReports,
-                        List.of("InvalidKey"), Collections.emptyList()).block();
-            });
+            assertThrows(InsufficientKeysException.class, () -> parser.parseReportsForQuarterlyData(CIK, taxonomyReports,
+                    List.of("InvalidKey"), Collections.emptyList()).block());
         }
 
         @Test
@@ -170,10 +170,8 @@ public class ParserTest implements TestConstants {
             TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS, Taxonomy.US_GAAP);
             UnitData mockUnitData1 = mockUnitData(0, USD);
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
-            assertThrows(InsufficientKeysException.class, () -> {
-                parser.parseReportsForQuarterlyData(CIK, taxonomyReports,
-                        FACTS_KEYS, Collections.emptyList()).block();
-            });
+            assertThrows(InsufficientKeysException.class, () -> parser.parseReportsForQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block());
         }
 
         @Test
@@ -196,7 +194,8 @@ public class ParserTest implements TestConstants {
 
         @Test
         public void testCheckIsSupportedUnitsWithSupportedUnits() {
-            TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS, Taxonomy.US_GAAP);
+            TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(
+                    FACTS_KEYS, Taxonomy.US_GAAP);
             UnitData mockUnitData1 = mockUnitData(2, USD);
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
             try {
@@ -209,13 +208,13 @@ public class ParserTest implements TestConstants {
 
         @Test
         public void testCheckIsSupportedUnitsWithUnsupportedUnits() {
-            TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS, Taxonomy.US_GAAP);
+            TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(
+                    FACTS_KEYS, Taxonomy.US_GAAP);
             UnitData mockUnitData1 = mockUnitData(2, DOGE_COIN);
             taxonomyReports.getGaap().put(FACTS_KEY_1, mockUnitData1);
-            assertThrows(FeatureNotImplementedException.class, () -> {
-                parser.parseReportsForQuarterlyData(CIK, taxonomyReports,
-                        FACTS_KEYS, Collections.emptyList()).block();
-            });
+            assertThrows(FeatureNotImplementedException.class, () ->
+                    parser.parseReportsForQuarterlyData(CIK, taxonomyReports,
+                    FACTS_KEYS, Collections.emptyList()).block());
         }
     }
 
@@ -225,7 +224,8 @@ public class ParserTest implements TestConstants {
 
         @Test
         public void testCheckHasStartDateChecksStartDate() {
-            TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(FACTS_KEYS, Taxonomy.US_GAAP);
+            TaxonomyReports taxonomyReports = buildTaxonomyReportsContainingKey(
+                    FACTS_KEYS, Taxonomy.US_GAAP);
             UnitData mockUnitData = mockUnitData(2, USD);
             Period mockPeriod = mock(Period.class);
             mockUnitData.getUnits().get(USD).add(0, mockPeriod);
@@ -424,7 +424,8 @@ public class ParserTest implements TestConstants {
         }
     }
 
-    private TaxonomyReports buildTaxonomyReportsContainingKey(List<String> factsKeys, Taxonomy primaryTaxonomy) {
+    private TaxonomyReports buildTaxonomyReportsContainingKey(List<String> factsKeys,
+                                                              Taxonomy primaryTaxonomy) {
         TaxonomyReports taxonomyReports = new TaxonomyReports();
         taxonomyReports.setPrimaryTaxonomy(primaryTaxonomy);
         Map<String, UnitData> report = new HashMap<>();

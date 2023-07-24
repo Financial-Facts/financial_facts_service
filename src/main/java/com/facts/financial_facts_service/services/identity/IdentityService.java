@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class IdentityService {
 
-    Logger logger = LoggerFactory.getLogger(IdentityService.class);
+    final Logger logger = LoggerFactory.getLogger(IdentityService.class);
 
     @Autowired
     ConcurrentHashMap<String, Identity> identityMap;

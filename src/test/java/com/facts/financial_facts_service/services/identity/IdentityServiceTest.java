@@ -45,9 +45,7 @@ public class IdentityServiceTest implements TestConstants {
 
         @Test
         public void testGetIdentityFromIdentityMapNotFound() {
-            assertThrows(DataNotFoundException.class, () -> {
-                identityService.getIdentityFromIdentityMap(CIK).block();
-            });
+            assertThrows(DataNotFoundException.class, () -> identityService.getIdentityFromIdentityMap(CIK).block());
         }
 
         @Test
@@ -77,9 +75,8 @@ public class IdentityServiceTest implements TestConstants {
             BulkIdentitiesRequest request = new BulkIdentitiesRequest();
             request.setStartIndex(10);
             request.setLimit(1);
-            assertThrows(InvalidRequestException.class, () -> {
-               identityService.getBulkIdentities(request).block();
-            });
+            assertThrows(InvalidRequestException.class, () ->
+                    identityService.getBulkIdentities(request).block());
         }
 
         @Test
@@ -88,9 +85,8 @@ public class IdentityServiceTest implements TestConstants {
             request.setStartIndex(10);
             request.setLimit(15);
             mockIdentityMap(1);
-            assertThrows(InvalidRequestException.class, () -> {
-                identityService.getBulkIdentities(request).block();
-            });
+            assertThrows(InvalidRequestException.class, () ->
+                    identityService.getBulkIdentities(request).block());
         }
 
         @Test
@@ -99,9 +95,8 @@ public class IdentityServiceTest implements TestConstants {
             request.setStartIndex(10);
             request.setLimit(15);
             mockIdentityMap(15);
-            assertThrows(InvalidRequestException.class, () -> {
-                identityService.getBulkIdentities(request).block();
-            });
+            assertThrows(InvalidRequestException.class, () ->
+                    identityService.getBulkIdentities(request).block());
         }
 
         @Test

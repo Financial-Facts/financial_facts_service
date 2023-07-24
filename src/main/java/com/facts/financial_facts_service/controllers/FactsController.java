@@ -27,7 +27,7 @@ import static com.facts.financial_facts_service.constants.interfaces.Constants.V
 @RequestMapping(path = V1_FACTS)
 public class FactsController implements Constants {
 
-    Logger logger = LoggerFactory.getLogger(FactsController.class);
+    final Logger logger = LoggerFactory.getLogger(FactsController.class);
 
     @Autowired
     private DataFetcher dataFetcher;

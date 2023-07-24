@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class FactsSyncHandler {
 
-    Logger logger = LoggerFactory.getLogger(FactsSyncHandler.class);
+    final Logger logger = LoggerFactory.getLogger(FactsSyncHandler.class);
 
     @Value("${facts-sync.concurrent.capacity}")
     private int CAPACITY;
@@ -41,14 +41,13 @@ public class FactsSyncHandler {
     }
 
     private CompletableFuture<Void> awaitSyncCompletion(Facts facts) {
-        return CompletableFuture.runAsync(() -> {
-            syncDatabaseWithFacts(facts);
-        }).exceptionally(ex -> {
-            logger.error("Sync aborted for cik {} with an exception {}",
-                    facts.getCik(), ex.getMessage());
-            syncMap.remove(facts.getCik());
-            throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
-        });
+        return CompletableFuture.runAsync(() -> syncDatabaseWithFacts(facts))
+            .exceptionally(ex -> {
+                logger.error("Sync aborted for cik {} with an exception {}",
+                        facts.getCik(), ex.getMessage());
+                syncMap.remove(facts.getCik());
+                throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
+            });
     }
 
     private void syncDatabaseWithFacts(Facts facts) {

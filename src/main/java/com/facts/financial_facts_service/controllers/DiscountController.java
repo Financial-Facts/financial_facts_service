@@ -28,7 +28,7 @@ import static com.facts.financial_facts_service.constants.interfaces.Constants.V
 @RequestMapping(path = V1_DISCOUNT)
 public class DiscountController implements Constants {
 
-    Logger logger = LoggerFactory.getLogger(DiscountController.class);
+    final Logger logger = LoggerFactory.getLogger(DiscountController.class);
 
     @Autowired
     private DiscountService discountService;

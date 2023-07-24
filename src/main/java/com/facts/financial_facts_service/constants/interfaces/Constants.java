@@ -19,15 +19,9 @@ public interface Constants {
     String FINANCIAL_FACTS = "financial_facts";
     String CIK_REGEX = "^[Cc][Ii][Kk]\\d{10}$";
     String DISCOUNT_ADDED = "Success: Discount added";
-    String DISCOUNT_UPDATED = "Success: Discount updated";
     String DISCOUNT_DELETED = "Success: Discount deleted";
     String SLASH = "/";
     String FACTS_FILENAME = "%s.json";
-    String SHAREHOLDER_EQUITY = "shareholderEquity";
-    String OUTSTANDING_SHARES = "outstandingShares";
-    String EPS = "EPS";
-    String LONG_TERM_DEBT = "longTermDebt";
-    String NET_INCOME = "netIncome";
     String SET_TO_ACTIVE_UPDATE = "Discount for %s has been set to active";
     String SET_TO_INACTIVE_UPDATE = "Discount for %s has been set to inactive";
 

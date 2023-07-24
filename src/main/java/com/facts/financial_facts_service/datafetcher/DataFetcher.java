@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 @Component
 public class DataFetcher {
 
-    Logger logger = LoggerFactory.getLogger(DataFetcher.class);
+    final Logger logger = LoggerFactory.getLogger(DataFetcher.class);
 
     @Autowired
     private FactsService factsService;

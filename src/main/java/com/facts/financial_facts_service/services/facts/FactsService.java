@@ -30,7 +30,7 @@ import java.util.*;
 @Service
 public class FactsService implements Constants {
 
-    Logger logger = LoggerFactory.getLogger(FactsService.class);
+    final Logger logger = LoggerFactory.getLogger(FactsService.class);
 
     @Autowired
     private FactsRepository factsRepository;
