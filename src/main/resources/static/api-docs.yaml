@@ -1,0 +1,803 @@
+openapi: 3.0.1
+info:
+  title: Financial Facts Service
+  description: "This Java Spring Boot service is a robust and secure solution designed to communicate with a PostgreSQL database hosted on Amazon Web Services (AWS) Relational Database Service (RDS). The service is configured to leverage AWS Parameter Store, enhancing security by storing sensitive parameters separately and dynamically pulling them when needed.
+
+<u><h2>Key Features</h2></u>
+<ul>
+  <li>
+    <h3>AWS RDS Integration</h3>
+    The service establishes a seamless connection using Java Persistence API with a PostgreSQL database hosted via AWS RDS, ensuring efficient data storage and retrieval operations.
+  </li> 
+  <li>
+    <h3>AWS Parameter Store</h3>
+    For enhanced security, sensitive configuration parameters, such as database credentials and API keys, are stored securely in the AWS Parameter Store. The service fetches these parameters at runtime, reducing the risk of exposure.
+  </li>
+  <li>
+    <h3>AWS API Gateway and S3 Integration</h3> 
+    The service interacts with an AWS API Gateway, which acts as a proxy for an S3 bucket containing financial facts for publicly traded companies with a valid Central Index Key (CIK) sourced from the SEC public EDGAR API.
+  </li>
+  <li>
+    <h3>S3 Bucket Updates via Amazon EventBridge and AWS Lambda</h3> 
+    The S3 bucket, holding the financial facts, is updated periodically using an Amazon EventBridge cron job. This cron job triggers an asynchronously configured AWS Lambda function, ensuring the most up-to-date financial information is consistently available to the service.
+  </li>
+</ul>
+
+<u><h2>Primary Responsibilities</h2></u>
+<ul>
+  <li>
+    <h3>Data Synchronization</h3>
+    The service is responsible for ensuring that only the most up-to-date financial facts for publicly traded companies are stored within the PostgreSQL database. It achieves this by regularly fetching the latest data from the S3 bucket via the AWS API Gateway.
+  </li>
+  <li>
+    <h3>Discounts Management</h3>
+    The service tracks and persists information about currently active or inactive discounts. When an active discount is detected, it offers the functionality to store the relevant data in the database. Conversely, if a discount is no longer valid, it offers the ability for deleting the outdated information.
+  </li>
+  <li>
+    <h3>Public Company Identification</h3>
+    The service ensures that essential identifying information for public companies, including their CIK, is available and accessible in the database. This information is crucial for various financial analysis and reporting processes.
+  </li>
+</ul>
+
+<u><h2>Benefits</h2></u>
+<ul>
+  <li>
+    <h3>Security</h3>
+    By utilizing AWS Parameter Store, sensitive information remains secure and is accessed only when required, reducing the risk of unauthorized access.
+  </li>
+  <li>
+    <h3>Scalability</h3>
+    Leveraging AWS services like RDS, API Gateway, S3, and Lambda allows the service to scale effortlessly to handle increasing data loads and concurrent user requests.
+  </li>
+  <li>
+    <h3>Reliability</h3>
+    The service benefits from the robust infrastructure of AWS, ensuring high availability and minimal downtime.
+  </li>
+  <li>
+    <h3>Automated Updates</h3>
+    With Amazon EventBridge and AWS Lambda, the service automatically updates financial facts in the database, keeping the information current without manual intervention.
+  </li>
+</ul>
+
+<u><h2>Conclusion</h2></u>
+  <p>In summary, this Java Spring Boot service, integrated with AWS RDS, AWS Parameter Store, API Gateway, S3, and Lambda, provides a secure, scalable, and efficient solution to manage financial facts for publicly traded companies. Its ability to synchronize data, handle discounts, and store public company information ensures that the database contains accurate and up-to-date financial data for reliable analysis and reporting purposes.</p>"
+version: "1.0"
+paths:
+  /v1/discount:
+    put:
+      tags:
+        - Discount
+      summary: Update the status of many discount entities
+      description: Bulk update the active/inactive status of multiple discounts by providing a mapping between CIK's and the desired active status
+      operationId: updateBulkDiscountStatus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDiscountInput'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      type: string
+                  - type: string
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                type: string
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                type: string
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+      security:
+        - basicScheme: []
+    post:
+      tags:
+        - Discount
+      summary: Save a discount entity
+      description: Save a new instance of a discount or overwrite an existing one that corresponds to the same CIK
+      operationId: saveDiscount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Discount'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      type: string
+                  - type: string
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                type: string
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                type: string
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+      security:
+        - basicScheme: []
+  /v1/identity/bulk:
+    post:
+      tags:
+        - Identity
+      summary: Get bulk identity entities and optionally simple discounts
+      description: Fetch a limit paginated response of identity entities and optionally include simple forms of all discount entities
+      operationId: getBulkIdentitiesAndOptionalDiscounts
+      parameters:
+        - name: includeDiscounts
+          in: query
+          required: false
+          schema:
+            type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkIdentitiesRequest'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      type: string
+                  - type: string
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                type: string
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                type: string
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/IdentitiesAndDiscounts'
+      security:
+        - basicScheme: []
+  /v1/identity/{cik}:
+    get:
+      tags:
+        - Identity
+      summary: Get the identity entity for a CIK
+      description: Get the identity entity that contains the identification information for the provided CIK
+      operationId: getIdentityWithCik
+      parameters:
+        - name: cik
+          in: path
+          required: true
+          schema:
+            pattern: "^[Cc][Ii][Kk]\\d{10}$"
+            type: string
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      type: string
+                  - type: string
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                type: string
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                type: string
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Identity'
+      security:
+        - basicScheme: []
+  /v1/facts/{cik}:
+    get:
+      tags:
+        - Facts
+      summary: Get the financial facts entity for a CIK
+      description: Get the up-to-date financial facts entity with a company's CIK
+      operationId: getFacts
+      parameters:
+        - name: cik
+          in: path
+          required: true
+          schema:
+            pattern: "^[Cc][Ii][Kk]\\d{10}$"
+            type: string
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      type: string
+                  - type: string
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                type: string
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                type: string
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/FactsData'
+      security:
+        - basicScheme: []
+  /v1/facts/{cik}/stickerPriceData:
+    get:
+      tags:
+        - Facts
+      summary: Get the sticker price data for a CIK
+      description: Get the up-to-date sticker price data needed to calculate the sticker price for a CIK
+      operationId: getStickerPriceData
+      parameters:
+        - name: cik
+          in: path
+          required: true
+          schema:
+            pattern: "^[Cc][Ii][Kk]\\d{10}$"
+            type: string
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      type: string
+                  - type: string
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                type: string
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                type: string
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/StickerPriceData'
+      security:
+        - basicScheme: []
+  /v1/discount/{cik}:
+    get:
+      tags:
+        - Discount
+      summary: Get the discount for a CIK
+      description: Get the discount corresponding to the passed CIK if one exists
+      operationId: getDiscountWithCik
+      parameters:
+        - name: cik
+          in: path
+          required: true
+          schema:
+            pattern: "^[Cc][Ii][Kk]\\d{10}$"
+            type: string
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      type: string
+                  - type: string
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                type: string
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                type: string
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Discount'
+      security:
+        - basicScheme: []
+    delete:
+      tags:
+        - Discount
+      summary: Hard delete discount for a CIK
+      description: Deletes a discount from the database for a CIK, if a discount exists.
+      operationId: deleteDiscount
+      parameters:
+        - name: cik
+          in: path
+          required: true
+          schema:
+            pattern: "^[Cc][Ii][Kk]\\d{10}$"
+            type: string
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      type: string
+                  - type: string
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                type: string
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                type: string
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+      security:
+        - basicScheme: []
+  /v1/discount/bulkSimpleDiscounts:
+    get:
+      tags:
+        - Discount
+      summary: Get bulk simple discounts
+      description: Bulk collect simple form of all discounts
+      operationId: getBulkSimpleDiscounts
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      type: string
+                  - type: string
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                type: string
+        "409":
+          description: Conflict
+          content:
+            '*/*':
+              schema:
+                type: string
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimpleDiscount'
+      security:
+        - basicScheme: []
+components:
+  schemas:
+    UpdateDiscountInput:
+      type: object
+      properties:
+        discountUpdateMap:
+          type: object
+          additionalProperties:
+            type: boolean
+    BulkIdentitiesRequest:
+      type: object
+      properties:
+        startIndex:
+          type: integer
+          format: int32
+        limit:
+          type: integer
+          format: int32
+        sortBy:
+          type: string
+          enum:
+            - CIK
+            - SYMBOL
+            - NAME
+        order:
+          type: string
+          enum:
+            - ASC
+            - DESC
+    IdentitiesAndDiscounts:
+      type: object
+      properties:
+        identities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Identity'
+        discounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleDiscount'
+    Identity:
+      required:
+        - name
+        - symbol
+      type: object
+      properties:
+        cik:
+          type: string
+        symbol:
+          type: string
+        name:
+          type: string
+    SimpleDiscount:
+      type: object
+      properties:
+        name:
+          type: string
+        symbol:
+          type: string
+        active:
+          type: boolean
+        cik:
+          type: string
+        ratioPrice:
+          type: number
+          format: double
+        tfySalePrice:
+          type: number
+          format: double
+        ttySalePrice:
+          type: number
+          format: double
+        ttmSalePrice:
+          type: number
+          format: double
+    Discount:
+      required:
+        - active
+        - name
+        - symbol
+      type: object
+      properties:
+        cik:
+          pattern: "^[Cc][Ii][Kk]\\d{10}$"
+          type: string
+        symbol:
+          type: string
+        name:
+          type: string
+        active:
+          type: boolean
+        ratioPrice:
+          type: number
+          format: double
+        ttmPriceData:
+          $ref: '#/components/schemas/TtmPriceData'
+        tfyPriceData:
+          $ref: '#/components/schemas/TfyPriceData'
+        ttyPriceData:
+          $ref: '#/components/schemas/TtyPriceData'
+        quarterlyBVPS:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuarterlyBVPS'
+        quarterlyPE:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuarterlyPE'
+        quarterlyEPS:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuarterlyEPS'
+        quarterlyROIC:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuarterlyROIC'
+    QuarterlyBVPS:
+      type: object
+      properties:
+        cik:
+          type: string
+        announcedDate:
+          type: string
+          format: date
+        value:
+          type: number
+    QuarterlyEPS:
+      type: object
+      properties:
+        cik:
+          type: string
+        announcedDate:
+          type: string
+          format: date
+        value:
+          type: number
+    QuarterlyPE:
+      type: object
+      properties:
+        cik:
+          type: string
+        announcedDate:
+          type: string
+          format: date
+        value:
+          type: number
+    QuarterlyROIC:
+      type: object
+      properties:
+        cik:
+          type: string
+        announcedDate:
+          type: string
+          format: date
+        value:
+          type: number
+    TfyPriceData:
+      type: object
+      properties:
+        cik:
+          type: string
+        stickerPrice:
+          type: number
+          format: double
+        salePrice:
+          type: number
+          format: double
+    TtmPriceData:
+      type: object
+      properties:
+        cik:
+          type: string
+        stickerPrice:
+          type: number
+          format: double
+        salePrice:
+          type: number
+          format: double
+    TtyPriceData:
+      type: object
+      properties:
+        cik:
+          type: string
+        stickerPrice:
+          type: number
+          format: double
+        salePrice:
+          type: number
+          format: double
+    FactsData:
+      type: object
+      properties:
+        cik:
+          type: string
+        facts:
+          $ref: '#/components/schemas/FactsWrapper'
+    FactsWrapper:
+      type: object
+      properties:
+        entityName:
+          type: string
+        taxonomyReports:
+          $ref: '#/components/schemas/TaxonomyReports'
+    Period:
+      type: object
+      properties:
+        fp:
+          type: string
+        fy:
+          type: integer
+          format: int32
+        end:
+          type: string
+          format: date
+        val:
+          type: number
+        filed:
+          type: string
+          format: date
+        start:
+          type: string
+          format: date
+        frame:
+          type: string
+    TaxonomyReports:
+      type: object
+      properties:
+        gaap:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/UnitData'
+        ifrs:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/UnitData'
+        dei:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/UnitData'
+    UnitData:
+      type: object
+      properties:
+        label:
+          type: string
+        units:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/Period'
+        description:
+          type: string
+    QuarterlyFactsEPS:
+      type: object
+      properties:
+        cik:
+          type: string
+        announcedDate:
+          type: string
+          format: date
+        value:
+          type: number
+    QuarterlyLongTermDebt:
+      type: object
+      properties:
+        cik:
+          type: string
+        announcedDate:
+          type: string
+          format: date
+        value:
+          type: number
+    QuarterlyNetIncome:
+      type: object
+      properties:
+        cik:
+          type: string
+        announcedDate:
+          type: string
+          format: date
+        value:
+          type: number
+    QuarterlyOutstandingShares:
+      type: object
+      properties:
+        cik:
+          type: string
+        announcedDate:
+          type: string
+          format: date
+        value:
+          type: number
+    QuarterlyShareholderEquity:
+      type: object
+      properties:
+        cik:
+          type: string
+        announcedDate:
+          type: string
+          format: date
+        value:
+          type: number
+    StickerPriceData:
+      type: object
+      properties:
+        cik:
+          type: string
+        symbol:
+          type: string
+        name:
+          type: string
+        quarterlyShareholderEquity:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuarterlyShareholderEquity'
+        quarterlyOutstandingShares:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuarterlyOutstandingShares'
+        quarterlyEPS:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuarterlyFactsEPS'
+        quarterlyLongTermDebt:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuarterlyLongTermDebt'
+        quarterlyNetIncome:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuarterlyNetIncome'
+  securitySchemes:
+    basicScheme:
+      type: http
+      scheme: basic

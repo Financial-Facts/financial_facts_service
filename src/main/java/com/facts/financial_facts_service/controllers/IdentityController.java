@@ -6,6 +6,8 @@ import com.facts.financial_facts_service.datafetcher.records.IdentitiesAndDiscou
 import com.facts.financial_facts_service.entities.identity.Identity;
 import com.facts.financial_facts_service.entities.identity.models.BulkIdentitiesRequest;
 import com.facts.financial_facts_service.services.identity.IdentityService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -37,6 +39,7 @@ public class IdentityController implements Constants {
     private IdentityService identityService;
 
     @GetMapping(path = CIK_PATH_PARAM)
+    @Operation(security = @SecurityRequirement(name = "basicScheme"))
     public CompletableFuture<ResponseEntity<Identity>> getIdentityWithCik(@PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
         logger.info("In identity controller getting identity for cik {}", cik);
         return identityService.getIdentityFromIdentityMap(cik.toUpperCase())
@@ -44,6 +47,7 @@ public class IdentityController implements Constants {
     }
 
     @PostMapping(path = BULK)
+    @Operation(security = @SecurityRequirement(name = "basicScheme"))
     public CompletableFuture<ResponseEntity<IdentitiesAndDiscounts>> getBulkIdentitiesAndOptionalDiscounts(
             @Valid @RequestBody BulkIdentitiesRequest request,
             @RequestParam(required = false) Boolean includeDiscounts) {

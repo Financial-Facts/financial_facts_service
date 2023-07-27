@@ -20,11 +20,12 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler implements Constants {
 
     @Override
@@ -40,7 +41,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
 
     @ExceptionHandler({ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex) {
+    public ResponseEntity<List<String>> handleConstraintViolationException(ConstraintViolationException ex) {
         List<String> errors = ex.getConstraintViolations()
             .stream()
             .map(ConstraintViolation::getMessage)
@@ -50,35 +51,35 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
 
     @ExceptionHandler({DataNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<Object> handleDataNotFoundException(DataNotFoundException ex) {
+    public ResponseEntity<String> handleDataNotFoundException(DataNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler({FeatureNotImplementedException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<Object> handleFeatureNotImplementedException(FeatureNotImplementedException ex) {
+    public ResponseEntity<String> handleFeatureNotImplementedException(FeatureNotImplementedException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler({InsufficientKeysException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<Object> handleInsufficientKeysException(InsufficientKeysException ex) {
+    public ResponseEntity<String> handleInsufficientKeysException(InsufficientKeysException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler({InvalidRequestException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Object> handleInvalidRequestionException(InvalidRequestException ex) {
+    public ResponseEntity<String> handleInvalidRequestionException(InvalidRequestException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({ResponseStatusException.class})
-    public ResponseEntity<Object> handleResponseStatusException(ResponseStatusException ex) {
+    public ResponseEntity<String> handleResponseStatusException(ResponseStatusException ex) {
         return new ResponseEntity<>(ex.getMessage(), ex.getStatusCode());
     }
 
     @ExceptionHandler({DiscountOperationException.class})
-    public ResponseEntity<Object> handleDiscountOperationException(DiscountOperationException ex) {
+    public ResponseEntity<String> handleDiscountOperationException(DiscountOperationException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 }

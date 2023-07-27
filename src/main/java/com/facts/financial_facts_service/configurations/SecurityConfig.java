@@ -17,15 +17,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .csrf()
+            .disable()
+            .authorizeHttpRequests()
+            .requestMatchers(
+                    "/swagger-ui/**",
+                    "/v3/api-docs/swagger-config",
+                    "/api-docs.yaml")
+            .permitAll()
+            .and()
             .authorizeHttpRequests()
             .anyRequest()
             .authenticated()
-            .and()
-            .csrf()
-            .ignoringRequestMatchers("/v1/facts/*")
-            .ignoringRequestMatchers("/v1/discount")
-            .ignoringRequestMatchers("/v1/discount/*")
-            .ignoringRequestMatchers("/v1/identity/*")
             .and()
             .httpBasic()
             .authenticationEntryPoint(authenticationEntryPoint);
