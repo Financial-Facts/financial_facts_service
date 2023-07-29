@@ -23,7 +23,8 @@ public class SecurityConfig {
             .requestMatchers(
                     "/swagger-ui/**",
                     "/v3/api-docs/swagger-config",
-                    "/api-docs.yaml")
+                    "/api-docs.yaml",
+                    "/actuator/health")
             .permitAll()
             .and()
             .authorizeHttpRequests()

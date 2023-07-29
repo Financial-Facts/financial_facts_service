@@ -43,9 +43,6 @@ public abstract class AbstractRetriever implements IRetriever, Constants, FactKe
 
     private <T extends QuarterlyData> Mono<List<T>> retrieveQuarterlyData(String cik,
                                       TaxonomyReports taxonomyReports, Class<T> type) {
-        System.out.println(cik);
-        System.out.println(taxonomyReports);
-        System.out.println(type);
         return parser.parseReportsForQuarterlyData(cik, taxonomyReports,
                         primaryTaxonomyKeysMap.get(type), deiKeysMap.get(type))
             .map(quarterlyData -> {
