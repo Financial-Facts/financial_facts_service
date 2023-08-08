@@ -1,6 +1,5 @@
 package com.facts.financial_facts_service.entities.discount;
 
-import com.facts.financial_facts_service.constants.Constants;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyBVPS;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
 import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyPE;
@@ -10,12 +9,13 @@ import com.facts.financial_facts_service.entities.discount.models.trailingPriceD
 import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.TtyPriceData;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.util.List;
 
-import static com.facts.financial_facts_service.constants.Constants.CIK_REGEX;
+import static com.facts.financial_facts_service.constants.interfaces.Constants.CIK_REGEX;
 
 
 @Entity
@@ -39,7 +39,8 @@ public class Discount {
     @NotBlank
     private String name;
 
-    private boolean active;
+    @NotNull
+    private Boolean active;
 
     private Double ratioPrice;
 

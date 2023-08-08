@@ -1,7 +1,7 @@
 package com.facts.financial_facts_service.exceptions;
 
-import com.facts.financial_facts_service.constants.Constants;
-import com.facts.financial_facts_service.constants.Operation;
+import com.facts.financial_facts_service.constants.interfaces.Constants;
+import com.facts.financial_facts_service.constants.enums.Operation;
 
 public class DiscountOperationException extends RuntimeException implements Constants {
 

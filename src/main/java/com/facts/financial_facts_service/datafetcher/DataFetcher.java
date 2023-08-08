@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 @Component
 public class DataFetcher {
 
-    Logger logger = LoggerFactory.getLogger(DataFetcher.class);
+    final Logger logger = LoggerFactory.getLogger(DataFetcher.class);
 
     @Autowired
     private FactsService factsService;
@@ -28,22 +28,26 @@ public class DataFetcher {
     private DiscountService discountService;
 
     public Mono<FactsData> getFactsWithCik(String cik) {
+        logger.info("In DataFetcher getting facts for {}", cik);
         return factsService.getFactsWithCik(cik).flatMap(facts -> {
-            logger.info("In datafetcher returning facts for cik {}", cik);
+            logger.info("In DataFetcher returning facts for cik {}", cik);
             return Mono.just(new FactsData(facts));
         });
     }
 
     public Mono<StickerPriceData> getStickerPriceDataWithCik(String cik) {
+        logger.info("In DataFetcher getting sticker price data for {}", cik);
         return factsService.getFactsWithCik(cik).flatMap(facts ->
             identityService.getIdentityFromIdentityMap(facts.getCik()).flatMap(identity -> {
-                logger.info("In datafetcher returning sticker price data for cik {}", cik);
+                logger.info("In DataFetcher returning sticker price data for cik {}", cik);
                 return Mono.just(new StickerPriceData(identity, facts));
             }));
     }
 
-    public Mono<IdentitiesAndDiscounts> getIdentitiesAndDiscounts(BulkIdentitiesRequest request,
+    public Mono<IdentitiesAndDiscounts> getIdentitiesAndOptionalDiscounts(BulkIdentitiesRequest request,
                                                                   Boolean includeDiscounts) {
+        logger.info("In DataFetcher getting identities and discounts using {} and includeDiscounts {}",
+                request, includeDiscounts);
         return includeDiscounts
             ? Mono.zip(identityService.getBulkIdentities(request), discountService.getBulkSimpleDiscounts(true))
                 .flatMap(tuple -> {

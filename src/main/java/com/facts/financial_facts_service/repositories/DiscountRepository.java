@@ -1,6 +1,6 @@
 package com.facts.financial_facts_service.repositories;
 
-import com.facts.financial_facts_service.constants.Queries;
+import com.facts.financial_facts_service.constants.interfaces.Queries;
 import com.facts.financial_facts_service.datafetcher.projections.SimpleDiscount;
 import com.facts.financial_facts_service.entities.discount.Discount;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,5 +14,8 @@ public interface DiscountRepository extends JpaRepository<Discount, String>, Que
 
     @Query(value = getAllSimpleDiscounts, nativeQuery = true)
     List<SimpleDiscount> findAllSimpleDiscounts();
+
+    @Query(value = getAllActiveSimpleDiscounts, nativeQuery = true)
+    List<SimpleDiscount> findAllActiveSimpleDiscounts();
 
 }
