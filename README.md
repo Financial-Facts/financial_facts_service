@@ -1,6 +1,7 @@
 <u><h1>Financial Facts Service</h1></u>
 
 Swagger: [financial facts service API documentation page](http://ffs-load-balancer-167080989.us-east-1.elb.amazonaws.com/swagger-ui/index.html#/)
+Utilizes: [update facts lambda page](https://github.com/Choochera/update_facts_lambda)
 
 This Java Spring Boot service is a robust and secure solution designed to communicate with a PostgreSQL database hosted on Amazon Web Services (AWS) Relational Database Service (RDS). The service is configured to leverage AWS Parameter Store, enhancing security by storing sensitive parameters separately and dynamically pulling them when needed. It utilizes a basic authorization scheme as the intention is for this to be an intermediary service that does interact directly with the UI. It is optimized for high call volume and scalability and was built with micro sized RDS instances in mind to optimize pricing. To this end, strict handlers are in place to manage more costly transactions and stataic data is fetched from the public SEC API and cached for seemingly instantaneous access. It also features thorough unit tests in place to assure consistent behavior across all scenarios.
 
