@@ -1,10 +1,25 @@
-<u><h1>Financial Facts Service</h1></u>
-
-Swagger: [financial facts service API documentation page](http://ffs-load-balancer-167080989.us-east-1.elb.amazonaws.com/swagger-ui/index.html#/)
-Utilizes: [update facts lambda page](https://github.com/Choochera/update_facts_lambda)
+# Financial Facts Service</h1></u>
 
 This Java Spring Boot service is a robust and secure solution designed to communicate with a PostgreSQL database hosted on Amazon Web Services (AWS) Relational Database Service (RDS). The service is configured to leverage AWS Parameter Store, enhancing security by storing sensitive parameters separately and dynamically pulling them when needed. It utilizes a basic authorization scheme as the intention is for this to be an intermediary service that does interact directly with the UI. It is optimized for high call volume and scalability and was built with micro sized RDS instances in mind to optimize pricing. To this end, strict handlers are in place to manage more costly transactions and stataic data is fetched from the public SEC API and cached for seemingly instantaneous access. It also features thorough unit tests in place to assure consistent behavior across all scenarios.
 
+#### Dependency: [update facts lambda](https://github.com/Choochera/update_facts_lambda)
+#### Swagger: [financial facts service API documentation page](http://ffs-load-balancer-167080989.us-east-1.elb.amazonaws.com/swagger-ui/index.html#/)
+
+<u><h2>Primary Entities</h2></u>
+<ul>
+  <li>
+    <h3>Facts</h3>
+    The facts entity represents all the compiled financial data that is sourced from the public SEC EDGAR API. These can quickly become out of date, hence the architecture described throughout designed to ensure only the most up-to-date facts are fetched and stored. They are stored as json binary types in the database for storage optimization and data transfer sizes and pricing. The entities tend to quite large and parsing them is handled by the internal components that correspond to different taxonomies: the Gaap Retriever and the IFRS-full retriever, both of which utilize the component that interacts directly with these entities - the parser.
+  </li>
+  <li>
+    <h3>Discounts</h3>
+    Discounts represent the current public companies whose stock price has gone below the calculated discount price. This entity will primarily be handled by the Facts-Calculator-Service (coming soon!) however many endpoints are exposed within this service to offer asynchronous bulk updates, fetching, saving and deleting for these entities.
+  </li>
+  <li>
+    <h3>Identities</h3>
+    An identity is a mapping between the CIK of a company and their public name and stock ticker/symbol
+  </li>
+</ul>
 <u><h2>Key Features</h2></u>
 <ul>
   <li>
