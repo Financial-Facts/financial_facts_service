@@ -1,6 +1,8 @@
 <u><h1>Financial Facts Service</h1></u>
 
-This Java Spring Boot service is a robust and secure solution designed to communicate with a PostgreSQL database hosted on Amazon Web Services (AWS) Relational Database Service (RDS). The service is configured to leverage AWS Parameter Store, enhancing security by storing sensitive parameters separately and dynamically pulling them when needed. It utilizes a basic authorization scheme as the intention is for this to be an intermediary service that does interact directly with the UI.
+Swagger: [financial facts service API documentation page](http://ffs-load-balancer-167080989.us-east-1.elb.amazonaws.com/swagger-ui/index.html#/)
+
+This Java Spring Boot service is a robust and secure solution designed to communicate with a PostgreSQL database hosted on Amazon Web Services (AWS) Relational Database Service (RDS). The service is configured to leverage AWS Parameter Store, enhancing security by storing sensitive parameters separately and dynamically pulling them when needed. It utilizes a basic authorization scheme as the intention is for this to be an intermediary service that does interact directly with the UI. It is optimized for high call volume and scalability and was built with micro sized RDS instances in mind to optimize pricing. To this end, strict handlers are in place to manage more costly transactions and stataic data is fetched from the public SEC API and cached for seemingly instantaneous access. It also features thorough unit tests in place to assure consistent behavior across all scenarios.
 
 <u><h2>Key Features</h2></u>
 <ul>
@@ -60,3 +62,30 @@ This Java Spring Boot service is a robust and secure solution designed to commun
 
 <u><h2>Conclusion</h2></u>
   <p>In summary, this Java Spring Boot service, integrated with AWS RDS, AWS Parameter Store, API Gateway, S3, and Lambda, provides a secure, scalable, and efficient solution to manage financial facts for publicly traded companies. Its ability to synchronize data, handle discounts, and store public company information ensures that the database contains accurate and up-to-date financial data for reliable analysis and reporting purposes.</p>
+
+# Preview
+![image](https://github.com/Choochera/financial_facts_service/assets/74555083/09d1cd00-e313-495d-81a4-a167b68a9ca3)
+
+Deployment
+-------------------------
+This service is hosted via AWS ECS using an AWS Fargate task definition. This blueprint describes the container in which the docker image will run for this serverless hosting solution. The task is handled by one or many services within an ECS cluster once or many times over simultaneously. For cost purposes, the capacity provider for financial facts service is Fargate Spot, which offers a reduced price in exchange for potentially limited processing and memory capacity in areas or times of higher demand. Within each service, there can be one or multiple tasks which are routed between by the application load balancer which does so based on routing rules defined by the admin. In this case, again for cost purposes, there is only a single task running and the load balancer serves primarily to reroute traffic from the HTTP port 80 to the one on which the service is hosted. 
+
+Technologies:
+-------------------------
+- Java
+- Spring Boot
+- Webflux
+- JUnit 5
+- Java Persistence API (JPA)
+- Docker
+- AWS SSM
+- AWS API Gateway
+- AWS RDS
+- AWS Lambda
+- AWS S3
+- AWS Eventbridge
+- AWS ECS
+- AWS Fargate
+
+---------------------------
+Created and authored by Matthew Gabriel
