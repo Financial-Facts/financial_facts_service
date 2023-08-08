@@ -1,25 +1,25 @@
 openapi: 3.0.1
 info:
   title: Financial Facts Service
-  description: "This Java Spring Boot service is a robust and secure solution designed to communicate with a PostgreSQL database hosted on Amazon Web Services (AWS) Relational Database Service (RDS). The service is configured to leverage AWS Parameter Store, enhancing security by storing sensitive parameters separately and dynamically pulling them when needed.
+  description: "This Java Spring Boot service is a robust and secure solution designed to communicate with a PostgreSQL database hosted on Amazon Web Services (AWS) Relational Database Service (RDS). The service is configured to leverage AWS Parameter Store, enhancing security by storing sensitive parameters separately and dynamically pulling them when needed. It utilizes a basic authorization scheme as the intention is for this to be an intermediary service that does interact directly with the UI.
 
 <u><h2>Key Features</h2></u>
 <ul>
   <li>
-    <h3>AWS RDS Integration</h3>
-    The service establishes a seamless connection using Java Persistence API with a PostgreSQL database hosted via AWS RDS, ensuring efficient data storage and retrieval operations.
+    <h3>Cloud Database Communication through AWS RDS Integration</h3>
+    The service establishes a seamless connection using Java Persistence API (JPA) in conjunction with a PostgreSQL database hosted via AWS RDS, ensuring efficient schem structure, data storage and retrieval operations.
   </li> 
   <li>
-    <h3>AWS Parameter Store</h3>
+    <h3>Parameter Security with AWS Parameter Store</h3>
     For enhanced security, sensitive configuration parameters, such as database credentials and API keys, are stored securely in the AWS Parameter Store. The service fetches these parameters at runtime, reducing the risk of exposure.
   </li>
   <li>
-    <h3>AWS API Gateway and S3 Integration</h3> 
+    <h3>Fetching SEC data with AWS API Gateway and S3 Integration</h3> 
     The service interacts with an AWS API Gateway, which acts as a proxy for an S3 bucket containing financial facts for publicly traded companies with a valid Central Index Key (CIK) sourced from the SEC public EDGAR API.
   </li>
   <li>
-    <h3>S3 Bucket Updates via Amazon EventBridge and AWS Lambda</h3> 
-    The S3 bucket, holding the financial facts, is updated periodically using an Amazon EventBridge cron job. This cron job triggers an asynchronously configured AWS Lambda function, ensuring the most up-to-date financial information is consistently available to the service.
+    <h3>Seamlessly Up-To-Date Data with S3 Bucket Updates via Amazon EventBridge and AWS Lambda</h3> 
+    The S3 bucket containing the financial data is updated periodically using an Amazon EventBridge cron job. This cron job triggers an asynchronously configured AWS Lambda function, ensuring the most up-to-date financial information is consistently available to the service.
   </li>
 </ul>
 
