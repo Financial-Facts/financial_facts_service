@@ -77,5 +77,8 @@ public class IdentityService {
         if (Objects.isNull(request.getSortBy())) {
             throw new InvalidRequestException("Invalid sort by in request");
         }
+        if (request.getLimit() - request.getStartIndex() > 100) {
+            request.setLimit(request.getStartIndex() + 100);
+        }
     }
 }

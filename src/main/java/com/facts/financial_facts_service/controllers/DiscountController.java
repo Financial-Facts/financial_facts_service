@@ -5,8 +5,6 @@ import com.facts.financial_facts_service.datafetcher.projections.SimpleDiscount;
 import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.entities.discount.models.UpdateDiscountInput;
 import com.facts.financial_facts_service.services.DiscountService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -36,7 +34,6 @@ public class DiscountController implements Constants {
     private DiscountService discountService;
 
     @GetMapping(path = CIK_PATH_PARAM)
-    @Operation(security = @SecurityRequirement(name = "basicScheme"))
     public CompletableFuture<ResponseEntity<Discount>> getDiscountWithCik(@PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
         logger.info("In discount controller getting bulk discounts");
         return discountService.getDiscountWithCik(cik.toUpperCase())
@@ -47,7 +44,6 @@ public class DiscountController implements Constants {
     }
 
     @GetMapping("/bulkSimpleDiscounts")
-    @Operation(security = @SecurityRequirement(name = "basicScheme"))
     public CompletableFuture<ResponseEntity<List<SimpleDiscount>>> getBulkSimpleDiscounts() {
         logger.info("In discount controller getting bulk simple discounts");
         return discountService.getBulkSimpleDiscounts(false)
@@ -58,7 +54,6 @@ public class DiscountController implements Constants {
     }
 
     @PutMapping
-    @Operation(security = @SecurityRequirement(name = "basicScheme"))
     public CompletableFuture<ResponseEntity<List<String>>> updateBulkDiscountStatus(@Valid @RequestBody UpdateDiscountInput input) {
         String discountCiksToUpdate = StringUtils.collectionToCommaDelimitedString(input.getDiscountUpdateMap().keySet());
         logger.info("In discount controller updating discount status for {}", discountCiksToUpdate);
@@ -70,7 +65,6 @@ public class DiscountController implements Constants {
     }
 
     @PostMapping
-    @Operation(security = @SecurityRequirement(name = "basicScheme"))
     public CompletableFuture<ResponseEntity<String>> saveDiscount(@Valid @RequestBody Discount discount) {
         logger.info("In discount controller adding discount with cik {}", discount.getCik());
         return discountService.saveDiscount(discount)
@@ -81,7 +75,6 @@ public class DiscountController implements Constants {
     }
 
     @DeleteMapping(path = CIK_PATH_PARAM)
-    @Operation(security = @SecurityRequirement(name = "basicScheme"))
     public CompletableFuture<ResponseEntity<String>> deleteDiscount(@PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
         logger.info("In discount controller deleting discount for cik {}", cik);
         return discountService.deleteDiscount(cik.toUpperCase())

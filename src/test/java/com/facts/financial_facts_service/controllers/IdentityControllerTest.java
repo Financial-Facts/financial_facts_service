@@ -72,38 +72,6 @@ public class IdentityControllerTest implements TestConstants {
     }
 
     @Nested
-    @DisplayName("getIdentityWithCik")
-    class getIdentityWithCikTests {
-
-        @Test
-        public void testGetIdentityWithCikSuccess() throws ExecutionException, InterruptedException {
-            Identity identity = new Identity();
-            when(identityService.getIdentityFromIdentityMap(CIK))
-                    .thenReturn(Mono.just(identity));
-            ResponseEntity<Identity> response = identityController.getIdentityWithCik(CIK).get();
-            verify(identityService).getIdentityFromIdentityMap(CIK);
-            assertEquals(HttpStatus.OK, response.getStatusCode());
-            assertEquals(identity, response.getBody());
-        }
-
-        @Test
-        public void testGetIdentityWithCikToUppercase() throws ExecutionException, InterruptedException {
-            Identity identity = new Identity();
-            when(identityService.getIdentityFromIdentityMap(CIK))
-                    .thenReturn(Mono.just(identity));
-            identityController.getIdentityWithCik(LOWERCASE_CIK).get();
-            verify(identityService).getIdentityFromIdentityMap(CIK);
-        }
-
-        @Test
-        public void testGetDiscountInvalidCik() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .get("/v1/identity" + CIK_PATH_PARAM, INVALID_CIK))
-                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
-        }
-    }
-
-    @Nested
     @DisplayName("getBulkIdentities")
     class getBulkIdentitiesTests {
 
