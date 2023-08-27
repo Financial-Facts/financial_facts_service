@@ -7,7 +7,7 @@ import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.constants.enums.Operation;
 import com.facts.financial_facts_service.entities.discount.models.UpdateDiscountInput;
 import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.AbstractTrailingPriceData;
-import com.facts.financial_facts_service.entities.models.QuarterlyData;
+import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyData;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.DiscountOperationException;
 import com.facts.financial_facts_service.repositories.DiscountRepository;

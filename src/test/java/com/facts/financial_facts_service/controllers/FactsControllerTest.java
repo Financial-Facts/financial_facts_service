@@ -3,7 +3,6 @@ package com.facts.financial_facts_service.controllers;
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.datafetcher.DataFetcher;
 import com.facts.financial_facts_service.datafetcher.records.FactsData;
-import com.facts.financial_facts_service.datafetcher.records.StickerPriceData;
 import com.facts.financial_facts_service.entities.facts.Facts;
 import com.facts.financial_facts_service.entities.identity.Identity;
 import com.facts.financial_facts_service.services.DiscountService;

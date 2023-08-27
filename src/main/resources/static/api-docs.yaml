@@ -6,7 +6,7 @@ This Java Spring Boot service is a robust and secure solution designed to commun
 
 <ul>
   <li><a href=\"https://github.com/Choochera/financial_facts_service\">Financial Facts Service Github</a></li>
-  <li><a href=\"https://github.com/Choochera/update_facts_lambda\">Update Facts Lambda Github(dependency)</a></li>
+  <li><a href=\"https://github.com/Choochera/update_facts_lambda\">Update Facts Lambda Github (dependency)</a></li>
 </ul>
 
 <u><h2>Primary Entities</h2></u>
@@ -244,53 +244,6 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/IdentitiesAndDiscounts'
-      security:
-        - basicScheme: []
-  /v1/identity/{cik}:
-    get:
-      tags:
-        - Identity
-      summary: Get the identity entity for a CIK
-      description: Get the identity entity that contains the identification information for the provided CIK
-      operationId: getIdentityWithCik
-      parameters:
-        - name: cik
-          in: path
-          required: true
-          schema:
-            pattern: "^[Cc][Ii][Kk]\\d{10}$"
-            type: string
-      responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                oneOf:
-                  - type: array
-                    items:
-                      type: string
-                  - type: string
-        "404":
-          description: Not Found
-          content:
-            '*/*':
-              schema:
-                type: string
-        "409":
-          description: Conflict
-          content:
-            '*/*':
-              schema:
-                type: string
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Identity'
-      security:
-        - basicScheme: []
   /v1/facts/{cik}:
     get:
       tags:
@@ -334,8 +287,6 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/FactsData'
-      security:
-        - basicScheme: []
   /v1/facts/{cik}/stickerPriceData:
     get:
       tags:
@@ -424,8 +375,6 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Discount'
-      security:
-        - basicScheme: []
     delete:
       tags:
         - Discount

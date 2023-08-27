@@ -8,7 +8,6 @@ import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.handlers.FactsSyncHandler;
 import com.facts.financial_facts_service.repositories.FactsRepository;
-import com.facts.financial_facts_service.services.facts.components.RetrieverSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,7 @@ import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Optional;
 
 @Service
 public class FactsService implements Constants {
@@ -40,9 +39,6 @@ public class FactsService implements Constants {
 
     @Autowired
     private FactsSyncHandler factsSyncHandler;
-
-    @Autowired
-    private RetrieverSelector retrieverSelector;
 
     @Retryable(noRetryFor = DataNotFoundException.class, backoff = @Backoff(delay = 1000))
     public Mono<Facts> getFactsWithCik(String cik) {
@@ -83,12 +79,12 @@ public class FactsService implements Constants {
     private Mono<Facts> getFactsFromAPIGateway(String cik) {
         logger.info("Retrieving facts from API Gateway for cik {}", cik);
         return queryAPIGateway(cik)
-            .flatMap(response ->
-                buildFactsWithGatewayResponse(cik, response).flatMap(builtFacts -> {
-                    saveFacts(builtFacts);
-                    logger.info("Returning facts for {} from API gateway", cik);
-                    return Mono.just(builtFacts);
-                }));
+            .flatMap(response -> {
+                Facts builtFacts = new Facts(cik, LocalDate.now(), response);
+                saveFacts(builtFacts);
+                logger.info("Returning facts for {} from API gateway", cik);
+                return Mono.just(builtFacts);
+            });
     }
 
     private Mono<FactsWrapper> queryAPIGateway(String cik) {
@@ -106,13 +102,6 @@ public class FactsService implements Constants {
             .bodyToMono(FactsWrapper.class)
             .retryWhen(Retry.backoff(3, Duration.ofSeconds(1))
             .filter(throwable -> throwable instanceof GatewayServiceException));
-    }
-
-    private Mono<Facts> buildFactsWithGatewayResponse(String cik, FactsWrapper factsWrapper) {
-        return retrieverSelector.getRetriever(cik, factsWrapper)
-            .retrieveStickerPriceData(cik, factsWrapper.getTaxonomyReports())
-            .flatMap((stickerPriceQuarterlyData ->
-                Mono.just(new Facts(cik, LocalDate.now(), factsWrapper, stickerPriceQuarterlyData))));
     }
 
     private void saveFacts(Facts facts) {

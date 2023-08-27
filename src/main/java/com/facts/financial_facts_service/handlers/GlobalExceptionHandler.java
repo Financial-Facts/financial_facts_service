@@ -7,6 +7,7 @@ import com.facts.financial_facts_service.constants.interfaces.Constants;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.DiscountOperationException;
 import com.facts.financial_facts_service.exceptions.FeatureNotImplementedException;
+import com.facts.financial_facts_service.exceptions.InsufficientDataException;
 import com.facts.financial_facts_service.exceptions.InsufficientKeysException;
 import com.facts.financial_facts_service.exceptions.InvalidRequestException;
 import jakarta.validation.ConstraintViolation;
@@ -49,6 +50,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({InsufficientDataException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<String> handleInsufficientDataException(InsufficientDataException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler({DataNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<String> handleDataNotFoundException(DataNotFoundException ex) {
@@ -69,7 +76,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
 
     @ExceptionHandler({InvalidRequestException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleInvalidRequestionException(InvalidRequestException ex) {
+    public ResponseEntity<String> handleInvalidRequestException(InvalidRequestException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 

@@ -3,7 +3,7 @@ package com.facts.financial_facts_service.controllers;
 import com.facts.financial_facts_service.constants.interfaces.Constants;
 import com.facts.financial_facts_service.datafetcher.DataFetcher;
 import com.facts.financial_facts_service.datafetcher.records.FactsData;
-import com.facts.financial_facts_service.datafetcher.records.StickerPriceData;
+import com.facts.financial_facts_service.datafetcher.records.Statements;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.slf4j.Logger;
@@ -44,10 +44,10 @@ public class FactsController implements Constants {
     }
 
     @GetMapping(path = CIK_PATH_PARAM + SLASH + STICKER_PRICE_DATA)
-    public CompletableFuture<ResponseEntity<StickerPriceData>> getStickerPriceData(
+    public CompletableFuture<ResponseEntity<Statements>> getStickerPriceData(
             @PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
         logger.info("In facts controller getting facts for {}", cik);
-        return dataFetcher.getStickerPriceDataWithCik(cik.toUpperCase())
+        return dataFetcher.getStatements(cik.toUpperCase())
             .flatMap(response -> {
                 logger.info("Returning sticker price data for {}", cik);
                 return Mono.just(new ResponseEntity<>(response, HttpStatus.OK));

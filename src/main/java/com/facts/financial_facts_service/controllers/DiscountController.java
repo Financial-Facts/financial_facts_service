@@ -34,7 +34,8 @@ public class DiscountController implements Constants {
     private DiscountService discountService;
 
     @GetMapping(path = CIK_PATH_PARAM)
-    public CompletableFuture<ResponseEntity<Discount>> getDiscountWithCik(@PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
+    public CompletableFuture<ResponseEntity<Discount>> getDiscountWithCik(
+            @PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
         logger.info("In discount controller getting bulk discounts");
         return discountService.getDiscountWithCik(cik.toUpperCase())
             .flatMap(discount -> {

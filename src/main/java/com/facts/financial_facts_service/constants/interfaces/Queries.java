@@ -31,4 +31,14 @@ public interface Queries {
             "INNER JOIN (select cik, sale_price from tfy_price_data) AS tfy ON n.cik=tfy.cik " +
             "INNER JOIN (select cik, sale_price from tty_price_data) AS tty ON n.cik=tty.cik;";
 
+    String getAllBalanceSheetKeysForCik =
+            "SELECT n.cik, n.date " +
+            "FROM balance_sheet n " +
+            "WHERE n.cik = ?1";
+
+    String getAllIncomeStatementKeysForCik =
+            "SELECT n.cik, n.date " +
+            "FROM income_statement n " +
+            "WHERE n.cik = ?1";
+
 }

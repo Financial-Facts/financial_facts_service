@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.entities.models;
+package com.facts.financial_facts_service.entities.discount.models.quarterlyData;
 
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;

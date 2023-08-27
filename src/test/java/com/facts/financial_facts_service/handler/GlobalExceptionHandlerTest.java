@@ -103,7 +103,7 @@ public class GlobalExceptionHandlerTest implements TestConstants {
     @Test
     public void testHandleInvalidRequestException() {
         InvalidRequestException ex = new InvalidRequestException("message");
-        ResponseEntity<String> actual = globalExceptionHandler.handleInvalidRequestionException(ex);
+        ResponseEntity<String> actual = globalExceptionHandler.handleInvalidRequestException(ex);
         assertEquals("message", actual.getBody());
     }
 
