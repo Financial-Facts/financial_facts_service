@@ -1,4 +1,5 @@
-package com.facts.financial_facts_service.entities.incomeStatement.models;
+package com.facts.financial_facts_service.entities.statements.models;
+
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class IncomeStatementKey {
+public class StatementKey {
 
     private String cik;
 

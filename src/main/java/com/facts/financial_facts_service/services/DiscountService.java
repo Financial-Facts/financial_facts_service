@@ -129,6 +129,7 @@ public class DiscountService implements Constants {
         current.setSymbol(update.getSymbol());
         current.setName(update.getName());
         current.setRatioPrice(update.getRatioPrice());
+        current.setActive(update.getActive());
 
         updateTrailingPeriod(current.getTtmPriceData(), update.getTtmPriceData());
         updateTrailingPeriod(current.getTfyPriceData(), update.getTfyPriceData());

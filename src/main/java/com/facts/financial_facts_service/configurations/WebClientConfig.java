@@ -24,9 +24,6 @@ public class WebClientConfig implements Constants {
     @Value("${facts-gateway.baseUrl}")
     private String factsGatewayUrl;
 
-    @Value("${facts-gateway.bucket-name}")
-    private String bucketName;
-
     @Value("${sec.cik.api.endpoint}")
     private String secEndpoint;
 
@@ -37,7 +34,7 @@ public class WebClientConfig implements Constants {
 
     @Bean
     public WebClient gatewayWebClient() {
-        String getFactsFromGatewayUrl = factsGatewayUrl + SLASH + bucketName;
+        String getFactsFromGatewayUrl = factsGatewayUrl;
         return buildWebClient(getFactsFromGatewayUrl, null);
     }
 

@@ -1,8 +1,8 @@
 package com.facts.financial_facts_service.datafetcher.records;
 
 
-import com.facts.financial_facts_service.entities.balanceSheet.BalanceSheet;
-import com.facts.financial_facts_service.entities.incomeStatement.IncomeStatement;
+import com.facts.financial_facts_service.entities.statements.models.BalanceSheet;
+import com.facts.financial_facts_service.entities.statements.models.IncomeStatement;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

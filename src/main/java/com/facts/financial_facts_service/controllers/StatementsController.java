@@ -3,7 +3,6 @@ package com.facts.financial_facts_service.controllers;
 import com.facts.financial_facts_service.constants.interfaces.Constants;
 import com.facts.financial_facts_service.datafetcher.DataFetcher;
 import com.facts.financial_facts_service.datafetcher.records.Statements;
-import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.exceptions.InvalidRequestException;
 import com.facts.financial_facts_service.services.statement.StatementService;
 import jakarta.validation.Valid;
@@ -23,10 +22,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-import static com.facts.financial_facts_service.constants.interfaces.Constants.V1_DISCOUNT;
 import static com.facts.financial_facts_service.constants.interfaces.Constants.V1_STATEMENTS;
 
 @RestController
@@ -58,17 +58,9 @@ public class StatementsController implements Constants {
             @Valid @RequestBody Statements statements) {
         logger.info("In statements controller saving statements {}", statements);
         checkValidStatements(statements);
-        Mono<String> balanceSheetsSave = statements.getBalanceSheets().isEmpty()
-            ? Mono.just(BALANCE_SHEET_SAVED)
-            : statementService.saveQuarterlyBalanceSheets(statements.getBalanceSheets());
-
-        Mono<String> incomeStatementsSave = statements.getIncomeStatements().isEmpty()
-            ? Mono.just(INCOME_STATEMENTS_SAVED)
-            : statementService.saveQuarterlyIncomeStatements(statements.getIncomeStatements());
-
-        return Mono.zip(balanceSheetsSave, incomeStatementsSave).flatMap(tuples -> {
+        return statementService.saveStatements(statements).flatMap(message -> {
             logger.info("Save complete for statements");
-            return Mono.just(new ResponseEntity<>(List.of(tuples.getT1(), tuples.getT2()), HttpStatus.OK));
+            return Mono.just(new ResponseEntity<>(message, HttpStatus.OK));
         }).toFuture();
     }
 

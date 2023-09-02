@@ -4,6 +4,8 @@ import com.facts.financial_facts_service.datafetcher.records.FactsData;
 import com.facts.financial_facts_service.datafetcher.records.IdentitiesAndDiscounts;
 import com.facts.financial_facts_service.datafetcher.records.Statements;
 import com.facts.financial_facts_service.entities.identity.models.BulkIdentitiesRequest;
+import com.facts.financial_facts_service.entities.statements.Statement;
+import com.facts.financial_facts_service.exceptions.InsufficientDataException;
 import com.facts.financial_facts_service.services.DiscountService;
 import com.facts.financial_facts_service.services.api.ApiService;
 import com.facts.financial_facts_service.services.facts.FactsService;
@@ -16,12 +18,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
+
 @Component
 public class DataFetcher {
 
     final Logger logger = LoggerFactory.getLogger(DataFetcher.class);
 
-    @Value("${data-fetcher.enable.api:false}")
+    @Value("${enable.api:false}")
     private boolean isApiEnabled;
 
     @Autowired
@@ -49,10 +55,14 @@ public class DataFetcher {
 
     public Mono<Statements> getStatements(String cik) {
         logger.info("In DataFetcher getting statements for {}", cik);
-        if (isApiEnabled) {
-            return getStatementsFromApi(cik);
-        }
-        return getStatementsFromDB(cik);
+        Mono<Statements> statementsMono = isApiEnabled
+            ? getStatementsFromApi(cik)
+            : statementService.getQuarterlyStatements(cik);
+        return statementsMono.flatMap(statements -> {
+           statementService.filterStatementsToLastTenYears(cik, statements);
+           statementService.verifyNoMissingQuarters(cik, statements);
+           return Mono.just(statements);
+        });
     }
 
     public Mono<IdentitiesAndDiscounts> getIdentitiesAndOptionalDiscounts(BulkIdentitiesRequest request,
@@ -81,13 +91,4 @@ public class DataFetcher {
         });
     }
 
-    private Mono<Statements> getStatementsFromDB(String cik) {
-        return Mono.zip(
-                statementService.getQuarterlyIncomeStatements(cik),
-                statementService.getQuarterlyBalanceSheets(cik)
-        ).flatMap(tuples -> {
-            logger.info("In data-fetcher returning statements from DB for {}", cik);
-            return Mono.just(new Statements(tuples.getT1(), tuples.getT2()));
-        });
-    }
 }
