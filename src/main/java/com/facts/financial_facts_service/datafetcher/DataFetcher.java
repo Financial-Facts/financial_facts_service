@@ -59,7 +59,7 @@ public class DataFetcher {
             ? getStatementsFromApi(cik)
             : statementService.getQuarterlyStatements(cik);
         return statementsMono.flatMap(statements -> {
-           statementService.filterStatementsToLastTenYears(cik, statements);
+           statementService.filterStatementsToTrailingElevenYears(cik, statements);
            statementService.verifyNoMissingQuarters(cik, statements);
            return Mono.just(statements);
         });

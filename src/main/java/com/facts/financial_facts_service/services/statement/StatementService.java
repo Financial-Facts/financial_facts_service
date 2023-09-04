@@ -60,9 +60,9 @@ public class StatementService implements Constants {
             .flatMap(tuples -> Mono.just(List.of(tuples.getT1(), tuples.getT2())));
     }
 
-    public void filterStatementsToLastTenYears(String cik, Statements statements) {
-        statements.setIncomeStatements(filterToLastTenYears(cik, statements.getIncomeStatements()));
-        statements.setBalanceSheets(filterToLastTenYears(cik, statements.getBalanceSheets()));
+    public void filterStatementsToTrailingElevenYears(String cik, Statements statements) {
+        statements.setIncomeStatements(filterToLastElevenFY(cik, statements.getIncomeStatements()));
+        statements.setBalanceSheets(filterToLastElevenFY(cik, statements.getBalanceSheets()));
     }
 
     public void verifyNoMissingQuarters(String cik, Statements statements) {
@@ -209,17 +209,17 @@ public class StatementService implements Constants {
         }
     }
 
-    private <T extends Statement> List<T> filterToLastTenYears(String cik, List<T> statements) {
-        if (statements.size() < 40) {
+    private <T extends Statement> List<T> filterToLastElevenFY(String cik, List<T> statements) {
+        if (statements.size() < 44) {
             throw new InsufficientDataException("Not enough statements available for " + cik);
         }
-        return statements.subList(statements.size() - 40, statements.size());
+        return statements.subList(statements.size() - 44, statements.size());
     }
 
     private <T extends Statement> void checkConsecutive(String cik, List<T> statements) {
         LocalDate lastDate = statements.get(0).getDate();
         for (Statement statement : statements.subList(1, statements.size())) {
-            if (lastDate.isBefore(statement.getDate().minusDays(121))) {
+            if (lastDate.isBefore(statement.getDate().minusDays(131))) {
                 throw new InsufficientDataException("Statements are not consecutive after "
                         + lastDate + " for " + cik);
             }
