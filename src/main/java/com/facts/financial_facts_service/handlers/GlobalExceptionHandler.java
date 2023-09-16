@@ -6,9 +6,7 @@ import java.util.stream.Collectors;
 import com.facts.financial_facts_service.constants.interfaces.Constants;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.DiscountOperationException;
-import com.facts.financial_facts_service.exceptions.FeatureNotImplementedException;
 import com.facts.financial_facts_service.exceptions.InsufficientDataException;
-import com.facts.financial_facts_service.exceptions.InsufficientKeysException;
 import com.facts.financial_facts_service.exceptions.InvalidRequestException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -18,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -60,18 +57,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<String> handleDataNotFoundException(DataNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler({FeatureNotImplementedException.class})
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<String> handleFeatureNotImplementedException(FeatureNotImplementedException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler({InsufficientKeysException.class})
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<String> handleInsufficientKeysException(InsufficientKeysException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler({InvalidRequestException.class})

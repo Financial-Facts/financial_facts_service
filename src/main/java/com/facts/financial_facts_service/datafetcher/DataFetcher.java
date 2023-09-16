@@ -4,8 +4,6 @@ import com.facts.financial_facts_service.datafetcher.records.FactsData;
 import com.facts.financial_facts_service.datafetcher.records.IdentitiesAndDiscounts;
 import com.facts.financial_facts_service.datafetcher.records.Statements;
 import com.facts.financial_facts_service.entities.identity.models.BulkIdentitiesRequest;
-import com.facts.financial_facts_service.entities.statements.Statement;
-import com.facts.financial_facts_service.exceptions.InsufficientDataException;
 import com.facts.financial_facts_service.services.DiscountService;
 import com.facts.financial_facts_service.services.api.ApiService;
 import com.facts.financial_facts_service.services.facts.FactsService;
@@ -18,9 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
 
 @Component
 public class DataFetcher {
@@ -82,12 +77,9 @@ public class DataFetcher {
     }
 
     private Mono<Statements> getStatementsFromApi(String cik) {
-        return Mono.zip(
-                apiService.getIncomeStatements(cik),
-                apiService.getBalanceSheets(cik)
-        ).flatMap(tuples -> {
+        return apiService.getStatements(cik).flatMap(response -> {
             logger.info("In data-fetcher returning statements from API for {}", cik);
-            return Mono.just(new Statements(tuples.getT1(), tuples.getT2()));
+            return Mono.just(response);
         });
     }
 

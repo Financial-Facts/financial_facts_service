@@ -1,8 +1,10 @@
 package com.facts.financial_facts_service.services.api;
 
 import com.facts.financial_facts_service.constants.interfaces.Constants;
+import com.facts.financial_facts_service.datafetcher.records.Statements;
 import com.facts.financial_facts_service.entities.statements.Statement;
 import com.facts.financial_facts_service.entities.statements.models.BalanceSheet;
+import com.facts.financial_facts_service.entities.statements.models.CashFlowStatement;
 import com.facts.financial_facts_service.entities.statements.models.IncomeStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,14 @@ public class ApiService implements Constants {
 
     private final Comparator<Statement> comparatorAsc = Comparator.comparing(Statement::getDate);
 
+    public Mono<Statements> getStatements(String cik) {
+        logger.info("In ApiService getting statements for {}", cik);
+        return Mono.zip(
+                getIncomeStatements(cik),
+                getBalanceSheets(cik),
+                getCashflowStatements(cik)
+        ).flatMap(tuples -> Mono.just(new Statements(tuples.getT1(), tuples.getT2(), tuples.getT3())));
+    }
 
     public Mono<List<BalanceSheet>> getBalanceSheets(String cik) {
         logger.info("In ApiService getting balance sheets for {}", cik);
@@ -53,6 +63,18 @@ public class ApiService implements Constants {
                 incomeStatements.sort(comparatorAsc);
                 return Mono.just(filterUnsupportedCurrency(incomeStatements));
             });
+    }
+
+    public Mono<List<CashFlowStatement>> getCashflowStatements(String cik) {
+        logger.info("In ApiService getting cash flow statements for {}", cik);
+        return apiWebClient.get()
+                .uri(buildUri(cik, "cash-flow-statement"))
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<CashFlowStatement>>() {})
+                .flatMap(cashFlowStatements -> {
+                    cashFlowStatements.sort(comparatorAsc);
+                    return Mono.just(filterUnsupportedCurrency(cashFlowStatements));
+                });
     }
 
     private String buildUri(String cik, String identifier) {

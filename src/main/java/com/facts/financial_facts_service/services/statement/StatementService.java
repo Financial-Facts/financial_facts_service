@@ -4,9 +4,11 @@ import com.facts.financial_facts_service.constants.interfaces.Constants;
 import com.facts.financial_facts_service.datafetcher.records.Statements;
 import com.facts.financial_facts_service.entities.statements.Statement;
 import com.facts.financial_facts_service.entities.statements.models.BalanceSheet;
+import com.facts.financial_facts_service.entities.statements.models.CashFlowStatement;
 import com.facts.financial_facts_service.entities.statements.models.IncomeStatement;
 import com.facts.financial_facts_service.exceptions.InsufficientDataException;
 import com.facts.financial_facts_service.repositories.BalanceSheetRepository;
+import com.facts.financial_facts_service.repositories.CashFlowStatementRepository;
 import com.facts.financial_facts_service.repositories.IncomeStatementRepository;
 import com.facts.financial_facts_service.repositories.projections.StatementKeyProjection;
 import org.slf4j.Logger;
@@ -37,13 +39,17 @@ public class StatementService implements Constants {
     @Autowired
     private IncomeStatementRepository incomeStatementRepository;
 
+    @Autowired
+    private CashFlowStatementRepository cashFlowStatementRepository;
+
     public Mono<Statements> getQuarterlyStatements(String cik) {
         return Mono.zip(
             getQuarterlyIncomeStatements(cik),
-            getQuarterlyBalanceSheets(cik)
+            getQuarterlyBalanceSheets(cik),
+            getQuarterlyCashFlowStatements(cik)
         ).flatMap(tuples -> {
             logger.info("In statement service returning statements from DB for {}", cik);
-            return Mono.just(new Statements(tuples.getT1(), tuples.getT2()));
+            return Mono.just(new Statements(tuples.getT1(), tuples.getT2(), tuples.getT3()));
         });
     }
 
@@ -56,18 +62,24 @@ public class StatementService implements Constants {
             ? Mono.just(INCOME_STATEMENTS_SAVED)
             : saveStatementList(statements.getIncomeStatements(), IncomeStatement.class);
 
-        return Mono.zip(balanceSheetsSave, incomeStatementsSave)
-            .flatMap(tuples -> Mono.just(List.of(tuples.getT1(), tuples.getT2())));
+        Mono<String> cashFlowStatementsSave = statements.getCashFlowStatements().isEmpty()
+                ? Mono.just(CASH_FLOW_STATEMENTS_SAVED)
+                : saveStatementList(statements.getCashFlowStatements(), CashFlowStatement.class);
+
+        return Mono.zip(balanceSheetsSave, incomeStatementsSave, cashFlowStatementsSave)
+            .flatMap(tuples -> Mono.just(List.of(tuples.getT1(), tuples.getT2(), tuples.getT3())));
     }
 
     public void filterStatementsToTrailingElevenYears(String cik, Statements statements) {
         statements.setIncomeStatements(filterToLastElevenFY(cik, statements.getIncomeStatements()));
         statements.setBalanceSheets(filterToLastElevenFY(cik, statements.getBalanceSheets()));
+        statements.setCashFlowStatements(filterToLastElevenFY(cik, statements.getCashFlowStatements()));
     }
 
     public void verifyNoMissingQuarters(String cik, Statements statements) {
         checkConsecutive(cik, statements.getIncomeStatements());
         checkConsecutive(cik, statements.getBalanceSheets());
+        checkConsecutive(cik, statements.getCashFlowStatements());
     }
 
     private Mono<List<BalanceSheet>> getQuarterlyBalanceSheets(String cik) {
@@ -86,6 +98,16 @@ public class StatementService implements Constants {
             return Mono.just(incomeStatementRepository.findAllByCikOrderByDateAsc(cik));
         } catch (DataAccessException ex) {
             logger.error("Error occurred while getting quarterly income statements for {}", cik);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
+        }
+    }
+
+    private Mono<List<CashFlowStatement>> getQuarterlyCashFlowStatements(String cik) {
+        logger.info("In statement service getting quarterly cash flow statements for {}", cik);
+        try {
+            return Mono.just(cashFlowStatementRepository.findAllByCikOrderByDateAsc(cik));
+        } catch (DataAccessException ex) {
+            logger.error("Error occurred while getting quarterly cash flow statements for {}", cik);
             throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
         }
     }
@@ -220,6 +242,7 @@ public class StatementService implements Constants {
         LocalDate lastDate = statements.get(0).getDate();
         for (Statement statement : statements.subList(1, statements.size())) {
             if (lastDate.isBefore(statement.getDate().minusDays(131))) {
+                logger.error("Statements are not consecutive after {} for {}", lastDate, cik);
                 throw new InsufficientDataException("Statements are not consecutive after "
                         + lastDate + " for " + cik);
             }

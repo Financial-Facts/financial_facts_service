@@ -4,8 +4,6 @@ import com.facts.financial_facts_service.constants.enums.Operation;
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.DiscountOperationException;
-import com.facts.financial_facts_service.exceptions.FeatureNotImplementedException;
-import com.facts.financial_facts_service.exceptions.InsufficientKeysException;
 import com.facts.financial_facts_service.exceptions.InvalidRequestException;
 import com.facts.financial_facts_service.handlers.GlobalExceptionHandler;
 import jakarta.validation.ConstraintViolation;
@@ -81,22 +79,6 @@ public class GlobalExceptionHandlerTest implements TestConstants {
         DataNotFoundException ex = new DataNotFoundException("message");
         ResponseEntity<String> actual = globalExceptionHandler.handleDataNotFoundException(ex);
         assertEquals(HttpStatus.NOT_FOUND, actual.getStatusCode());
-        assertEquals("message", actual.getBody());
-    }
-
-    @Test
-    public void testHandleFeatureNotImplementedException() {
-        FeatureNotImplementedException ex = new FeatureNotImplementedException("message");
-        ResponseEntity<String> actual = globalExceptionHandler.handleFeatureNotImplementedException(ex);
-        assertEquals(HttpStatus.CONFLICT, actual.getStatusCode());
-        assertEquals("message", actual.getBody());
-    }
-
-    @Test
-    public void testHandleInsufficientKeysException() {
-        InsufficientKeysException ex = new InsufficientKeysException("message");
-        ResponseEntity<String> actual = globalExceptionHandler.handleInsufficientKeysException(ex);
-        assertEquals(HttpStatus.CONFLICT, actual.getStatusCode());
         assertEquals("message", actual.getBody());
     }
 

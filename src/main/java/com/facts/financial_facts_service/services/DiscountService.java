@@ -56,8 +56,8 @@ public class DiscountService implements Constants {
         logger.info("In discount service getting bulk simple discounts");
         try {
             return activeOnly
-                    ? Mono.just(discountRepository.findAllActiveSimpleDiscounts())
-                    : Mono.just(discountRepository.findAllSimpleDiscounts());
+                ? Mono.just(discountRepository.findAllActiveSimpleDiscounts())
+                : Mono.just(discountRepository.findAllSimpleDiscounts());
         } catch (DataAccessException ex) {
             logger.error("Error occurred while getting bulk simple discounts");
             throw new DiscountOperationException(Operation.BULK_SIMPLE);

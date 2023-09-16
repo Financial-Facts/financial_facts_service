@@ -28,4 +28,6 @@ public interface Constants {
     String V3_API = "api/v3";
     String BALANCE_SHEET_SAVED = "Success: balance sheets saved";
     String INCOME_STATEMENTS_SAVED = "Success: income statements saved";
+    String CASH_FLOW_STATEMENTS_SAVED = "Success: cash flow statements saved";
+
 }
