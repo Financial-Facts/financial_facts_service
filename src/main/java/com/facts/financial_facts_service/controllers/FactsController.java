@@ -3,7 +3,6 @@ package com.facts.financial_facts_service.controllers;
 import com.facts.financial_facts_service.constants.interfaces.Constants;
 import com.facts.financial_facts_service.datafetcher.DataFetcher;
 import com.facts.financial_facts_service.datafetcher.records.FactsData;
-import com.facts.financial_facts_service.datafetcher.records.Statements;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.slf4j.Logger;

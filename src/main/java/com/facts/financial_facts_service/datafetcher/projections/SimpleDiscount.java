@@ -6,7 +6,7 @@ public interface SimpleDiscount {
     String getSymbol();
     String getName();
     Boolean getActive();
-    Double getRatioPrice();
+    Double getRatio_Price();
     Double getTtmSalePrice();
     Double getTfySalePrice();
     Double getTtySalePrice();

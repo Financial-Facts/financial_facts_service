@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.entities.discount.models.quarterlyData;
+package com.facts.financial_facts_service.entities.discount.models;
 
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
@@ -16,9 +16,9 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @EqualsAndHashCode
-@IdClass(QuarterlyDataKey.class)
+@IdClass(PeriodicDataKey.class)
 @ToString
-public class QuarterlyData {
+public class PeriodicData {
 
     @Id
     private String cik;

@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.entities.discount.models.quarterlyData;
+package com.facts.financial_facts_service.entities.discount.models;
 
 import lombok.*;
 
@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuarterlyDataKey {
+public class PeriodicDataKey {
 
     private String cik;
 

@@ -3,7 +3,7 @@ package com.facts.financial_facts_service.services.facts;
 import com.facts.financial_facts_service.entities.facts.Facts;
 import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
 import com.facts.financial_facts_service.entities.facts.models.TaxonomyReports;
-import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyData;
+import com.facts.financial_facts_service.entities.discount.models.periodicData.QuarterlyData;
 import com.facts.financial_facts_service.handlers.FactsSyncHandler;
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;

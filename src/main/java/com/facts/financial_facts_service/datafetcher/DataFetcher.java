@@ -2,13 +2,10 @@ package com.facts.financial_facts_service.datafetcher;
 
 import com.facts.financial_facts_service.datafetcher.records.FactsData;
 import com.facts.financial_facts_service.datafetcher.records.IdentitiesAndDiscounts;
-import com.facts.financial_facts_service.datafetcher.records.Statements;
 import com.facts.financial_facts_service.entities.identity.models.BulkIdentitiesRequest;
 import com.facts.financial_facts_service.services.DiscountService;
-import com.facts.financial_facts_service.services.api.ApiService;
 import com.facts.financial_facts_service.services.facts.FactsService;
 import com.facts.financial_facts_service.services.identity.IdentityService;
-import com.facts.financial_facts_service.services.statement.StatementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,29 +31,11 @@ public class DataFetcher {
     @Autowired
     private DiscountService discountService;
 
-    @Autowired
-    private StatementService statementService;
-
-    @Autowired
-    private ApiService apiService;
-
     public Mono<FactsData> getFactsWithCik(String cik) {
         logger.info("In DataFetcher getting facts for {}", cik);
         return factsService.getFactsWithCik(cik).flatMap(facts -> {
             logger.info("In DataFetcher returning facts for cik {}", cik);
             return Mono.just(new FactsData(facts));
-        });
-    }
-
-    public Mono<Statements> getStatements(String cik) {
-        logger.info("In DataFetcher getting statements for {}", cik);
-        Mono<Statements> statementsMono = isApiEnabled
-            ? getStatementsFromApi(cik)
-            : statementService.getQuarterlyStatements(cik);
-        return statementsMono.flatMap(statements -> {
-           statementService.filterStatementsToTrailingElevenYears(cik, statements);
-           statementService.verifyNoMissingQuarters(cik, statements);
-           return Mono.just(statements);
         });
     }
 
@@ -74,13 +53,6 @@ public class DataFetcher {
                 logger.info("In datafetcher returning bulk identities for request {}", request);
                 return Mono.just(new IdentitiesAndDiscounts(identities));
             });
-    }
-
-    private Mono<Statements> getStatementsFromApi(String cik) {
-        return apiService.getStatements(cik).flatMap(response -> {
-            logger.info("In data-fetcher returning statements from API for {}", cik);
-            return Mono.just(response);
-        });
     }
 
 }

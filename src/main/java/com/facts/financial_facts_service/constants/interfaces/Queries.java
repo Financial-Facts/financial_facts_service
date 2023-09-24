@@ -3,42 +3,35 @@ package com.facts.financial_facts_service.constants.interfaces;
 public interface Queries {
 
     String getAllActiveSimpleDiscounts =
-            "SELECT n.cik, " +
-            "n.symbol, " +
-            "n.name, " +
-            "n.active, " +
-            "n.ratio_price, " +
-            "ttm.sale_price AS \"ttmSalePrice\", " +
-            "tfy.sale_price AS \"tfySalePrice\", " +
-            "tty.sale_price AS \"ttySalePrice\" " +
-            "FROM (select cik, symbol, name, ratio_price, active FROM discount d) as n " +
-            "INNER JOIN (select cik, sale_price from ttm_price_data) AS ttm ON n.cik=ttm.cik " +
-            "INNER JOIN (select cik, sale_price from tfy_price_data) AS tfy ON n.cik=tfy.cik " +
-            "INNER JOIN (select cik, sale_price from tty_price_data) AS tty ON n.cik=tty.cik " +
-            "WHERE n.active = true;";
+            "select a.cik, " +
+            "a.symbol, " +
+            "a.name, " +
+            "a.active, " +
+            "b.ratio_price, " +
+            "c.sale_price AS \"ttmSalePrice\", " +
+            "d.sale_price AS \"tfySalePrice\", " +
+            "e.sale_price AS \"ttySalePrice\" " +
+            "FROM discount a,  " +
+            "benchmark_ratio_price b, " +
+            "ttm_price_data c, " +
+            "tfy_price_data d, " +
+            "tty_price_data e " +
+            "WHERE a.cik=b.cik AND a.cik=c.cik AND a.cik=d.cik AND a.cik=e.cik AND a.active=true;";
 
     String getAllSimpleDiscounts =
-            "SELECT n.cik, " +
-            "n.symbol, " +
-            "n.name, " +
-            "n.active, " +
-            "n.ratio_price, " +
-            "ttm.sale_price AS \"ttmSalePrice\", " +
-            "tfy.sale_price AS \"tfySalePrice\", " +
-            "tty.sale_price AS \"ttySalePrice\" " +
-            "FROM (select cik, symbol, name, ratio_price, active FROM discount d) as n " +
-            "INNER JOIN (select cik, sale_price from ttm_price_data) AS ttm ON n.cik=ttm.cik " +
-            "INNER JOIN (select cik, sale_price from tfy_price_data) AS tfy ON n.cik=tfy.cik " +
-            "INNER JOIN (select cik, sale_price from tty_price_data) AS tty ON n.cik=tty.cik;";
-
-    String getAllBalanceSheetKeysForCik =
-            "SELECT n.cik, n.date " +
-            "FROM balance_sheet n " +
-            "WHERE n.cik = ?1";
-
-    String getAllIncomeStatementKeysForCik =
-            "SELECT n.cik, n.date " +
-            "FROM income_statement n " +
-            "WHERE n.cik = ?1";
+            "select a.cik, " +
+            "a.symbol, " +
+            "a.name, " +
+            "a.active, " +
+            "b.ratio_price, " +
+            "c.sale_price AS \"ttmSalePrice\", " +
+            "d.sale_price AS \"tfySalePrice\", " +
+            "e.sale_price AS \"ttySalePrice\" " +
+            "FROM discount a,  " +
+            "benchmark_ratio_price b, " +
+            "ttm_price_data c, " +
+            "tfy_price_data d, " +
+            "tty_price_data e " +
+            "WHERE a.cik=b.cik AND a.cik=c.cik AND a.cik=d.cik AND a.cik=e.cik;";
 
 }
