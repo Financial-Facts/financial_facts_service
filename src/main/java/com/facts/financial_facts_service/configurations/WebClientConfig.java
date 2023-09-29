@@ -30,8 +30,6 @@ public class WebClientConfig implements Constants {
     @Value("${sec.cik.api.user-agent}")
     private String userAgent;
 
-    private String apiBaseUrl = "https://financialmodelingprep.com";
-
     @Bean
     public WebClient gatewayWebClient() {
         String getFactsFromGatewayUrl = factsGatewayUrl;
@@ -44,11 +42,6 @@ public class WebClientConfig implements Constants {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaders.USER_AGENT, userAgent);
         return buildWebClient(secEndpoint, headers);
-    }
-
-    @Bean
-    public WebClient apiWebClient() {
-        return buildWebClient(apiBaseUrl + SLASH + V3_API, null);
     }
 
     private WebClient buildWebClient(String url, Map<String, String> headers) {

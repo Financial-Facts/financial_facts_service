@@ -15,13 +15,16 @@ import lombok.*;
 public class Identity {
 
     @NonNull
+    @JsonAlias(value = "cik_str")
     String cik;
 
     @NonNull
     @NotBlank
+    @JsonAlias(value = "ticker")
     String symbol;
 
     @NonNull
     @NotBlank
+    @JsonAlias(value = "title")
     String name;
 }

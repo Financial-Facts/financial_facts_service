@@ -2,18 +2,22 @@ package com.facts.financial_facts_service.entities.facts;
 
 import com.facts.financial_facts_service.entities.facts.converter.FactsDataConverter;
 import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.Setter;
 import org.hibernate.annotations.Type;
 
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
@@ -21,7 +25,6 @@ public class Facts {
 
     @Id
     @NonNull
-    @JsonIgnore
     private String cik;
 
     @NonNull
@@ -30,7 +33,6 @@ public class Facts {
     @NonNull
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
-    @JsonIgnore
     @Convert(converter = FactsDataConverter.class)
     private FactsWrapper data;
 

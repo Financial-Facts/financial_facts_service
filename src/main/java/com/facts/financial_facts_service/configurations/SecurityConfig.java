@@ -1,6 +1,7 @@
 package com.facts.financial_facts_service.configurations;
 
 import com.facts.financial_facts_service.components.BasicAuthEntryPoint;
+import com.facts.financial_facts_service.components.RateLimitFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,23 +18,27 @@ public class SecurityConfig {
 
     @Autowired private BasicAuthEntryPoint authenticationEntryPoint;
 
+    @Autowired private RateLimitFilter rateLimitFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .addFilterAfter(rateLimitFilter, BasicAuthenticationFilter.class)
             .csrf()
             .disable()
-            .addFilterBefore(rateLimitFilter(), BasicAuthenticationFilter.class)
             .authorizeHttpRequests()
             .requestMatchers(new RegexRequestMatcher(
-                    "/v1/discount/[Cc][Ii][Kk]\\d{10}",
-                    HttpMethod.GET.name()))
+                        "/v1/discount/[Cc][Ii][Kk]\\d{10}",
+                        HttpMethod.GET.name()),
+                    new RegexRequestMatcher(
+                        "/v1/facts/[Cc][Ii][Kk]\\d{10}",
+                        HttpMethod.GET.name()))
             .permitAll()
             .requestMatchers(
                     "/swagger-ui/**",
                     "/v3/api-docs/swagger-config",
                     "/api-docs.yaml",
                     "/actuator/health",
-                    "/v1/facts/*",
                     "/v1/identity/bulk")
             .permitAll()
             .and()
@@ -44,10 +49,5 @@ public class SecurityConfig {
             .httpBasic()
             .authenticationEntryPoint(authenticationEntryPoint);
         return http.build();
-    }
-
-    @Bean
-    public RateLimitFilter rateLimitFilter() {
-        return new RateLimitFilter();
     }
 }

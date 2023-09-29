@@ -3,6 +3,8 @@ package com.facts.financial_facts_service.entities.discount.models.stickerPrice;
 import com.facts.financial_facts_service.entities.discount.models.stickerPrice.trailingPriceData.TfyPriceData;
 import com.facts.financial_facts_service.entities.discount.models.stickerPrice.trailingPriceData.TtmPriceData;
 import com.facts.financial_facts_service.entities.discount.models.stickerPrice.trailingPriceData.TtyPriceData;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -16,6 +18,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "sticker_price")
+@JsonIgnoreProperties(value = { "cik" }, allowSetters = true)
 public class StickerPrice {
 
     @Id

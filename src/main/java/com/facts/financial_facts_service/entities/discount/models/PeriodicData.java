@@ -1,5 +1,7 @@
 package com.facts.financial_facts_service.entities.discount.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.MappedSuperclass;
@@ -18,6 +20,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 @IdClass(PeriodicDataKey.class)
 @ToString
+@JsonIgnoreProperties(value = { "cik" }, allowSetters = true)
 public class PeriodicData {
 
     @Id

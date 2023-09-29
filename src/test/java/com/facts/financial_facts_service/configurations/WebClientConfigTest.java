@@ -29,7 +29,6 @@ public class WebClientConfigTest implements TestConstants {
         MockitoAnnotations.openMocks(this);
         ReflectionTestUtils.setField(webClientConfig, "logger", mockLogger);
         ReflectionTestUtils.setField(webClientConfig, "factsGatewayUrl", FACTS_URL);
-        ReflectionTestUtils.setField(webClientConfig, "bucketName", BUCKET_NAME);
         ReflectionTestUtils.setField(webClientConfig, "secEndpoint", SEC_URL);
         ReflectionTestUtils.setField(webClientConfig, "userAgent", USER_AGENT);
     }
@@ -43,7 +42,7 @@ public class WebClientConfigTest implements TestConstants {
 
     @Test
     public void testBuildGatewayWebClient() {
-        String url = FACTS_URL + "/" + BUCKET_NAME;
+        String url = FACTS_URL;
         WebClient webClient = webClientConfig.gatewayWebClient();
         verify(mockLogger).info("Initializing webclient for url {}...", url);
         assertNotNull(webClient);

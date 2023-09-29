@@ -15,6 +15,7 @@ public class FactsWrapper implements Serializable {
 
     @JsonIgnore
     private String cik;
+
     private String entityName;
 
     @JsonAlias("facts")

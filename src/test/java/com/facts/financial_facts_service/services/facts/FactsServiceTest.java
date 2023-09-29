@@ -1,13 +1,14 @@
 package com.facts.financial_facts_service.services.facts;
 
+import com.facts.financial_facts_service.entities.discount.models.PeriodicData;
 import com.facts.financial_facts_service.entities.facts.Facts;
 import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
 import com.facts.financial_facts_service.entities.facts.models.TaxonomyReports;
-import com.facts.financial_facts_service.entities.discount.models.periodicData.QuarterlyData;
 import com.facts.financial_facts_service.handlers.FactsSyncHandler;
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.repositories.FactsRepository;
+import com.facts.financial_facts_service.services.FactsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -169,15 +170,15 @@ public class FactsServiceTest implements TestConstants {
             mockFactsWebClientExchange(factsWrapper);
         }
 
-        private <T extends QuarterlyData> void assertStickerPriceQuarterlyData(List<T> quarterlyData) {
+        private <T extends PeriodicData> void assertStickerPricePeriodicData(List<T> quarterlyData) {
             assertNotNull(quarterlyData);
             assertEquals(1, quarterlyData.size());
             assertNotNull(quarterlyData.get(0));
             assertEquals(CIK, quarterlyData.get(0).getCik());
         }
 
-        private <T extends QuarterlyData> List<T> buildQuarterlyDataTypeList(Class<T> type) {
-            QuarterlyData quarterlyData = new QuarterlyData();
+        private <T extends PeriodicData> List<T> buildPeriodicDataTypeList(Class<T> type) {
+            PeriodicData quarterlyData = new PeriodicData();
             quarterlyData.setCik(CIK);
             return (List<T>) List.of(quarterlyData);
         }

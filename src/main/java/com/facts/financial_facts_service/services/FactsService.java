@@ -1,4 +1,4 @@
-package com.facts.financial_facts_service.services.facts;
+package com.facts.financial_facts_service.services;
 
 import com.facts.financial_facts_service.exceptions.GatewayServiceException;
 import com.facts.financial_facts_service.constants.interfaces.Constants;

@@ -7,6 +7,7 @@ import com.facts.financial_facts_service.entities.discount.models.stickerPrice.t
 import com.facts.financial_facts_service.entities.discount.models.stickerPrice.types.AnnualPE;
 import com.facts.financial_facts_service.entities.discount.models.stickerPrice.types.AnnualROIC;
 import com.facts.financial_facts_service.entities.discount.models.stickerPrice.types.AnnualRevenue;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,6 +23,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "sticker_price_input")
+@JsonIgnoreProperties(value = { "cik" }, allowSetters = true)
 public class StickerPriceInput {
 
     @Id

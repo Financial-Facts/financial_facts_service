@@ -2,7 +2,12 @@ package com.facts.financial_facts_service.entities.discount;
 
 import com.facts.financial_facts_service.entities.discount.models.benchmarkRatioPrice.BenchmarkRatioPrice;
 import com.facts.financial_facts_service.entities.discount.models.stickerPrice.StickerPrice;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
