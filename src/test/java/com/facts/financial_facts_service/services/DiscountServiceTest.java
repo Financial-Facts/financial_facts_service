@@ -4,13 +4,13 @@ import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.datafetcher.projections.SimpleDiscount;
 import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.entities.discount.models.UpdateDiscountInput;
-import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyBVPS;
-import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
-import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyPE;
-import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyROIC;
-import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.TfyPriceData;
-import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.TtmPriceData;
-import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.TtyPriceData;
+import com.facts.financial_facts_service.entities.discount.models.benchmarkRatioPrice.BenchmarkRatioPrice;
+import com.facts.financial_facts_service.entities.discount.models.benchmarkRatioPrice.BenchmarkRatioPriceInput;
+import com.facts.financial_facts_service.entities.discount.models.stickerPrice.StickerPrice;
+import com.facts.financial_facts_service.entities.discount.models.stickerPrice.StickerPriceInput;
+import com.facts.financial_facts_service.entities.discount.models.stickerPrice.trailingPriceData.TfyPriceData;
+import com.facts.financial_facts_service.entities.discount.models.stickerPrice.trailingPriceData.TtmPriceData;
+import com.facts.financial_facts_service.entities.discount.models.stickerPrice.trailingPriceData.TtyPriceData;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.DiscountOperationException;
 import com.facts.financial_facts_service.repositories.DiscountRepository;
@@ -26,6 +26,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -256,29 +258,56 @@ public class DiscountServiceTest implements TestConstants {
             discount.setCik(CIK);
             discount.setSymbol(SYMBOL);
             discount.setName(NAME);
-            discount.setTfyPriceData(new TfyPriceData());
+            discount.setStickerPrice(buildStickerPrice());
+            discount.setBenchmarkRatioPrice(buildBenchmarkRatioPrice());
+            return discount;
+        }
+
+        private StickerPrice buildStickerPrice() {
+            StickerPrice stickerPrice = new StickerPrice();
+            stickerPrice.setCik(CIK);
             TfyPriceData tfy = new TfyPriceData();
             tfy.setCik(CIK);
-            discount.setTfyPriceData(tfy);
+            stickerPrice.setTfyPriceData(tfy);
             TtyPriceData tty = new TtyPriceData();
             tty.setCik(CIK);
-            discount.setTtyPriceData(tty);
+            stickerPrice.setTtyPriceData(tty);
             TtmPriceData ttm = new TtmPriceData();
             ttm.setCik(CIK);
-            discount.setTtmPriceData(ttm);
-            QuarterlyBVPS bvps = new QuarterlyBVPS();
-            bvps.setCik(CIK);
-            discount.setQuarterlyBVPS(List.of(bvps));
-            QuarterlyPE pe = new QuarterlyPE();
-            pe.setCik(CIK);
-            discount.setQuarterlyPE(List.of(pe));
-            QuarterlyEPS eps = new QuarterlyEPS();
-            eps.setCik(CIK);
-            discount.setQuarterlyEPS(List.of(eps));
-            QuarterlyROIC roic = new QuarterlyROIC();
-            roic.setCik(CIK);
-            discount.setQuarterlyROIC(List.of(roic));
-            return discount;
+            stickerPrice.setTtmPriceData(ttm);
+            stickerPrice.setInput(buildStickerPriceInput());
+            return stickerPrice;
+        }
+
+        private StickerPriceInput buildStickerPriceInput() {
+            StickerPriceInput input = new StickerPriceInput();
+            input.setCik(CIK);
+            input.setAnnualBVPS(Collections.emptyList());
+            input.setAnnualPE(Collections.emptyList());
+            input.setAnnualEPS(Collections.emptyList());
+            input.setAnnualROIC(Collections.emptyList());
+            input.setAnnualRevenue(Collections.emptyList());
+            input.setAnnualEquity(Collections.emptyList());
+            input.setAnnualOperatingCashFlow(Collections.emptyList());
+            return input;
+        }
+
+        private BenchmarkRatioPrice buildBenchmarkRatioPrice() {
+            BenchmarkRatioPrice ratioPrice = new BenchmarkRatioPrice();
+            ratioPrice.setCik(CIK);
+            ratioPrice.setRatioPrice(1.00);
+            ratioPrice.setInput(buildBenchmarkRatioPriceInput());
+            return ratioPrice;
+        }
+
+        private BenchmarkRatioPriceInput buildBenchmarkRatioPriceInput() {
+            BenchmarkRatioPriceInput input = new BenchmarkRatioPriceInput();
+            input.setCik(CIK);
+            input.setIndustry("Books");
+            input.setPsBenchmarkRatio(1.67);
+            input.setTtmRevenue(1000000L);
+            input.setSharesOutstanding(1000000L);
+            return input;
         }
     }
 

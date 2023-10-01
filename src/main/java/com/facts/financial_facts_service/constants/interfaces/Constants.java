@@ -3,6 +3,7 @@ package com.facts.financial_facts_service.constants.interfaces;
 public interface Constants {
     String EMPTY = "";
     String V1_DISCOUNT = "v1/discount";
+    String V1_STATEMENTS = "v1/statements";
     String CIK_PATH_PARAM = "/{cik}";
     String STICKER_PRICE_DATA = "stickerPriceData";
     String BULK = "/bulk";
@@ -24,5 +25,9 @@ public interface Constants {
     String FACTS_FILENAME = "%s.json";
     String SET_TO_ACTIVE_UPDATE = "Discount for %s has been set to active";
     String SET_TO_INACTIVE_UPDATE = "Discount for %s has been set to inactive";
+    String V3_API = "api/v3";
+    String BALANCE_SHEET_SAVED = "Success: balance sheets saved";
+    String INCOME_STATEMENTS_SAVED = "Success: income statements saved";
+    String CASH_FLOW_STATEMENTS_SAVED = "Success: cash flow statements saved";
 
 }

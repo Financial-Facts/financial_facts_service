@@ -9,6 +9,7 @@ import com.facts.financial_facts_service.entities.identity.models.BulkIdentities
 import com.facts.financial_facts_service.entities.identity.models.SortBy;
 import com.facts.financial_facts_service.entities.identity.models.SortOrder;
 import com.facts.financial_facts_service.services.DiscountService;
+import com.facts.financial_facts_service.services.FactsService;
 import com.facts.financial_facts_service.services.identity.IdentityService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -47,7 +48,8 @@ import static org.mockito.Mockito.*;
         @MockBean(SecurityFilterChain.class),
         @MockBean(DiscountService.class),
         @MockBean(DataFetcher.class),
-        @MockBean(IdentityService.class)
+        @MockBean(IdentityService.class),
+        @MockBean(FactsService.class)
 })
 @ExtendWith(MockitoExtension.class)
 public class IdentityControllerTest implements TestConstants {
@@ -69,38 +71,6 @@ public class IdentityControllerTest implements TestConstants {
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-    }
-
-    @Nested
-    @DisplayName("getIdentityWithCik")
-    class getIdentityWithCikTests {
-
-        @Test
-        public void testGetIdentityWithCikSuccess() throws ExecutionException, InterruptedException {
-            Identity identity = new Identity();
-            when(identityService.getIdentityFromIdentityMap(CIK))
-                    .thenReturn(Mono.just(identity));
-            ResponseEntity<Identity> response = identityController.getIdentityWithCik(CIK).get();
-            verify(identityService).getIdentityFromIdentityMap(CIK);
-            assertEquals(HttpStatus.OK, response.getStatusCode());
-            assertEquals(identity, response.getBody());
-        }
-
-        @Test
-        public void testGetIdentityWithCikToUppercase() throws ExecutionException, InterruptedException {
-            Identity identity = new Identity();
-            when(identityService.getIdentityFromIdentityMap(CIK))
-                    .thenReturn(Mono.just(identity));
-            identityController.getIdentityWithCik(LOWERCASE_CIK).get();
-            verify(identityService).getIdentityFromIdentityMap(CIK);
-        }
-
-        @Test
-        public void testGetDiscountInvalidCik() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders
-                            .get("/v1/identity" + CIK_PATH_PARAM, INVALID_CIK))
-                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
-        }
     }
 
     @Nested

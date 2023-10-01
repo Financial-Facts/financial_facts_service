@@ -1,11 +1,13 @@
 # Financial Facts Service</h1></u>
 
-This Java Spring Boot service is a robust and secure solution designed to communicate with a PostgreSQL database hosted on Amazon Web Services (AWS) Relational Database Service (RDS). The service is configured to leverage AWS Parameter Store, enhancing security by storing sensitive parameters separately and dynamically pulling them when needed. It utilizes a basic authorization scheme as the intention is for this to be an intermediary service that does not interact directly with the UI. It is optimized for high call volume and scalability. This service is designed with micro sized RDS instances in mind to optimize pricing and resource consumption. To this end, strict handlers are in place to manage more costly transactions and static data is fetched from the public U.S. Securities and Exchange Commission (SEC) EDGAR API and cached for less costly transactions. It also features thorough unit tests triggered during the build process to assure consistent behavior across all scenarios.
+This Java Spring Boot service is a robust and secure solution designed to communicate with a PostgreSQL database hosted on Amazon Web Services (AWS) Relational Database Service (RDS). The service is configured to leverage AWS Parameter Store, enhancing security by storing sensitive parameters separately and dynamically pulling them when needed. It utilizes a basic authorization scheme on internal endpoints utilized by other services and enforces strict rate limits on public endpoints that pass data to the UI. It is optimized for high call volume and scalability. This service is designed with micro sized RDS instances in mind to optimize pricing and resource consumption. To this end, strict handlers are in place to manage more costly transactions and static data is fetched from the public U.S. Securities and Exchange Commission (SEC) EDGAR API and cached for less costly transactions. It also features thorough unit tests triggered during the build process to assure consistent behavior across all scenarios.
 
 #### Dependency: [update facts lambda](https://github.com/Choochera/update_facts_lambda)
 #### Swagger: [financial facts service API documentation page](https://financial-facts.net/swagger-ui/index.html)
 
-<u><h2>Primary Entities</h2></u>
+------
+
+<u><h3>Primary Entities</h3></u>
 <ul>
   <li>
     <h3>Facts</h3>
@@ -20,7 +22,7 @@ This Java Spring Boot service is a robust and secure solution designed to commun
     An identity is a mapping between the Central Index Key (CIK) of a company and their public name and stock ticker/symbol
   </li>
 </ul>
-<u><h2>Key Features</h2></u>
+<u><h3>Key Features</h3></u>
 <ul>
   <li>
     <h3>Cloud Database Communication through AWS RDS Integration</h3>
@@ -40,7 +42,7 @@ This Java Spring Boot service is a robust and secure solution designed to commun
   </li>
 </ul>
 
-<u><h2>Primary Responsibilities</h2></u>
+<u><h3>Primary Responsibilities</h3></u>
 <ul>
   <li>
     <h3>Data Synchronization</h3>
@@ -56,11 +58,11 @@ This Java Spring Boot service is a robust and secure solution designed to commun
   </li>
 </ul>
 
-<u><h2>Benefits</h2></u>
+<u><h3>Benefits</h3></u>
 <ul>
   <li>
     <h3>Security</h3>
-    By utilizing AWS Parameter Store, sensitive information remains secure and is accessed only when required, reducing the risk of unauthorized access.
+    Security features include strict rate limits implemented to protect again various forms of attacks, SSL certification, basic authentication for internal services, and secrets handling with AWS Parameter Store ensuring sensitive information remains secure and is accessed only when required, reducing the risk of unauthorized access.
   </li>
   <li>
     <h3>Scalability</h3>
@@ -76,11 +78,15 @@ This Java Spring Boot service is a robust and secure solution designed to commun
   </li>
 </ul>
 
+----------
+
 <u><h2>Conclusion</h2></u>
-  <p>In summary, this Java Spring Boot service, integrated with AWS RDS, AWS Parameter Store, API Gateway, S3, and Lambda, provides a secure, scalable, and efficient solution to manage financial facts for publicly traded companies. Its ability to synchronize data, handle discounts, and store public company information ensures that the database contains accurate and up-to-date financial data for reliable analysis and reporting purposes.</p>
+<p>In summary, this Java Spring Boot service, integrated with AWS RDS, AWS Parameter Store, API Gateway, S3, and Lambda, provides a secure, scalable, and efficient solution to manage financial facts for publicly traded companies. It has the ability to synchronize data, handle discounts, and store public company information which ensures that the database contains accurate and up-to-date financial data for reliable analysis and reporting purposes.</p>
 
 # Preview
 ![image](https://github.com/Choochera/financial_facts_service/assets/74555083/09d1cd00-e313-495d-81a4-a167b68a9ca3)
+
+------------
 
 Deployment
 -------------------------

@@ -1,11 +1,8 @@
 package com.facts.financial_facts_service.controllers;
 
 import com.facts.financial_facts_service.constants.interfaces.Constants;
-import com.facts.financial_facts_service.datafetcher.DataFetcher;
-import com.facts.financial_facts_service.datafetcher.records.FactsData;
-import com.facts.financial_facts_service.datafetcher.records.StickerPriceData;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import com.facts.financial_facts_service.entities.facts.Facts;
+import com.facts.financial_facts_service.services.FactsService;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.slf4j.Logger;
@@ -32,28 +29,15 @@ public class FactsController implements Constants {
     final Logger logger = LoggerFactory.getLogger(FactsController.class);
 
     @Autowired
-    private DataFetcher dataFetcher;
+    private FactsService factsService;
 
     @GetMapping(path = CIK_PATH_PARAM)
-    @Operation(security = @SecurityRequirement(name = "basicScheme"))
-    public CompletableFuture<ResponseEntity<FactsData>> getFacts(
+    public CompletableFuture<ResponseEntity<Facts>> getFacts(
             @PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
         logger.info("In facts controller getting facts for {}", cik);
-        return dataFetcher.getFactsWithCik(cik.toUpperCase())
+        return factsService.getFactsWithCik(cik.toUpperCase())
             .flatMap(response -> {
                 logger.info("Returning facts for {}", cik);
-                return Mono.just(new ResponseEntity<>(response, HttpStatus.OK));
-            }).toFuture();
-    }
-
-    @GetMapping(path = CIK_PATH_PARAM + SLASH + STICKER_PRICE_DATA)
-    @Operation(security = @SecurityRequirement(name = "basicScheme"))
-    public CompletableFuture<ResponseEntity<StickerPriceData>> getStickerPriceData(
-            @PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
-        logger.info("In facts controller getting facts for {}", cik);
-        return dataFetcher.getStickerPriceDataWithCik(cik.toUpperCase())
-            .flatMap(response -> {
-                logger.info("Returning sticker price data for {}", cik);
                 return Mono.just(new ResponseEntity<>(response, HttpStatus.OK));
             }).toFuture();
     }

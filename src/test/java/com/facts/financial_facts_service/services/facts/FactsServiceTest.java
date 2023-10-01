@@ -1,22 +1,14 @@
 package com.facts.financial_facts_service.services.facts;
 
+import com.facts.financial_facts_service.entities.discount.models.PeriodicData;
 import com.facts.financial_facts_service.entities.facts.Facts;
 import com.facts.financial_facts_service.entities.facts.models.FactsWrapper;
 import com.facts.financial_facts_service.entities.facts.models.TaxonomyReports;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyFactsEPS;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyLongTermDebt;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyNetIncome;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyOutstandingShares;
-import com.facts.financial_facts_service.entities.facts.models.quarterlyData.QuarterlyShareholderEquity;
-import com.facts.financial_facts_service.entities.models.QuarterlyData;
 import com.facts.financial_facts_service.handlers.FactsSyncHandler;
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.repositories.FactsRepository;
-import com.facts.financial_facts_service.services.facts.components.RetrieverSelector;
-import com.facts.financial_facts_service.services.facts.components.retriever.GaapRetriever;
-import com.facts.financial_facts_service.services.facts.components.retriever.IRetriever;
-import com.facts.financial_facts_service.services.facts.components.retriever.models.StickerPriceQuarterlyData;
+import com.facts.financial_facts_service.services.FactsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -57,9 +49,6 @@ public class FactsServiceTest implements TestConstants {
 
     @Mock
     private FactsSyncHandler factsSyncHandler;
-
-    @Mock
-    private RetrieverSelector retrieverSelector;
 
     @InjectMocks
     private FactsService factsService;
@@ -133,25 +122,6 @@ public class FactsServiceTest implements TestConstants {
             factsWrapper = new FactsWrapper();
             mockFactsWebClientExchange(factsWrapper);
         }
-        @Test
-        public void testBuildsFactsWithGatewayResponse() {
-            when(retrieverSelector.getRetriever(CIK, factsWrapper))
-                    .thenThrow(new RuntimeException("stop"));
-            assertThrows(RuntimeException.class, () -> factsService.getFactsWithCik(CIK).block());
-        }
-
-        @Test
-        public void testSavesBuiltFacts() {
-            IRetriever retriever = mock(GaapRetriever.class);
-            when(retrieverSelector.getRetriever(CIK, factsWrapper))
-                    .thenReturn(retriever);
-            TaxonomyReports reports = new TaxonomyReports();
-            when(retriever.retrieveStickerPriceData(CIK, reports))
-                    .thenReturn(Mono.just(StickerPriceQuarterlyData.builder().build()));
-            when(factsSyncHandler.pushToHandler(any(Facts.class)))
-                    .thenThrow(new RuntimeException("stop"));
-            assertThrows(RuntimeException.class, () -> factsService.getFactsWithCik(CIK).block());
-        }
 
     }
 
@@ -162,21 +132,6 @@ public class FactsServiceTest implements TestConstants {
         @BeforeEach
         public void init() {
             when(factsRepository.findById(CIK)).thenReturn(Optional.empty());
-        }
-
-        @Test
-        public void testQueryApiGatewaySuccess() {
-            FactsWrapper factsWrapper = new FactsWrapper();
-            mockFactsWebClientExchange(factsWrapper);
-            when(retrieverSelector.getRetriever(CIK, factsWrapper))
-                .thenThrow(new DataNotFoundException("stop"));
-            try {
-                factsService.getFactsWithCik(CIK).block();
-            } catch (DataNotFoundException ex) {
-                verify(gatewayWebClient).get();
-                verify(retrieverSelector).getRetriever(CIK, factsWrapper);
-                assertEquals("stop", ex.getMessage());
-            }
         }
 
         @Test
@@ -215,48 +170,15 @@ public class FactsServiceTest implements TestConstants {
             mockFactsWebClientExchange(factsWrapper);
         }
 
-        @Test
-        public void testBuildFactsWithRetriever() {
-            IRetriever retriever = mock(GaapRetriever.class);
-            when(retrieverSelector.getRetriever(CIK, factsWrapper))
-                    .thenReturn(retriever);
-            StickerPriceQuarterlyData data = StickerPriceQuarterlyData.builder()
-                    .quarterlyShareholderEquity(buildQuarterlyDataTypeList(QuarterlyShareholderEquity.class))
-                    .quarterlyOutstandingShares(buildQuarterlyDataTypeList(QuarterlyOutstandingShares.class))
-                    .quarterlyFactsEPS(buildQuarterlyDataTypeList(QuarterlyFactsEPS.class))
-                    .quarterlyLongTermDebt(buildQuarterlyDataTypeList(QuarterlyLongTermDebt.class))
-                    .quarterlyNetIncome(buildQuarterlyDataTypeList(QuarterlyNetIncome.class)).build();
-            when(retriever.retrieveStickerPriceData(CIK, factsWrapper.getTaxonomyReports()))
-                    .thenReturn(Mono.just(data));
-            Facts actual = factsService.getFactsWithCik(CIK).block();
-            verify(retrieverSelector).getRetriever(CIK, factsWrapper);
-            verify(factsSyncHandler).pushToHandler(any(Facts.class));
-
-            // Facts data
-            assertNotNull(actual);
-            assertNotNull(actual.getCik());
-            assertNotNull(actual.getLastSync());
-            assertNotNull(actual.getData());
-            assertEquals(CIK, actual.getCik());
-            assertEquals(factsWrapper, actual.getData());
-
-            // Sticker price quarterly data
-            assertStickerPriceQuarterlyData(actual.getQuarterlyShareholderEquity());
-            assertStickerPriceQuarterlyData(actual.getQuarterlyOutstandingShares());
-            assertStickerPriceQuarterlyData(actual.getQuarterlyEPS());
-            assertStickerPriceQuarterlyData(actual.getQuarterlyLongTermDebt());
-            assertStickerPriceQuarterlyData(actual.getQuarterlyNetIncome());
-        }
-
-        private <T extends QuarterlyData> void assertStickerPriceQuarterlyData(List<T> quarterlyData) {
+        private <T extends PeriodicData> void assertStickerPricePeriodicData(List<T> quarterlyData) {
             assertNotNull(quarterlyData);
             assertEquals(1, quarterlyData.size());
             assertNotNull(quarterlyData.get(0));
             assertEquals(CIK, quarterlyData.get(0).getCik());
         }
 
-        private <T extends QuarterlyData> List<T> buildQuarterlyDataTypeList(Class<T> type) {
-            QuarterlyData quarterlyData = new QuarterlyData();
+        private <T extends PeriodicData> List<T> buildPeriodicDataTypeList(Class<T> type) {
+            PeriodicData quarterlyData = new PeriodicData();
             quarterlyData.setCik(CIK);
             return (List<T>) List.of(quarterlyData);
         }

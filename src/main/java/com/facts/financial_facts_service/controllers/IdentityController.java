@@ -3,14 +3,9 @@ package com.facts.financial_facts_service.controllers;
 import com.facts.financial_facts_service.constants.interfaces.Constants;
 import com.facts.financial_facts_service.datafetcher.DataFetcher;
 import com.facts.financial_facts_service.datafetcher.records.IdentitiesAndDiscounts;
-import com.facts.financial_facts_service.entities.identity.Identity;
 import com.facts.financial_facts_service.entities.identity.models.BulkIdentitiesRequest;
 import com.facts.financial_facts_service.services.identity.IdentityService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,16 +33,7 @@ public class IdentityController implements Constants {
     @Autowired
     private IdentityService identityService;
 
-    @GetMapping(path = CIK_PATH_PARAM)
-    @Operation(security = @SecurityRequirement(name = "basicScheme"))
-    public CompletableFuture<ResponseEntity<Identity>> getIdentityWithCik(@PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {
-        logger.info("In identity controller getting identity for cik {}", cik);
-        return identityService.getIdentityFromIdentityMap(cik.toUpperCase())
-                .flatMap(identity -> Mono.just(new ResponseEntity<>(identity, HttpStatus.OK))).toFuture();
-    }
-
     @PostMapping(path = BULK)
-    @Operation(security = @SecurityRequirement(name = "basicScheme"))
     public CompletableFuture<ResponseEntity<IdentitiesAndDiscounts>> getBulkIdentitiesAndOptionalDiscounts(
             @Valid @RequestBody BulkIdentitiesRequest request,
             @RequestParam(required = false) Boolean includeDiscounts) {

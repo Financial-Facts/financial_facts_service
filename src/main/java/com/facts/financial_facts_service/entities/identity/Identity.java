@@ -9,15 +9,11 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 
-@Entity
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
-@Table(schema = Constants.FINANCIAL_FACTS)
 public class Identity {
 
-    @Id
     @NonNull
     @JsonAlias(value = "cik_str")
     String cik;

@@ -1,19 +1,23 @@
 package com.facts.financial_facts_service.entities.discount;
 
-import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyBVPS;
-import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyEPS;
-import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyPE;
-import com.facts.financial_facts_service.entities.discount.models.quarterlyData.QuarterlyROIC;
-import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.TfyPriceData;
-import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.TtmPriceData;
-import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.TtyPriceData;
-import jakarta.persistence.*;
+import com.facts.financial_facts_service.entities.discount.models.benchmarkRatioPrice.BenchmarkRatioPrice;
+import com.facts.financial_facts_service.entities.discount.models.stickerPrice.StickerPrice;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.Setter;
+import lombok.ToString;
 
-import java.util.List;
+import java.time.LocalDate;
 
 import static com.facts.financial_facts_service.constants.interfaces.Constants.CIK_REGEX;
 
@@ -39,33 +43,17 @@ public class Discount {
     @NotBlank
     private String name;
 
+    private LocalDate lastUpdated;
+
     @NotNull
     private Boolean active;
 
-    private Double ratioPrice;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "cik")
+    private BenchmarkRatioPrice benchmarkRatioPrice;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "cik")
-    private TtmPriceData ttmPriceData;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cik")
-    private TfyPriceData tfyPriceData;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cik")
-    private TtyPriceData ttyPriceData;
-
-    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<QuarterlyBVPS> quarterlyBVPS;
-
-    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<QuarterlyPE> quarterlyPE;
-
-    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<QuarterlyEPS> quarterlyEPS;
-
-    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<QuarterlyROIC> quarterlyROIC;
+    private StickerPrice stickerPrice;
 
 }

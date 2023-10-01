@@ -6,8 +6,12 @@ import com.facts.financial_facts_service.datafetcher.projections.SimpleDiscount;
 import com.facts.financial_facts_service.entities.discount.Discount;
 import com.facts.financial_facts_service.constants.enums.Operation;
 import com.facts.financial_facts_service.entities.discount.models.UpdateDiscountInput;
-import com.facts.financial_facts_service.entities.discount.models.trailingPriceData.AbstractTrailingPriceData;
-import com.facts.financial_facts_service.entities.models.QuarterlyData;
+import com.facts.financial_facts_service.entities.discount.models.PeriodicData;
+import com.facts.financial_facts_service.entities.discount.models.benchmarkRatioPrice.BenchmarkRatioPrice;
+import com.facts.financial_facts_service.entities.discount.models.benchmarkRatioPrice.BenchmarkRatioPriceInput;
+import com.facts.financial_facts_service.entities.discount.models.stickerPrice.StickerPrice;
+import com.facts.financial_facts_service.entities.discount.models.stickerPrice.StickerPriceInput;
+import com.facts.financial_facts_service.entities.discount.models.stickerPrice.trailingPriceData.AbstractTrailingPriceData;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.DiscountOperationException;
 import com.facts.financial_facts_service.repositories.DiscountRepository;
@@ -21,7 +25,9 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -56,8 +62,8 @@ public class DiscountService implements Constants {
         logger.info("In discount service getting bulk simple discounts");
         try {
             return activeOnly
-                    ? Mono.just(discountRepository.findAllActiveSimpleDiscounts())
-                    : Mono.just(discountRepository.findAllSimpleDiscounts());
+                ? Mono.just(discountRepository.findAllActiveSimpleDiscounts())
+                : Mono.just(discountRepository.findAllSimpleDiscounts());
         } catch (DataAccessException ex) {
             logger.error("Error occurred while getting bulk simple discounts");
             throw new DiscountOperationException(Operation.BULK_SIMPLE);
@@ -128,16 +134,30 @@ public class DiscountService implements Constants {
     private void updateDiscount(Discount current, Discount update) {
         current.setSymbol(update.getSymbol());
         current.setName(update.getName());
-        current.setRatioPrice(update.getRatioPrice());
+        current.setLastUpdated(LocalDate.now());
+        current.setActive(update.getActive());
 
+        updateBenchmarkRatioPrice(current.getBenchmarkRatioPrice(), update.getBenchmarkRatioPrice());
+        updateStickerPrice(current.getStickerPrice(), update.getStickerPrice());
+    }
+
+    private void updateBenchmarkRatioPrice(BenchmarkRatioPrice current, BenchmarkRatioPrice update) {
+        current.setRatioPrice(update.getRatioPrice());
+        updateBenchmarkRatioPriceInput(current.getInput(), update.getInput());
+    }
+
+    private void updateBenchmarkRatioPriceInput(BenchmarkRatioPriceInput current, BenchmarkRatioPriceInput update) {
+        current.setIndustry(update.getIndustry());
+        current.setTtmRevenue(update.getTtmRevenue());
+        current.setSharesOutstanding(update.getSharesOutstanding());
+        current.setPsBenchmarkRatio(update.getPsBenchmarkRatio());
+    }
+
+    private void updateStickerPrice(StickerPrice current, StickerPrice update) {
         updateTrailingPeriod(current.getTtmPriceData(), update.getTtmPriceData());
         updateTrailingPeriod(current.getTfyPriceData(), update.getTfyPriceData());
         updateTrailingPeriod(current.getTtyPriceData(), update.getTtyPriceData());
-
-        updateQuarterlyData(current.getQuarterlyBVPS(), update.getQuarterlyBVPS());
-        updateQuarterlyData(current.getQuarterlyPE(), update.getQuarterlyPE());
-        updateQuarterlyData(current.getQuarterlyEPS(), update.getQuarterlyEPS());
-        updateQuarterlyData(current.getQuarterlyROIC(), update.getQuarterlyROIC());
+        updateStickerPriceInput(current.getInput(), update.getInput());
     }
 
     private void updateTrailingPeriod(AbstractTrailingPriceData current, AbstractTrailingPriceData update) {
@@ -145,14 +165,25 @@ public class DiscountService implements Constants {
         current.setSalePrice(update.getSalePrice());
     }
 
-    private <T extends QuarterlyData> void updateQuarterlyData(List<T> current, List<T> update) {
+    private void updateStickerPriceInput(StickerPriceInput current, StickerPriceInput update) {
+        updatePeriodicData(current.getAnnualBVPS(), update.getAnnualBVPS());
+        updatePeriodicData(current.getAnnualPE(), update.getAnnualPE());
+        updatePeriodicData(current.getAnnualEPS(), update.getAnnualEPS());
+        updatePeriodicData(current.getAnnualROIC(), update.getAnnualROIC());
+        updatePeriodicData(current.getAnnualEquity(), update.getAnnualEquity());
+        updatePeriodicData(current.getAnnualRevenue(), update.getAnnualRevenue());
+        updatePeriodicData(current.getAnnualOperatingCashFlow(), update.getAnnualOperatingCashFlow());
+    }
+
+    private <T extends PeriodicData> void updatePeriodicData(List<T> current, List<T> update) {
         Set<LocalDate> currentSet = current.stream()
-                .map(QuarterlyData::getAnnouncedDate).collect(Collectors.toSet());
-        update.forEach(quarter -> {
-            if (!currentSet.contains(quarter.getAnnouncedDate())) {
-                current.add(quarter);
-            }
-        });
+                .map(PeriodicData::getAnnouncedDate).collect(Collectors.toSet());
+            update.forEach(quarter -> {
+                if (!currentSet.contains(quarter.getAnnouncedDate())) {
+                    current.add(quarter);
+                }
+            });
+        current.sort(Comparator.comparing(T::getAnnouncedDate));
     }
 
 }

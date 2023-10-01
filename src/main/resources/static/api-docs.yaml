@@ -2,11 +2,11 @@ openapi: 3.0.1
 info:
   title: Financial Facts Service
   description: "
-This Java Spring Boot service is a robust and secure solution designed to communicate with a PostgreSQL database hosted on Amazon Web Services (AWS) Relational Database Service (RDS). The service is configured to leverage AWS Parameter Store, enhancing security by storing sensitive parameters separately and dynamically pulling them when needed. It utilizes a basic authorization scheme as the intention is for this to be an intermediary service that does not interact directly with the UI. It is optimized for high call volume and scalability. This service is designed with micro sized RDS instances in mind to optimize pricing and resource consumption. To this end, strict handlers are in place to manage more costly transactions and static data is fetched from the public U.S. Securities and Exchange Commission (SEC) EDGAR API and cached for less costly transactions. It also features thorough unit tests triggered during the build process to assure consistent behavior across all scenarios.
+This Java Spring Boot service is a robust and secure solution designed to communicate with a PostgreSQL database hosted on Amazon Web Services (AWS) Relational Database Service (RDS). The service is configured to leverage AWS Parameter Store, enhancing security by storing sensitive parameters separately and dynamically pulling them when needed. It utilizes a basic authorization scheme on internal endpoints utilized by other services and enforces strict rate limits on public endpoints that pass data to the UI. It is optimized for high call volume and scalability. This service is designed with micro sized RDS instances in mind to optimize pricing and resource consumption. To this end, strict handlers are in place to manage more costly transactions and static data is fetched from the public U.S. Securities and Exchange Commission (SEC) EDGAR API and cached for less costly transactions. It also features thorough unit tests triggered during the build process to assure consistent behavior across all scenarios.
 
 <ul>
   <li><a href=\"https://github.com/Choochera/financial_facts_service\">Financial Facts Service Github</a></li>
-  <li><a href=\"https://github.com/Choochera/update_facts_lambda\">Update Facts Lambda Github(dependency)</a></li>
+  <li><a href=\"https://github.com/Choochera/update_facts_lambda\">Update Facts Lambda Github (dependency)</a></li>
 </ul>
 
 <u><h2>Primary Entities</h2></u>
@@ -17,7 +17,7 @@ This Java Spring Boot service is a robust and secure solution designed to commun
   </li>
   <li>
     <h3>Discounts</h3>
-    Discounts represent the current public companies whose stock price has gone below the calculated discount price. This entity will primarily be handled by the Facts-Calculator-Service (coming soon!) however many endpoints are exposed within this service to offer asynchronous bulk updates, fetching, saving and deleting for these entities.
+    Discounts represent the current public companies whose stock price has gone below the calculated discount price. This entity will primarily be handled by the Facts-Calculator-Service however many endpoints are exposed within this service to offer asynchronous bulk updates, fetching, saving and deleting for these entities.
   </li>
   <li>
     <h3>Identities</h3>
@@ -52,7 +52,7 @@ This Java Spring Boot service is a robust and secure solution designed to commun
   </li>
   <li>
     <h3>Discounts Management</h3>
-    The service tracks and persists information about currently active or inactive discounts. When an active discount is detected, it offers the functionality to store the relevant data in the database. Conversely, if a discount is no longer valid, it offers the ability for deleting the outdated information.
+    The service tracks and persists information about currently active or inactive discounts. When an active discount is detected in facts-calculator-service, it offers the functionality to store the relevant data in the database. Conversely, if a discount is no longer valid, it offers the ability for deleting the outdated information.
   </li>
   <li>
     <h3>Public Company Identification</h3>
@@ -64,7 +64,7 @@ This Java Spring Boot service is a robust and secure solution designed to commun
 <ul>
   <li>
     <h3>Security</h3>
-    By utilizing AWS Parameter Store, sensitive information remains secure and is accessed only when required, reducing the risk of unauthorized access.
+    Security features include strict rate limits implemented to protect again various forms of attacks, SSL certification, basic authentication for internal services, and secrets handling with AWS Parameter Store ensuring sensitive information remains secure and is accessed only when required, reducing the risk of unauthorized access.
   </li>
   <li>
     <h3>Scalability</h3>
@@ -81,16 +81,17 @@ This Java Spring Boot service is a robust and secure solution designed to commun
 </ul>
 
 <u><h2>Conclusion</h2></u>
-  <p>In summary, this Java Spring Boot service, integrated with AWS RDS, AWS Parameter Store, API Gateway, S3, and Lambda, provides a secure, scalable, and efficient solution to manage financial facts for publicly traded companies. Its ability to synchronize data, handle discounts, and store public company information ensures that the database contains accurate and up-to-date financial data for reliable analysis and reporting purposes.</p>
+<p>In summary, this Java Spring Boot service, integrated with AWS RDS, AWS Parameter Store, API Gateway, S3, and Lambda, provides a secure, scalable, and efficient solution to manage financial facts for publicly traded companies. It has the ability to synchronize data, handle discounts, and store public company information which ensures that the database contains accurate and up-to-date financial data for reliable analysis and reporting purposes.</p>
 
 <u><h2>Deployment</h2></u>
 This service is hosted via AWS ECS using an AWS Fargate task definition. This blueprint describes the container in which the docker image will run for this serverless hosting solution. The task is handled by one or many services within an ECS cluster once or many times over simultaneously. For cost purposes, the capacity provider for financial facts service is Fargate Spot, which offers a reduced price in exchange for potentially limited processing and memory capacity in areas or times of higher demand. Within each service, there can be one or multiple tasks which are routed between by the application load balancer which does so based on routing rules defined by the admin. In this case, again for cost purposes, there is only a single task running and the load balancer serves primarily to reroute traffic from the HTTP port 80 to the one on which the service is hosted. 
 
 <u><h2>Technologies:</h2></u>
 <ul>
-  <li>Java</li>
+  <li>Java 17</li>
   <li>Spring Boot</li>
   <li>Webflux</li>
+  <li>PostgreSQL</li>
   <li>JUnit 5</li>
   <li>Java Persistence API (JPA)</li>
   <li>Docker</li>
@@ -244,53 +245,6 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/IdentitiesAndDiscounts'
-      security:
-        - basicScheme: []
-  /v1/identity/{cik}:
-    get:
-      tags:
-        - Identity
-      summary: Get the identity entity for a CIK
-      description: Get the identity entity that contains the identification information for the provided CIK
-      operationId: getIdentityWithCik
-      parameters:
-        - name: cik
-          in: path
-          required: true
-          schema:
-            pattern: "^[Cc][Ii][Kk]\\d{10}$"
-            type: string
-      responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                oneOf:
-                  - type: array
-                    items:
-                      type: string
-                  - type: string
-        "404":
-          description: Not Found
-          content:
-            '*/*':
-              schema:
-                type: string
-        "409":
-          description: Conflict
-          content:
-            '*/*':
-              schema:
-                type: string
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Identity'
-      security:
-        - basicScheme: []
   /v1/facts/{cik}:
     get:
       tags:
@@ -334,53 +288,6 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/FactsData'
-      security:
-        - basicScheme: []
-  /v1/facts/{cik}/stickerPriceData:
-    get:
-      tags:
-        - Facts
-      summary: Get the sticker price data for a CIK
-      description: Get the up-to-date sticker price data needed to calculate the sticker price for a CIK
-      operationId: getStickerPriceData
-      parameters:
-        - name: cik
-          in: path
-          required: true
-          schema:
-            pattern: "^[Cc][Ii][Kk]\\d{10}$"
-            type: string
-      responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                oneOf:
-                  - type: array
-                    items:
-                      type: string
-                  - type: string
-        "404":
-          description: Not Found
-          content:
-            '*/*':
-              schema:
-                type: string
-        "409":
-          description: Conflict
-          content:
-            '*/*':
-              schema:
-                type: string
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/StickerPriceData'
-      security:
-        - basicScheme: []
   /v1/discount/{cik}:
     get:
       tags:
@@ -424,8 +331,6 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Discount'
-      security:
-        - basicScheme: []
     delete:
       tags:
         - Discount
@@ -552,8 +457,7 @@ components:
             $ref: '#/components/schemas/SimpleDiscount'
     Identity:
       required:
-        - name
-        - symbol
+        - cik
       type: object
       properties:
         cik:
@@ -587,9 +491,7 @@ components:
           format: double
     Discount:
       required:
-        - active
-        - name
-        - symbol
+        - cik
       type: object
       properties:
         cik:
@@ -599,68 +501,127 @@ components:
           type: string
         name:
           type: string
+        lastUpdated:
+          type: string
         active:
           type: boolean
+        benchmarkRatioPrice:
+          $ref: '#/components/schemas/BenchmarkRatioPrice'
+        stickPrice:
+          $ref: '#/components/schemas/StickerPrice'
+    BenchmarkRatioPrice:
+      type: object
+      properties:
         ratioPrice:
           type: number
           format: double
+        input:
+          $ref: '#/components/schemas/BenchmarkRatioPriceInput'
+    BenchmarkRatioPriceInput:
+      type: object
+      properties:
+        industry:
+          type: string
+        ttmRevenue:
+          type: number
+        sharesOutstanding:
+          type: number
+        psBenchmarkRatio:
+          type: number
+          format: double
+    StickerPrice:
+      type: object
+      properties:
         ttmPriceData:
           $ref: '#/components/schemas/TtmPriceData'
         tfyPriceData:
           $ref: '#/components/schemas/TfyPriceData'
         ttyPriceData:
           $ref: '#/components/schemas/TtyPriceData'
-        quarterlyBVPS:
-          type: array
-          items:
-            $ref: '#/components/schemas/QuarterlyBVPS'
-        quarterlyPE:
-          type: array
-          items:
-            $ref: '#/components/schemas/QuarterlyPE'
-        quarterlyEPS:
-          type: array
-          items:
-            $ref: '#/components/schemas/QuarterlyEPS'
-        quarterlyROIC:
-          type: array
-          items:
-            $ref: '#/components/schemas/QuarterlyROIC'
-    QuarterlyBVPS:
+        input:
+          $ref: '#/components/schemas/StickerPriceInput'
+    StickerPriceInput:
       type: object
       properties:
-        cik:
-          type: string
+        annualBVPS:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualBVPS'
+        annualPE:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualPE'
+        annualEPS:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualEPS'
+        annualROIC:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualROIC'
+        annualEquity:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualEquity'
+        annualRevenue:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualRevenue'
+        annualOperatingCashFlow:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualOperatingCashFlow'
+    AnnualBVPS:
+      type: object
+      properties:
         announcedDate:
           type: string
           format: date
         value:
           type: number
-    QuarterlyEPS:
+    AnnualEPS:
       type: object
       properties:
-        cik:
-          type: string
         announcedDate:
           type: string
           format: date
         value:
           type: number
-    QuarterlyPE:
+    AnnualPE:
       type: object
       properties:
-        cik:
-          type: string
         announcedDate:
           type: string
           format: date
         value:
           type: number
-    QuarterlyROIC:
+    AnnualROIC:
       type: object
       properties:
-        cik:
+        announcedDate:
           type: string
+          format: date
+        value:
+          type: number
+    AnnualEquity:
+      type: object
+      properties:
+        announcedDate:
+          type: string
+          format: date
+        value:
+          type: number
+    AnnualRevenue:
+      type: object
+      properties:
+        announcedDate:
+          type: string
+          format: date
+        value:
+          type: number
+    AnnualOperatingCashFlow:
+      type: object
+      properties:
         announcedDate:
           type: string
           format: date
@@ -669,8 +630,6 @@ components:
     TfyPriceData:
       type: object
       properties:
-        cik:
-          type: string
         stickerPrice:
           type: number
           format: double
@@ -680,8 +639,6 @@ components:
     TtmPriceData:
       type: object
       properties:
-        cik:
-          type: string
         stickerPrice:
           type: number
           format: double
@@ -691,20 +648,21 @@ components:
     TtyPriceData:
       type: object
       properties:
-        cik:
-          type: string
         stickerPrice:
           type: number
           format: double
         salePrice:
           type: number
           format: double
-    FactsData:
+    Facts:
       type: object
       properties:
         cik:
+          pattern: "^[Cc][Ii][Kk]\\d{10}$"
           type: string
-        facts:
+        lastSync:
+          type: string
+        data:
           $ref: '#/components/schemas/FactsWrapper'
     FactsWrapper:
       type: object
@@ -762,85 +720,6 @@ components:
               $ref: '#/components/schemas/Period'
         description:
           type: string
-    QuarterlyFactsEPS:
-      type: object
-      properties:
-        cik:
-          type: string
-        announcedDate:
-          type: string
-          format: date
-        value:
-          type: number
-    QuarterlyLongTermDebt:
-      type: object
-      properties:
-        cik:
-          type: string
-        announcedDate:
-          type: string
-          format: date
-        value:
-          type: number
-    QuarterlyNetIncome:
-      type: object
-      properties:
-        cik:
-          type: string
-        announcedDate:
-          type: string
-          format: date
-        value:
-          type: number
-    QuarterlyOutstandingShares:
-      type: object
-      properties:
-        cik:
-          type: string
-        announcedDate:
-          type: string
-          format: date
-        value:
-          type: number
-    QuarterlyShareholderEquity:
-      type: object
-      properties:
-        cik:
-          type: string
-        announcedDate:
-          type: string
-          format: date
-        value:
-          type: number
-    StickerPriceData:
-      type: object
-      properties:
-        cik:
-          type: string
-        symbol:
-          type: string
-        name:
-          type: string
-        quarterlyShareholderEquity:
-          type: array
-          items:
-            $ref: '#/components/schemas/QuarterlyShareholderEquity'
-        quarterlyOutstandingShares:
-          type: array
-          items:
-            $ref: '#/components/schemas/QuarterlyOutstandingShares'
-        quarterlyEPS:
-          type: array
-          items:
-            $ref: '#/components/schemas/QuarterlyFactsEPS'
-        quarterlyLongTermDebt:
-          type: array
-          items:
-            $ref: '#/components/schemas/QuarterlyLongTermDebt'
-        quarterlyNetIncome:
-          type: array
-          items:
-            $ref: '#/components/schemas/QuarterlyNetIncome'
   securitySchemes:
     basicScheme:
       type: http
