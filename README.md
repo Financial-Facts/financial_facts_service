@@ -88,9 +88,13 @@ This Java Spring Boot service is a robust and secure solution designed to commun
 
 ------------
 
-Deployment
+Cloud Hosting
 -------------------------
 This service is hosted via AWS ECS using an AWS Fargate task definition. This blueprint describes the container in which the docker image will run for this serverless hosting solution. The task is handled by one or many services within an ECS cluster once or many times over simultaneously. For cost purposes, the capacity provider for financial facts service is Fargate Spot, which offers a reduced price in exchange for potentially limited processing and memory capacity in areas or times of higher demand. Within each service, there can be one or multiple tasks which are routed between by the application load balancer which does so based on routing rules defined by the admin. In this case, again for cost purposes, there is only a single task running and the load balancer serves primarily to reroute traffic from the HTTP port 80 to the one on which the service is hosted. 
+
+Deployment
+-------------------------
+Deployment of new features is seamless with an AWS Pipeline configured to using AWS CodeCommit, AWS CodeBuild, and AWS CodeDeploy. With this CI/CD pipeline in place, deployments can be performed easily with every merged PR in a consistent and efficient way.
 
 Technologies:
 -------------------------
@@ -108,6 +112,10 @@ Technologies:
 - AWS Eventbridge
 - AWS ECS
 - AWS Fargate
+- AWS Pipeline
+- AWS CodeCommit
+- AWS CodeBuild
+- AWS CodeDeploy
 
 ---------------------------
 Created and authored by Matthew Gabriel
