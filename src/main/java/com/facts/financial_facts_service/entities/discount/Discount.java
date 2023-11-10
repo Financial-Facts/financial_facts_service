@@ -1,5 +1,6 @@
 package com.facts.financial_facts_service.entities.discount;
 
+import com.facts.financial_facts_service.entities.discount.interfaces.Copyable;
 import com.facts.financial_facts_service.entities.discount.models.benchmarkRatioPrice.BenchmarkRatioPrice;
 import com.facts.financial_facts_service.entities.discount.models.stickerPrice.StickerPrice;
 import jakarta.persistence.CascadeType;
@@ -28,7 +29,7 @@ import static com.facts.financial_facts_service.constants.interfaces.Constants.C
 @NoArgsConstructor(force = true)
 @ToString
 @Table(name = "discount")
-public class Discount {
+public class Discount implements Copyable<Discount> {
 
     @Id
     @NonNull
@@ -55,5 +56,16 @@ public class Discount {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "cik")
     private StickerPrice stickerPrice;
+
+    @Override
+    public void copy(Discount update) {
+        this.cik = update.getCik();
+        this.symbol = update.getSymbol();
+        this.name = update.getName();
+        this.lastUpdated = LocalDate.now();
+        this.active = update.getActive();
+        this.benchmarkRatioPrice.copy(update.getBenchmarkRatioPrice());
+        this.stickerPrice.copy(update.getStickerPrice());
+    }
 
 }

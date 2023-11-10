@@ -110,10 +110,10 @@ public class DiscountControllerTest implements TestConstants {
         @Test
         public void testGetBulkSimpleDiscountsSuccess() throws ExecutionException, InterruptedException {
             SimpleDiscount simpleDiscount = mock(SimpleDiscount.class);
-            when(discountService.getBulkSimpleDiscounts(false))
+            when(discountService.getBulkSimpleDiscounts())
                     .thenReturn(Mono.just(List.of(simpleDiscount)));
             ResponseEntity<List<SimpleDiscount>> actual = discountController.getBulkSimpleDiscounts().get();
-            verify(discountService).getBulkSimpleDiscounts(false);
+            verify(discountService).getBulkSimpleDiscounts();
             assertNotNull(actual.getBody());
             assertEquals(1, actual.getBody().size());
             assertEquals(simpleDiscount, actual.getBody().get(0));

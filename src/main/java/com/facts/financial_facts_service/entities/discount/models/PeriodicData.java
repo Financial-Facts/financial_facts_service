@@ -1,6 +1,5 @@
 package com.facts.financial_facts_service.entities.discount.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;

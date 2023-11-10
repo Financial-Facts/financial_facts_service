@@ -27,7 +27,7 @@ public class DataFetcher {
         logger.info("In DataFetcher getting identities and discounts using {} and includeDiscounts {}",
                 request, includeDiscounts);
         return includeDiscounts
-            ? Mono.zip(identityService.getBulkIdentities(request), discountService.getBulkSimpleDiscounts(true))
+            ? Mono.zip(identityService.getBulkIdentities(request), discountService.getBulkSimpleDiscounts())
                 .flatMap(tuple -> {
                     logger.info("In datafetcher returning bulk identities and discounts for request {}", request);
                     return Mono.just(new IdentitiesAndDiscounts(tuple.getT1(), tuple.getT2()));
