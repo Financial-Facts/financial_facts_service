@@ -1,6 +1,6 @@
 package com.facts.financial_facts_service.entities.discount.models.benchmarkRatioPrice;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.facts.financial_facts_service.entities.discount.interfaces.Copyable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -16,7 +16,7 @@ import lombok.Setter;
 @Setter
 @Table(name = "benchmark_ratio_price")
 @JsonIgnoreProperties(value = { "cik" }, allowSetters = true)
-public class BenchmarkRatioPrice {
+public class BenchmarkRatioPrice implements Copyable<BenchmarkRatioPrice> {
 
     @Id
     private String cik;
@@ -26,5 +26,12 @@ public class BenchmarkRatioPrice {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "cik")
     private BenchmarkRatioPriceInput input;
+
+    @Override
+    public void copy(BenchmarkRatioPrice update) {
+        this.cik = update.getCik();
+        this.ratioPrice = update.getRatioPrice();
+        this.input.copy(update.getInput());
+    }
 
 }

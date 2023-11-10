@@ -3,11 +3,9 @@ package com.facts.financial_facts_service.datafetcher;
 import com.facts.financial_facts_service.constants.TestConstants;
 import com.facts.financial_facts_service.datafetcher.projections.SimpleDiscount;
 import com.facts.financial_facts_service.datafetcher.records.IdentitiesAndDiscounts;
-import com.facts.financial_facts_service.entities.facts.Facts;
 import com.facts.financial_facts_service.entities.identity.Identity;
 import com.facts.financial_facts_service.entities.identity.models.BulkIdentitiesRequest;
 import com.facts.financial_facts_service.services.DiscountService;
-import com.facts.financial_facts_service.services.FactsService;
 import com.facts.financial_facts_service.services.identity.IdentityService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -54,11 +52,11 @@ public class DataFetcherTest implements TestConstants {
             List<Identity> identityList = List.of(identity);
             when(identityService.getBulkIdentities(request)).thenReturn(Mono.just(identityList));
             SimpleDiscount simpleDiscount = mock(SimpleDiscount.class);
-            when(discountService.getBulkSimpleDiscounts(true))
+            when(discountService.getBulkSimpleDiscounts())
                     .thenReturn(Mono.just(List.of(simpleDiscount)));
             IdentitiesAndDiscounts actual = dataFetcher.getIdentitiesAndOptionalDiscounts(request, true).block();
             verify(identityService).getBulkIdentities(request);
-            verify(discountService).getBulkSimpleDiscounts(true);
+            verify(discountService).getBulkSimpleDiscounts();
             assertNotNull(actual);
             assertNotNull(actual.identities());
             assertEquals(1, actual.identities().size());
@@ -77,7 +75,7 @@ public class DataFetcherTest implements TestConstants {
             when(identityService.getBulkIdentities(request)).thenReturn(Mono.just(identityList));
             IdentitiesAndDiscounts actual = dataFetcher.getIdentitiesAndOptionalDiscounts(request, false).block();
             verify(identityService).getBulkIdentities(request);
-            verify(discountService, times(0)).getBulkSimpleDiscounts(true);
+            verify(discountService, times(0)).getBulkSimpleDiscounts();
             assertNotNull(actual);
             assertNotNull(actual.identities());
             assertEquals(1, actual.identities().size());

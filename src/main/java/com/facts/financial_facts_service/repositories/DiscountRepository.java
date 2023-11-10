@@ -15,7 +15,4 @@ public interface DiscountRepository extends JpaRepository<Discount, String>, Que
     @Query(value = getAllSimpleDiscounts, nativeQuery = true)
     List<SimpleDiscount> findAllSimpleDiscounts();
 
-    @Query(value = getAllActiveSimpleDiscounts, nativeQuery = true)
-    List<SimpleDiscount> findAllActiveSimpleDiscounts();
-
 }

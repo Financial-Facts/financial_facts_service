@@ -112,7 +112,8 @@ Deployment of new features is seamless with an AWS Pipeline configured to using 
   <li>AWS CodeDeploy</li>
 </ul>
 
-Created and authored by Matthew Gabriel"
+Created and authored by Matthew Gabriel<br>
+Discounts calculated with data provided by <a href=\"https://financialmodelingprep.com/developer/docs/\">Financial Modeling Prep</a>"
 version: "1.0"
 paths:
   /v1/discount:
@@ -550,6 +551,9 @@ components:
     StickerPriceInput:
       type: object
       properties:
+        debtYears:
+          type: number
+          format: double
         annualBVPS:
           type: array
           items:

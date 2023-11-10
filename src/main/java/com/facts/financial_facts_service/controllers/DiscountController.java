@@ -47,7 +47,7 @@ public class DiscountController implements Constants {
     @GetMapping("/bulkSimpleDiscounts")
     public CompletableFuture<ResponseEntity<List<SimpleDiscount>>> getBulkSimpleDiscounts() {
         logger.info("In discount controller getting bulk simple discounts");
-        return discountService.getBulkSimpleDiscounts(false)
+        return discountService.getBulkSimpleDiscounts()
             .flatMap(cikList -> {
                 logger.info("Fetch complete for bulk simple discounts");
                 return Mono.just(new ResponseEntity<>(cikList, HttpStatus.OK));

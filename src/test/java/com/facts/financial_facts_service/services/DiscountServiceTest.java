@@ -95,10 +95,10 @@ public class DiscountServiceTest implements TestConstants {
 
         @Test
         public void testGetBulkActiveSimpleDiscounts() {
-            when(discountRepository.findAllActiveSimpleDiscounts())
+            when(discountRepository.findAllSimpleDiscounts())
                     .thenReturn(List.of(activeSimpleDiscount));
             List<SimpleDiscount> actual =
-                    discountService.getBulkSimpleDiscounts(true).block();
+                    discountService.getBulkSimpleDiscounts().block();
             assertNotNull(actual);
             assertEquals(1, actual.size());
             assertEquals(activeSimpleDiscount, actual.get(0));
@@ -109,7 +109,7 @@ public class DiscountServiceTest implements TestConstants {
             when(discountRepository.findAllSimpleDiscounts())
                     .thenReturn(List.of(simpleDiscount));
             List<SimpleDiscount> actual =
-                    discountService.getBulkSimpleDiscounts(false).block();
+                    discountService.getBulkSimpleDiscounts().block();
             assertNotNull(actual);
             assertEquals(1, actual.size());
             assertEquals(simpleDiscount, actual.get(0));
@@ -117,10 +117,10 @@ public class DiscountServiceTest implements TestConstants {
 
         @Test
         public void testGetBulkActiveDiscountsDataAccessError() {
-            when(discountRepository.findAllActiveSimpleDiscounts())
+            when(discountRepository.findAllSimpleDiscounts())
                     .thenThrow(mock(DataAccessException.class));
             assertThrows(DiscountOperationException.class, () ->
-                    discountService.getBulkSimpleDiscounts(true).block());
+                    discountService.getBulkSimpleDiscounts().block());
         }
 
         @Test
@@ -128,7 +128,7 @@ public class DiscountServiceTest implements TestConstants {
             when(discountRepository.findAllSimpleDiscounts())
                     .thenThrow(mock(DataAccessException.class));
             assertThrows(DiscountOperationException.class, () ->
-                    discountService.getBulkSimpleDiscounts(false).block());
+                    discountService.getBulkSimpleDiscounts().block());
         }
     }
 
