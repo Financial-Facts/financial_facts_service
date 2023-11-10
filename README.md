@@ -118,5 +118,5 @@ Technologies:
 - AWS CodeDeploy
 
 ---------------------------
-Created and authored by Matthew Gabriel
+Created and authored by Matthew Gabriel <br/>
 Discounts calculated with data provided by [Financial Modeling Prep](https://financialmodelingprep.com/developer/docs/)
