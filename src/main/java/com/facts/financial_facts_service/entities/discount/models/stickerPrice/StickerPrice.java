@@ -4,7 +4,6 @@ import com.facts.financial_facts_service.entities.discount.interfaces.Copyable;
 import com.facts.financial_facts_service.entities.discount.models.stickerPrice.trailingPriceData.TfyPriceData;
 import com.facts.financial_facts_service.entities.discount.models.stickerPrice.trailingPriceData.TtmPriceData;
 import com.facts.financial_facts_service.entities.discount.models.stickerPrice.trailingPriceData.TtyPriceData;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
