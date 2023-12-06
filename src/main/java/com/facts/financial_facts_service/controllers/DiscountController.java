@@ -33,6 +33,7 @@ public class DiscountController implements Constants {
     @Autowired
     private DiscountService discountService;
 
+    @CrossOrigin
     @GetMapping(path = CIK_PATH_PARAM)
     public CompletableFuture<ResponseEntity<Discount>> getDiscountWithCik(
             @PathVariable @NotBlank @Pattern(regexp = CIK_REGEX) String cik) {

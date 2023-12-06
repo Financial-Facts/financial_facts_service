@@ -33,6 +33,7 @@ public class IdentityController implements Constants {
     @Autowired
     private IdentityService identityService;
 
+    @CrossOrigin
     @PostMapping(path = BULK)
     public CompletableFuture<ResponseEntity<IdentitiesAndDiscounts>> getBulkIdentitiesAndOptionalDiscounts(
             @Valid @RequestBody BulkIdentitiesRequest request,
