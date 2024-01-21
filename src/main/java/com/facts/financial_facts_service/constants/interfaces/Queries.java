@@ -7,15 +7,13 @@ public interface Queries {
             "a.symbol, " +
             "a.name, " +
             "a.active, " +
-            "b.ratio_price, " +
-            "c.sale_price AS \"ttmSalePrice\", " +
-            "d.sale_price AS \"tfySalePrice\", " +
-            "e.sale_price AS \"ttySalePrice\" " +
-            "FROM discount a,  " +
+            "d.price AS \"discountedCashFlowPrice\", " +
+            "b.price AS \"benchmarkRatioPrice\", " +
+            "c.price AS \"stickerPrice\" " +
+            "FROM discount a, " +
+            "discounted_cash_flow_price d, " +
             "benchmark_ratio_price b, " +
-            "ttm_price_data c, " +
-            "tfy_price_data d, " +
-            "tty_price_data e " +
-            "WHERE a.cik=b.cik AND a.cik=c.cik AND a.cik=d.cik AND a.cik=e.cik;";
+            "sticker_price c " +
+            "WHERE a.cik=b.cik AND a.cik=c.cik AND a.cik=d.cik;";
 
 }

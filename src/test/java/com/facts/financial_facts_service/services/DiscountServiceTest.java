@@ -8,9 +8,6 @@ import com.facts.financial_facts_service.entities.discount.models.benchmarkRatio
 import com.facts.financial_facts_service.entities.discount.models.benchmarkRatioPrice.BenchmarkRatioPriceInput;
 import com.facts.financial_facts_service.entities.discount.models.stickerPrice.StickerPrice;
 import com.facts.financial_facts_service.entities.discount.models.stickerPrice.StickerPriceInput;
-import com.facts.financial_facts_service.entities.discount.models.stickerPrice.trailingPriceData.TfyPriceData;
-import com.facts.financial_facts_service.entities.discount.models.stickerPrice.trailingPriceData.TtmPriceData;
-import com.facts.financial_facts_service.entities.discount.models.stickerPrice.trailingPriceData.TtyPriceData;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.DiscountOperationException;
 import com.facts.financial_facts_service.repositories.DiscountRepository;
@@ -26,7 +23,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -266,15 +262,6 @@ public class DiscountServiceTest implements TestConstants {
         private StickerPrice buildStickerPrice() {
             StickerPrice stickerPrice = new StickerPrice();
             stickerPrice.setCik(CIK);
-            TfyPriceData tfy = new TfyPriceData();
-            tfy.setCik(CIK);
-            stickerPrice.setTfyPriceData(tfy);
-            TtyPriceData tty = new TtyPriceData();
-            tty.setCik(CIK);
-            stickerPrice.setTtyPriceData(tty);
-            TtmPriceData ttm = new TtmPriceData();
-            ttm.setCik(CIK);
-            stickerPrice.setTtmPriceData(ttm);
             stickerPrice.setInput(buildStickerPriceInput());
             return stickerPrice;
         }
@@ -295,7 +282,7 @@ public class DiscountServiceTest implements TestConstants {
         private BenchmarkRatioPrice buildBenchmarkRatioPrice() {
             BenchmarkRatioPrice ratioPrice = new BenchmarkRatioPrice();
             ratioPrice.setCik(CIK);
-            ratioPrice.setRatioPrice(1.00);
+            ratioPrice.setPrice(1.00);
             ratioPrice.setInput(buildBenchmarkRatioPriceInput());
             return ratioPrice;
         }

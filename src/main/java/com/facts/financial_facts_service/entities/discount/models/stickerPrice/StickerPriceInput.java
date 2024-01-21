@@ -69,7 +69,7 @@ public class StickerPriceInput implements Copyable<StickerPriceInput> {
         this.replacePeriodicData(update);
     }
 
-    private <T extends PeriodicData> void replacePeriodicData(StickerPriceInput update) {
+    private void replacePeriodicData(StickerPriceInput update) {
         updatePeriodicData(this.annualBVPS, update.getAnnualBVPS());
         updatePeriodicData(this.annualPE, update.getAnnualPE());
         updatePeriodicData(this.annualEPS, update.getAnnualEPS());

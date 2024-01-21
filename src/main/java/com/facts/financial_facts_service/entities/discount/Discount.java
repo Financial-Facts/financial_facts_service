@@ -2,6 +2,7 @@ package com.facts.financial_facts_service.entities.discount;
 
 import com.facts.financial_facts_service.entities.discount.interfaces.Copyable;
 import com.facts.financial_facts_service.entities.discount.models.benchmarkRatioPrice.BenchmarkRatioPrice;
+import com.facts.financial_facts_service.entities.discount.models.discountedCashFlow.DiscountedCashFlowPrice;
 import com.facts.financial_facts_service.entities.discount.models.stickerPrice.StickerPrice;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -19,6 +20,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import static com.facts.financial_facts_service.constants.interfaces.Constants.CIK_REGEX;
 
@@ -55,6 +57,10 @@ public class Discount implements Copyable<Discount> {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "cik")
+    private DiscountedCashFlowPrice discountedCashFlowPrice;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "cik")
     private StickerPrice stickerPrice;
 
     @Override
@@ -64,8 +70,23 @@ public class Discount implements Copyable<Discount> {
         this.name = update.getName();
         this.lastUpdated = LocalDate.now();
         this.active = update.getActive();
-        this.benchmarkRatioPrice.copy(update.getBenchmarkRatioPrice());
-        this.stickerPrice.copy(update.getStickerPrice());
+        if (Objects.nonNull(this.discountedCashFlowPrice)) {
+            this.discountedCashFlowPrice.copy(update.getDiscountedCashFlowPrice());
+        } else {
+            this.discountedCashFlowPrice = update.getDiscountedCashFlowPrice();
+        }
+
+        if (Objects.nonNull(this.benchmarkRatioPrice)) {
+            this.benchmarkRatioPrice.copy(update.getBenchmarkRatioPrice());
+        } else {
+            this.benchmarkRatioPrice = update.getBenchmarkRatioPrice();
+        }
+
+        if (Objects.nonNull(this.stickerPrice)) {
+            this.stickerPrice.copy(update.getStickerPrice());
+        } else {
+            this.stickerPrice = update.getStickerPrice();
+        }
     }
 
 }
