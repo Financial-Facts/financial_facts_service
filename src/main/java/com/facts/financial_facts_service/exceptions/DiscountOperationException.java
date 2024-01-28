@@ -5,8 +5,8 @@ import com.facts.financial_facts_service.constants.enums.Operation;
 
 public class DiscountOperationException extends RuntimeException implements Constants {
 
-    public DiscountOperationException(Operation operation, String cik) {
-        super(String.format(DISCOUNT_OPERATION_ERROR, operation.toString(), cik));
+    public DiscountOperationException(Operation operation, String cik, String errorMessage) {
+        super(String.format(DISCOUNT_OPERATION_ERROR, operation.toString(), cik, errorMessage));
     }
 
     public DiscountOperationException(Operation operation) {

@@ -19,7 +19,7 @@ public interface TestConstants {
     String FACTS_URL = "https://www.facts.com/test";
     String BUCKET_NAME = "bucket";
     String INVALID_CIK = "invalidCik";
-    String DISCOUNT_OPERATION_ERROR = "Error occurred performing %s operation on CIK %s";
+    String DISCOUNT_OPERATION_ERROR = "Error occurred performing %s operation on CIK %s: error";
     String DISCOUNT_OPERATION_ERROR_NO_CIK = "Error occurred performing %s operation";
     String USD = "USD";
     String DOGE_COIN = "DOGE";

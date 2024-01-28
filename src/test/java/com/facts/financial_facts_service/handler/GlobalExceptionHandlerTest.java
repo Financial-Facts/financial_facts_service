@@ -103,7 +103,7 @@ public class GlobalExceptionHandlerTest implements TestConstants {
 
         @Test
         public void testHandleDiscountOperationExceptionAddOperation() {
-            DiscountOperationException ex = new DiscountOperationException(Operation.ADD, CIK);
+            DiscountOperationException ex = new DiscountOperationException(Operation.ADD, CIK, "error");
             ResponseEntity<String> actual = globalExceptionHandler.handleDiscountOperationException(ex);
             assertEquals(HttpStatus.CONFLICT, actual.getStatusCode());
             assertEquals(String.format(DISCOUNT_OPERATION_ERROR, Operation.ADD, CIK), actual.getBody());
@@ -111,7 +111,7 @@ public class GlobalExceptionHandlerTest implements TestConstants {
 
         @Test
         public void testHandleDiscountOperationExceptionDeleteOperation() {
-            DiscountOperationException ex = new DiscountOperationException(Operation.DELETE, CIK);
+            DiscountOperationException ex = new DiscountOperationException(Operation.DELETE, CIK, "error");
             ResponseEntity<String> actual = globalExceptionHandler.handleDiscountOperationException(ex);
             assertEquals(HttpStatus.CONFLICT, actual.getStatusCode());
             assertEquals(String.format(DISCOUNT_OPERATION_ERROR, Operation.DELETE, CIK), actual.getBody());
@@ -119,7 +119,7 @@ public class GlobalExceptionHandlerTest implements TestConstants {
 
         @Test
         public void testHandleDiscountOperationExceptionGetOperation() {
-            DiscountOperationException ex = new DiscountOperationException(Operation.GET, CIK);
+            DiscountOperationException ex = new DiscountOperationException(Operation.GET, CIK, "error");
             ResponseEntity<String> actual = globalExceptionHandler.handleDiscountOperationException(ex);
             assertEquals(HttpStatus.CONFLICT, actual.getStatusCode());
             assertEquals(String.format(DISCOUNT_OPERATION_ERROR, Operation.GET, CIK), actual.getBody());
@@ -127,7 +127,7 @@ public class GlobalExceptionHandlerTest implements TestConstants {
 
         @Test
         public void testHandleDiscountOperationExceptionUpdateOperation() {
-            DiscountOperationException ex = new DiscountOperationException(Operation.UPDATE, CIK);
+            DiscountOperationException ex = new DiscountOperationException(Operation.UPDATE, CIK, "error");
             ResponseEntity<String> actual = globalExceptionHandler.handleDiscountOperationException(ex);
             assertEquals(HttpStatus.CONFLICT, actual.getStatusCode());
             assertEquals(String.format(DISCOUNT_OPERATION_ERROR, Operation.UPDATE, CIK), actual.getBody());
@@ -135,7 +135,7 @@ public class GlobalExceptionHandlerTest implements TestConstants {
 
         @Test
         public void testHandleDiscountOperationExceptionBulkSimpleOperation() {
-            DiscountOperationException ex = new DiscountOperationException(Operation.BULK_SIMPLE, CIK);
+            DiscountOperationException ex = new DiscountOperationException(Operation.BULK_SIMPLE, CIK, "error");
             ResponseEntity<String> actual = globalExceptionHandler.handleDiscountOperationException(ex);
             assertEquals(HttpStatus.CONFLICT, actual.getStatusCode());
             assertEquals(String.format(DISCOUNT_OPERATION_ERROR, Operation.BULK_SIMPLE, CIK), actual.getBody());

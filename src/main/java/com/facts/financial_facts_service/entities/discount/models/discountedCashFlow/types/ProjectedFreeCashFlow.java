@@ -5,6 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "free_cash_flow_project")
-public class FreeCashFlowProjected extends PeriodicData {
+@Table(name = "projected_free_cash_flow")
+public class ProjectedFreeCashFlow extends PeriodicData {
 }

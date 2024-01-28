@@ -11,7 +11,7 @@ public interface Constants {
     String FACTS_NOT_FOUND = "Facts with cik %s not found";
     String IDENTITY_NOT_FOUND = "Identity with cik %s not found";
     String DATA_NOT_FOUND = "Data not found for cik %s";
-    String DISCOUNT_OPERATION_ERROR = "Error occurred performing %s operation on CIK %s";
+    String DISCOUNT_OPERATION_ERROR = "Error occurred performing %s operation on CIK %s: %s";
     String DISCOUNT_OPERATION_ERROR_NO_CIK = "Error occurred performing %s operation";
     String V1_FACTS = "v1/facts";
     String V1_IDENTITY = "v1/identity";

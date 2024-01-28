@@ -93,7 +93,7 @@ public class DiscountService implements Constants {
         } catch (DataAccessException ex) {
             logger.error("Error occurred while adding discount with cik {}: {}", discount.getCik(),
                     ex.getMessage());
-            throw new DiscountOperationException(Operation.ADD, discount.getCik());
+            throw new DiscountOperationException(Operation.ADD, discount.getCik(), ex.getMessage());
         }
         logger.info("Save complete for cik {}", discount.getCik());
         return Mono.just(DISCOUNT_ADDED);
@@ -105,7 +105,7 @@ public class DiscountService implements Constants {
             discountRepository.deleteById(cik);
         } catch (DataAccessException ex) {
             logger.error("Error occurred while deleting discount for cik {}", cik);
-            throw new DiscountOperationException(Operation.DELETE, cik);
+            throw new DiscountOperationException(Operation.DELETE, cik, ex.getMessage());
         }
         return Mono.just(DISCOUNT_DELETED);
     }

@@ -2,8 +2,7 @@ package com.facts.financial_facts_service.entities.discount.models.discountedCas
 
 import com.facts.financial_facts_service.entities.discount.interfaces.Copyable;
 import com.facts.financial_facts_service.entities.discount.models.PeriodicData;
-import com.facts.financial_facts_service.entities.discount.models.discountedCashFlow.types.FreeCashFlowHistorical;
-import com.facts.financial_facts_service.entities.discount.models.discountedCashFlow.types.FreeCashFlowProjected;
+import com.facts.financial_facts_service.entities.discount.models.discountedCashFlow.types.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -23,44 +22,80 @@ public class DiscountedCashFlowInput implements Copyable<DiscountedCashFlowInput
     @Id
     private String cik;
 
-    @OrderBy("announced_date ASC")
-    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FreeCashFlowHistorical> freeCashFlowHistorical;
+    private String symbol;
 
-    @OrderBy("announced_date ASC")
-    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FreeCashFlowProjected> freeCashFlowProjected;
+    private Double longTermGrowthRate;
+
+    private BigDecimal freeCashFlowT1;
 
     private Double wacc;
-
-    private Double riskFreeRate;
-
-    private Long totalCash;
-
-    private Long totalDebt;
-
-    private Long dilutedSharesOutstanding;
 
     private BigDecimal terminalValue;
 
     private BigDecimal enterpriseValue;
 
+    private Long netDebt;
+
+    private Long dilutedSharesOutstanding;
+
+    private Long marketPrice;
+
+    @OrderBy("announced_date ASC")
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HistoricalRevenue> historicalRevenue;
+
+    @OrderBy("announced_date ASC")
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectedRevenue> projectedRevenue;
+
+    @OrderBy("announced_date ASC")
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HistoricalOperatingCashFlow> historicalOperatingCashFlow;
+
+    @OrderBy("announced_date ASC")
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectedOperatingCashFlow> projectedOperatingCashFlow;
+
+    @OrderBy("announced_date ASC")
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HistoricalCapitalExpenditure> historicalCapitalExpenditure;
+
+    @OrderBy("announced_date ASC")
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectedCapitalExpenditure> projectedCapitalExpenditure;
+
+    @OrderBy("announced_date ASC")
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HistoricalFreeCashFlow> historicalFreeCashFlow;
+
+    @OrderBy("announced_date ASC")
+    @OneToMany(mappedBy = "cik", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectedFreeCashFlow> projectedFreeCashFlow;
+
     @Override
     public void copy(DiscountedCashFlowInput update) {
-        this.cik = update.getCik();
-        replacePeriodicData(update);
-        this.wacc = update.getWacc();
-        this.riskFreeRate = update.getRiskFreeRate();
-        this.totalCash = update.getTotalCash();
-        this.totalDebt = update.getTotalDebt();
-        this.dilutedSharesOutstanding = update.getDilutedSharesOutstanding();
-        this.terminalValue = update.getTerminalValue();
-        this.enterpriseValue = update.getEnterpriseValue();
+        this.setCik(update.getCik());
+        this.setSymbol(update.getSymbol());
+        this.setLongTermGrowthRate(update.getLongTermGrowthRate());
+        this.setFreeCashFlowT1(update.getFreeCashFlowT1());
+        this.setWacc(update.getWacc());
+        this.setTerminalValue(update.getTerminalValue());
+        this.setEnterpriseValue(update.getEnterpriseValue());
+        this.setNetDebt(update.getNetDebt());
+        this.setDilutedSharesOutstanding(update.getDilutedSharesOutstanding());
+        this.setMarketPrice(update.getMarketPrice());
+        this.replacePeriodicData(update);
     }
 
     private void replacePeriodicData(DiscountedCashFlowInput update) {
-        updatePeriodicData(this.freeCashFlowHistorical, update.getFreeCashFlowHistorical());
-        updatePeriodicData(this.freeCashFlowProjected, update.getFreeCashFlowProjected());
+        updatePeriodicData(this.getHistoricalRevenue(), update.getHistoricalRevenue());
+        updatePeriodicData(this.getProjectedRevenue(), update.getProjectedRevenue());
+        updatePeriodicData(this.getHistoricalOperatingCashFlow(), update.getHistoricalOperatingCashFlow());
+        updatePeriodicData(this.getProjectedOperatingCashFlow(), update.getProjectedOperatingCashFlow());
+        updatePeriodicData(this.getHistoricalCapitalExpenditure(), update.getHistoricalCapitalExpenditure());
+        updatePeriodicData(this.getProjectedCapitalExpenditure(), update.getProjectedCapitalExpenditure());
+        updatePeriodicData(this.getHistoricalFreeCashFlow(), update.getHistoricalFreeCashFlow());
+        updatePeriodicData(this.getProjectedFreeCashFlow(), update.getProjectedFreeCashFlow());
     }
 
     private <T extends PeriodicData> void updatePeriodicData(List<T> current, List<T> update) {
