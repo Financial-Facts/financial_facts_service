@@ -441,6 +441,8 @@ components:
         limit:
           type: integer
           format: int32
+        keyword:
+          type: string
         sortBy:
           type: string
           enum:
@@ -477,24 +479,25 @@ components:
     SimpleDiscount:
       type: object
       properties:
+        cik:
+          pattern: "^[Cc][Ii][Kk]\\d{10}$"
+          type: string
         name:
           type: string
         symbol:
           type: string
         active:
           type: boolean
-        cik:
+        lastUpdated:
           type: string
-        ratioPrice:
+          format: date
+        stickerPrice:
           type: number
           format: double
-        tfySalePrice:
+        benchmarkRatioPrice:
           type: number
           format: double
-        ttySalePrice:
-          type: number
-          format: double
-        ttmSalePrice:
+        discountedCashFlowPrice:
           type: number
           format: double
     Discount:
@@ -511,16 +514,85 @@ components:
           type: string
         lastUpdated:
           type: string
+          format: date
         active:
           type: boolean
+        stickerPrice:
+          $ref: '#/components/schemas/StickerPrice'
         benchmarkRatioPrice:
           $ref: '#/components/schemas/BenchmarkRatioPrice'
-        stickPrice:
-          $ref: '#/components/schemas/StickerPrice'
+        discountedCashFlowPrice:
+          $ref: '#/components/schemas/DiscountedCashFlowPrice'
+    DiscountedCashFlowPrice:
+      type: object
+      properties:
+        price:
+          type: number
+          format: double
+        input:
+          $ref: '#/components/schemas/DiscountedCashFlowPriceInput'
+    DiscountedCashFlowPriceInput:
+      type: object
+      properties:
+        symbol:
+          type: string
+        longTermGrowthRate:
+          type: number
+          format: double
+        freeCashFlowT1:
+          type: number
+          format: double
+        wacc:
+          type: number
+          format: double
+        terminalValue:
+          type: number
+          format: double
+        enterpriseValue:
+          type: number
+          format: double
+        netDebt:
+          type: number
+        dilutedSharesOutstanding:
+          type: number
+        marketPrice:
+          type: number
+        historicalRevenue:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualValue'
+        projectedRevenue:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualValue'
+        historicalOperatingCashFlow:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualValue'
+        projectedOperatingCashFlow:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualValue'
+        historicalCapitalExpenditure:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualValue'
+        projectedCapitalExpenditure:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualValue'
+        historicalFreeCashFlow:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualValue'
+        projectedFreeCashFlow:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnualValue'
     BenchmarkRatioPrice:
       type: object
       properties:
-        ratioPrice:
+        price:
           type: number
           format: double
         input:
@@ -540,12 +612,9 @@ components:
     StickerPrice:
       type: object
       properties:
-        ttmPriceData:
-          $ref: '#/components/schemas/TtmPriceData'
-        tfyPriceData:
-          $ref: '#/components/schemas/TfyPriceData'
-        ttyPriceData:
-          $ref: '#/components/schemas/TtyPriceData'
+        price:
+          type: number
+          format: double
         input:
           $ref: '#/components/schemas/StickerPriceInput'
     StickerPriceInput:
@@ -557,32 +626,32 @@ components:
         annualBVPS:
           type: array
           items:
-            $ref: '#/components/schemas/AnnualBVPS'
+            $ref: '#/components/schemas/AnnualValue'
         annualPE:
           type: array
           items:
-            $ref: '#/components/schemas/AnnualPE'
+            $ref: '#/components/schemas/AnnualValue'
         annualEPS:
           type: array
           items:
-            $ref: '#/components/schemas/AnnualEPS'
+            $ref: '#/components/schemas/AnnualValue'
         annualROIC:
           type: array
           items:
-            $ref: '#/components/schemas/AnnualROIC'
+            $ref: '#/components/schemas/AnnualValue'
         annualEquity:
           type: array
           items:
-            $ref: '#/components/schemas/AnnualEquity'
+            $ref: '#/components/schemas/AnnualValue'
         annualRevenue:
           type: array
           items:
-            $ref: '#/components/schemas/AnnualRevenue'
+            $ref: '#/components/schemas/AnnualValue'
         annualOperatingCashFlow:
           type: array
           items:
-            $ref: '#/components/schemas/AnnualOperatingCashFlow'
-    AnnualBVPS:
+            $ref: '#/components/schemas/AnnualValue'
+    AnnualValue:
       type: object
       properties:
         announcedDate:
@@ -590,81 +659,6 @@ components:
           format: date
         value:
           type: number
-    AnnualEPS:
-      type: object
-      properties:
-        announcedDate:
-          type: string
-          format: date
-        value:
-          type: number
-    AnnualPE:
-      type: object
-      properties:
-        announcedDate:
-          type: string
-          format: date
-        value:
-          type: number
-    AnnualROIC:
-      type: object
-      properties:
-        announcedDate:
-          type: string
-          format: date
-        value:
-          type: number
-    AnnualEquity:
-      type: object
-      properties:
-        announcedDate:
-          type: string
-          format: date
-        value:
-          type: number
-    AnnualRevenue:
-      type: object
-      properties:
-        announcedDate:
-          type: string
-          format: date
-        value:
-          type: number
-    AnnualOperatingCashFlow:
-      type: object
-      properties:
-        announcedDate:
-          type: string
-          format: date
-        value:
-          type: number
-    TfyPriceData:
-      type: object
-      properties:
-        stickerPrice:
-          type: number
-          format: double
-        salePrice:
-          type: number
-          format: double
-    TtmPriceData:
-      type: object
-      properties:
-        stickerPrice:
-          type: number
-          format: double
-        salePrice:
-          type: number
-          format: double
-    TtyPriceData:
-      type: object
-      properties:
-        stickerPrice:
-          type: number
-          format: double
-        salePrice:
-          type: number
-          format: double
     Facts:
       type: object
       properties:

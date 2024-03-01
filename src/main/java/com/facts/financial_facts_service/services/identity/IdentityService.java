@@ -3,21 +3,18 @@ package com.facts.financial_facts_service.services.identity;
 import com.facts.financial_facts_service.constants.enums.ModelType;
 import com.facts.financial_facts_service.entities.identity.Identity;
 import com.facts.financial_facts_service.entities.identity.models.BulkIdentitiesRequest;
-import com.facts.financial_facts_service.entities.identity.models.SortBy;
 import com.facts.financial_facts_service.entities.identity.models.SortOrder;
 import com.facts.financial_facts_service.exceptions.DataNotFoundException;
 import com.facts.financial_facts_service.exceptions.InvalidRequestException;
-import com.facts.financial_facts_service.services.identity.comparators.IdentityCikComparator;
-import com.facts.financial_facts_service.services.identity.comparators.IdentityNameComparator;
-import com.facts.financial_facts_service.services.identity.comparators.IdentitySymbolComparator;
-import jakarta.annotation.PostConstruct;
+import com.facts.financial_facts_service.services.identity.comparators.IdentityComparator;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.Comparator;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,16 +27,6 @@ public class IdentityService {
 
     @Autowired
     ConcurrentHashMap<String, Identity> identityMap;
-
-    ConcurrentHashMap<SortBy, Comparator<Identity>> comparatorMap;
-
-    @PostConstruct
-    public void init() {
-        comparatorMap = new ConcurrentHashMap<>();
-        comparatorMap.put(SortBy.CIK, new IdentityCikComparator());
-        comparatorMap.put(SortBy.NAME, new IdentityNameComparator());
-        comparatorMap.put(SortBy.SYMBOL, new IdentitySymbolComparator());
-    }
 
     public Mono<Identity> getIdentityFromIdentityMap(String cik) {
         logger.info("In identity service getting identity for cik {}", cik);
@@ -54,17 +41,52 @@ public class IdentityService {
     public Mono<List<Identity>> getBulkIdentities(BulkIdentitiesRequest request) {
         logger.info("In identity service getting bulk identities for {}", request);
         checkIsValidBulkRequest(request);
+        Collection<Identity> identities = identityMap.values();
+
+        if (StringUtils.isNotBlank(request.getKeyword())) {
+            identities = filterByKeyword(request, identities);
+        }
+
         int limit = request.getLimit();
-        if (limit > identityMap.size()) {
-            limit = identityMap.size();
+        if (limit > identities.size()) {
+            limit = identities.size();
         }
-        Comparator<Identity> comparator = comparatorMap.get(request.getSortBy());
-        if (Objects.nonNull(request.getOrder()) && request.getOrder().equals(SortOrder.DESC)) {
-            comparator = comparator.reversed();
+
+        int startIndex = request.getStartIndex();
+        if (startIndex > limit) {
+            startIndex = limit;
         }
-        List<Identity> identities = identityMap.values().stream()
-                .sorted(comparator).toList().subList(request.getStartIndex(), limit);
-        return Mono.just(identities);
+
+        boolean reverseSort = Objects.nonNull(request.getOrder()) &&
+                request.getOrder().equals(SortOrder.DESC);
+
+        List<Identity> identityList = identities
+            .stream()
+            .sorted(new IdentityComparator(request.getSortBy(), reverseSort))
+            .toList()
+            .subList(startIndex, limit);
+
+        return Mono.just(identityList);
+    }
+
+    private Collection<Identity> filterByKeyword(
+        BulkIdentitiesRequest request,
+        Collection<Identity> identities
+    ) {
+        String keyword = request.getKeyword().toLowerCase();
+        return identities.stream().filter(identity -> {
+            if (Objects.nonNull(request.getSearchBy())) {
+                return switch (request.getSearchBy()) {
+                    case CIK -> identity.getCik().toLowerCase().contains(keyword);
+                    case SYMBOL -> identity.getSymbol().toLowerCase().contains(keyword);
+                    case NAME -> identity.getName().toLowerCase().contains(keyword);
+                };
+            }
+
+            return identity.getName().toLowerCase().contains(keyword) ||
+                    identity.getSymbol().toLowerCase().contains(keyword) ||
+                    identity.getCik().toLowerCase().contains(keyword);
+        }).toList();
     }
 
     private void checkIsValidBulkRequest(BulkIdentitiesRequest request) {
@@ -77,8 +99,8 @@ public class IdentityService {
         if (Objects.isNull(request.getSortBy())) {
             throw new InvalidRequestException("Invalid sort by in request");
         }
-        if (request.getLimit() - request.getStartIndex() > 100) {
-            request.setLimit(request.getStartIndex() + 100);
+        if (request.getLimit() - request.getStartIndex() > 1000) {
+            request.setLimit(request.getStartIndex() + 1000);
         }
     }
 }

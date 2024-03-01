@@ -7,6 +7,7 @@ public interface Queries {
             "a.symbol, " +
             "a.name, " +
             "a.active, " +
+            "a.last_updated AS \"LastUpdated\", " +
             "d.price AS \"discountedCashFlowPrice\", " +
             "b.price AS \"benchmarkRatioPrice\", " +
             "c.price AS \"stickerPrice\" " +

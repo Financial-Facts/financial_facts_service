@@ -35,7 +35,6 @@ public class IdentityServiceTest implements TestConstants {
     public void init() {
         identityService = new IdentityService();
         identityMap = new ConcurrentHashMap<>();
-        identityService.init();
         ReflectionTestUtils.setField(identityService, "identityMap", identityMap);
     }
 
