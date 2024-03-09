@@ -15,6 +15,7 @@ public interface Queries {
             "discounted_cash_flow_price d, " +
             "benchmark_ratio_price b, " +
             "sticker_price c " +
-            "WHERE a.cik=b.cik AND a.cik=c.cik AND a.cik=d.cik;";
+            "WHERE a.cik=b.cik AND a.cik=c.cik AND a.cik=d.cik " +
+            "ORDER BY a.last_updated DESC";
 
 }
