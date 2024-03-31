@@ -3,7 +3,6 @@
 This Java Spring Boot service is a robust and secure solution designed to communicate with a PostgreSQL database hosted on Amazon Web Services (AWS) Relational Database Service (RDS). The service is configured to leverage AWS Parameter Store, enhancing security by storing sensitive parameters separately and dynamically pulling them when needed. It utilizes a basic authorization scheme on internal endpoints utilized by other services and enforces strict rate limits on public endpoints that pass data to the UI. It is optimized for high call volume and scalability. This service is designed with micro sized RDS instances in mind to optimize pricing and resource consumption. To this end, strict handlers are in place to manage more costly transactions and static data is fetched from the public U.S. Securities and Exchange Commission (SEC) EDGAR API and cached for less costly transactions. It also features thorough unit tests triggered during the build process to assure consistent behavior across all scenarios.
 
 #### Dependency: [update facts lambda](https://github.com/Choochera/update_facts_lambda)
-#### Swagger: [financial facts service API documentation page](https://financial-facts.net/swagger-ui/index.html)
 
 ------
 
